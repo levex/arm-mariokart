@@ -4,6 +4,13 @@ Memory Map
 0x8000 growing downward, boot stack
 0x8000 growing upward, .text.boot section
 
+Hardware Map
+============
+
+UART0 base = 0x20201000
+GPIO base  = 0x20200000
+
+
 Section Map
 ==========
 
