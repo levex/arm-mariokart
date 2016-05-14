@@ -1,0 +1,18 @@
+Memory Map
+==========
+
+0x8000 growing downward, boot stack
+0x8000 growing upward, .text.boot section
+
+Section Map
+==========
+
+look into linker.ld, but generally
+
+/----------------------------------------------------------------------------\
+| .text.boot | boot code, can be reused later                                |
+| .text      | code that generally runs                                      |
+| .bss       | static, will eventually get zero'd by the .text.boot section  |
+| .data      | random access data, i.e. globals                              |
+| .data.boot | data section used by boot code only                           |
+\----------------------------------------------------------------------------/
