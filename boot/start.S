@@ -6,7 +6,10 @@ _start:
 	mov sp, #0x8000
 
 	// setup UART
-	bl uart_init
+	// bl uart_init
+
+	// Blink LEDs to check if it works
+	bl led_blinker
 
 	// ideally do more stuff here
 	bye:

@@ -8,6 +8,7 @@
  * Parameters:
  * r0 = Number of cycles
  *
+ * 5,000,000 = 500ms
  */
 .globl delay
 delay:
