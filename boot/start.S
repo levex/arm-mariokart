@@ -5,6 +5,9 @@ _start:
 	// setup stack
 	mov sp, #0x8000
 
+	// setup UART
+	bl uart_init
+
 	// ideally do more stuff here
 	bye:
 		b bye
