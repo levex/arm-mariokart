@@ -1,0 +1,64 @@
+Calling convention
+=================
+
+
+Caller
+------
+
+Use the instruction BL, it sets the LR (link register) to the next instruction
+and then loads PC (program counter) with the requested address, i.e.
+
+EXAMPLE
+{--
+
+bl derp
+add r1, r2, r3    // <---  this is the next instruction after derp returns
+
+derp:
+   .... // <--- return somehow, see later
+
+--}
+
+The caller may assume that none of their registers, except r0-4, have been
+messed around and the stack is in the same state.
+
+The return value is stored in r0.
+
+Arguments are passed in r0, r1, r2, r3, r4.
+(r0 being the first, r1 second, etc.)
+
+NOTE: r0,r1,r2,r3,r4 are generally regarded as scratch registers, i.e.
+      do whatever you want with it, the caller may not assume it will have
+      it's original values back
+
+Callee
+-------
+
+The callee must save the LR if it intends to call other functions, failure to
+do so will result in bogus returns.
+
+Arguments are in r0, r1, r2, r3, r4.
+
+Return value should be in r0.
+
+r0, r1, r2, r3, r4 are scratch registers unless they are arguments.
+
+All other registers must be saved appropriately.
+
+EXAMPLE
+{--
+
+uart_init:
+	push {lr}    // <--- save LR so we can return later
+	push {r5}  // <---- we use these regs, save them
+
+	// use arguments in r0, r1, r2, r3, r4 or regard as scratch
+
+	... // <--- do some work
+	mov r0, RETURN_VALUE  // <--- get our return values
+	
+	pop {r5}   // <--- restore used registers
+	pop {lr}   // <--- get our caller's LR
+	bx lr       // <--- return
+
+--}
