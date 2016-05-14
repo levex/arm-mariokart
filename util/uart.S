@@ -1,6 +1,9 @@
 .section ".text"
 
 // UART related code
+// Based on SPEC:
+// https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+// See Section 13, page 175.
 
 /*
  * First, we disable UART0 so we can safely setup the GPIO.
