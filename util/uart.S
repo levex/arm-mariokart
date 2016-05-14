@@ -80,10 +80,10 @@ uart_wait_ready_send:
 	ldr uart0_base, =0x20201000
 
 	// check UART0_FR
-	fail:
+	1:
 		ldr r1, [r0, #0x18]    // UART0_FR
 		ands r1, r1, #(1 << 5)
-		beq fail    // check if ands returned zero
+		beq 1 // check if ands returned zero
 
 	pop {r0-r1}
 	pop {lr}
@@ -100,11 +100,48 @@ uart_wait_ready_receive:
 	ldr uart0_base, =0x20201000
 
 	// check UART0_FR
-	fail:
+	1:
 		ldr r1, [r0, #0x18]    // UART0_FR
 		ands r1, r1, #(1 << 4)
-		beq fail    // check if ands returned zero
+		beq 1 // check if ands returned zero
 
 	pop {r0-r1}
+	pop {lr}
+	bx lr
+
+/*
+ * uart_get_byte - gets a byte from the UART, this one will wait until there
+ *                 is a byte available!
+ */
+uart_get_byte:
+	push {lr}
+	push {r1}
+
+	// busy wait
+	bl uart_wait_ready_receive
+	ldr r1, =0x20201000 // UART0_BASE
+	ldr r0, [r1, #0] // UART0_DR
+
+	pop {r1}
+	pop {lr}
+	bx lr
+
+/*
+ * uart_send_byte - Sends a byte on the UART, will wait until space is avail
+ * 
+ * Parameters:
+ * r0 contains the byte (HAS TO BE CLAMPED OTHERWISE BOOM)
+ */
+uart_send_byte:
+	push {lr}
+	push {r1}
+
+	// busy wait
+	bl uart_wait_ready_send
+	ldr r1, =0x20201000 // UART0_BASE
+
+	str r0, [r1, #0]
+
+	pop {r1}
 	pop {lr}
 	bx lr
