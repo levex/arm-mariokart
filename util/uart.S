@@ -70,3 +70,38 @@ uart_init:
  * uart_wait_ready_send - waits until you can send a byte
  */
 uart_wait_ready_send:
+	push {lr}
+	push {r0-r1}
+
+	uart0_base .req r0
+	ldr uart0_base, =0x20201000
+
+	// check UART0_FR
+	fail:
+		ldr r1, [r0, #0x18]    // UART0_FR
+		ands r1, r1, #(1 << 5)
+		beq fail    // check if ands returned zero
+
+	pop {r0-r1}
+	pop {lr}
+	bx lr
+
+/*
+ * uart_wait_ready_receive - waits until you can read a byte
+ */
+uart_wait_ready_receive:
+	push {lr}
+	push {r0-r1}
+
+	uart0_base .req r0
+	ldr uart0_base, =0x20201000
+
+	// check UART0_FR
+	fail:
+		ldr r1, [r0, #0x18]    // UART0_FR
+		ands r1, r1, #(1 << 4)
+		beq fail    // check if ands returned zero
+
+	pop {r0-r1}
+	pop {lr}
+	bx lr
