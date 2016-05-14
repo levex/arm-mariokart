@@ -72,6 +72,7 @@ uart_init:
 /*
  * uart_wait_ready_send - waits until you can send a byte
  */
+.globl uart_wait_ready_send
 uart_wait_ready_send:
 	push {lr}
 	push {r0-r1}
@@ -92,6 +93,7 @@ uart_wait_ready_send:
 /*
  * uart_wait_ready_receive - waits until you can read a byte
  */
+.globl uart_wait_ready_receive
 uart_wait_ready_receive:
 	push {lr}
 	push {r0-r1}
@@ -113,6 +115,7 @@ uart_wait_ready_receive:
  * uart_get_byte - gets a byte from the UART, this one will wait until there
  *                 is a byte available!
  */
+.globl uart_get_byte
 uart_get_byte:
 	push {lr}
 	push {r1}
@@ -132,6 +135,7 @@ uart_get_byte:
  * Parameters:
  * r0 contains the byte (HAS TO BE CLAMPED OTHERWISE BOOM)
  */
+.globl uart_send_byte
 uart_send_byte:
 	push {lr}
 	push {r1}
