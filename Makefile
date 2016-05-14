@@ -5,7 +5,9 @@ LD=arm-none-eabi-ld
 IMAGE=kart.img
 LINKERSCRIPT=linker.ld
 
-OBJS=boot/start.o
+SRCS = $(wildcard boot/*.S)
+SRCS += $(wildcard util/*.S)
+OBJS = $(SRCS:.S=.o)
 
 all: $(IMAGE)
 
