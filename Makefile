@@ -8,11 +8,16 @@ LINKERSCRIPT=linker.ld
 SRCS = $(wildcard boot/*.S)
 SRCS += $(wildcard util/*.S)
 OBJS = $(SRCS:.S=.o)
+OBJS += led.o
 
 all: $(IMAGE)
 
 clean:
 	-@rm $(OBJS) $(IMAGE)
+
+%.o: %.c
+	@echo "  CC       $@"
+	@$(CC) -c $< -o $@
 
 %.o: %.S
 	@echo "  AS       $@"
