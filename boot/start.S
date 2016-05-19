@@ -6,7 +6,16 @@ _start:
 	mov sp, #0x8000
 
 	// setup UART
-	// bl uart_init
+	bl uart_init
+
+	mov r0, #0x47 // G
+	bl uart_send_byte
+	mov r0, #0x32 // 2
+	bl uart_send_byte
+	mov r0, #0x34 // 4
+	bl uart_send_byte
+	mov r0, #0x0A // \n
+	bl uart_send_byte
 
 	// Blink LEDs to check if it works
 	bl led_blinker

@@ -10,7 +10,7 @@
  * For the moment being, we'll recode UART0 to GPIO #14-#15.
  * 
  */
-.global uart_init
+.globl uart_init
 uart_init:
 	push {lr}
 	push {r0-r3}
@@ -28,7 +28,7 @@ uart_init:
 	// Disable all U/D pull for GPIOs
 	str r1, [gpio_base, #0x94]        // GPPUD
 	push {r0}
-		mov r0, #100
+		mov r0, #150
 		bl delay
 	pop {r0}
 
@@ -36,11 +36,12 @@ uart_init:
 	mov r3, #((1 << 14) | (1 << 15))
 	str r3, [gpio_base, #0x98]        // GPPUDCLK0
 	push {r0}
-		mov r0, #100
+		mov r0, #150
 		bl delay
 	pop {r0}
 
 	// Reset clock now
+	mov r1, #0
 	str r1, [gpio_base, #0x98]        // GPPUDCLK0
 
 	// UART has to be clear of IRQs
@@ -81,10 +82,10 @@ uart_wait_ready_send:
 	ldr uart0_base, =0x20201000
 
 	// check UART0_FR
-	1:
+	lel:
 		ldr r1, [r0, #0x18]    // UART0_FR
 		ands r1, r1, #(1 << 5)
-		beq 1 // check if ands returned zero
+		bne lel // check if ands returned zero
 
 	pop {r0-r1}
 	pop {lr}
@@ -102,10 +103,10 @@ uart_wait_ready_receive:
 	ldr uart0_base, =0x20201000
 
 	// check UART0_FR
-	1:
+	lel2:
 		ldr r1, [r0, #0x18]    // UART0_FR
 		ands r1, r1, #(1 << 4)
-		beq 1 // check if ands returned zero
+		bne lel2 // check if ands returned zero
 
 	pop {r0-r1}
 	pop {lr}
@@ -139,13 +140,36 @@ uart_get_byte:
 uart_send_byte:
 	push {lr}
 	push {r1}
-
 	// busy wait
 	bl uart_wait_ready_send
 	ldr r1, =0x20201000 // UART0_BASE
 
 	str r0, [r1, #0]
 
+	pop {r1}
+	pop {lr}
+	bx lr
+
+/*
+ * uart_send_string - send an ASCIZ over UART
+ *
+ * Parameters:
+ * r0 contains the address of the ASCIZ string
+ */
+.globl uart_send_string
+uart_send_string:
+	push {lr}
+	push {r1}
+
+	mov r1, r0   // r1 = r0
+	dayum:
+		ldrb r0, [r1], #1   // r0 = *(r1 ++);
+		bl uart_send_byte   // else uart_send_byte(r0)
+		cmp r0, #0  // if (r0 == 0)
+		beq boom       //    goto 2;
+		b dayum         // goto 1
+
+	boom:
 	pop {r1}
 	pop {lr}
 	bx lr

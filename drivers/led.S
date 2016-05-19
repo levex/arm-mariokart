@@ -45,6 +45,10 @@ led_ok_turn_on:
     pop {lr}
     bx lr
 
+.align
+hello: .asciz "Hello, world!\n"
+.align
+
 .globl led_blinker
 led_blinker:
     bl led_ok_turn_on
@@ -52,9 +56,13 @@ led_blinker:
     ldr r0, =5000000
     bl delay
 
+    ldr r0, =hello
+    bl uart_send_string
+
     bl led_ok_turn_off
 
     ldr r0, =5000000
     bl delay
 
     b led_blinker
+

@@ -1,4 +1,4 @@
-AS=arm-none-eabi-as
+AS=arm-none-eabi-gcc
 CC=arm-none-eabi-gcc
 LD=arm-none-eabi-ld
 
@@ -17,7 +17,7 @@ clean:
 
 %.o: %.S
 	@echo "  AS       $@"
-	@$(AS) -c $< -o $@
+	@$(AS) -fPIC -mcpu=arm1176jzf-s -c $< -o $@
 
 $(IMAGE): $(OBJS)
 	@echo "  LD       $@"
