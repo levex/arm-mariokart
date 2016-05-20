@@ -1,8 +1,10 @@
 AS=arm-none-eabi-gcc
 CC=arm-none-eabi-gcc
 LD=arm-none-eabi-ld
+OBJCOPY=arm-none-eabi-objcopy
 
 IMAGE=kart.img
+RAW=kart.bin
 LINKERSCRIPT=linker.ld
 
 SRCS = $(wildcard boot/*.S)
@@ -10,16 +12,20 @@ SRCS += $(wildcard util/*.S)
 SRCS += $(wildcard drivers/*.S)
 OBJS = $(SRCS:.S=.o)
 
-all: $(IMAGE)
+all: $(RAW)
 
 clean:
 	-@rm $(OBJS) $(IMAGE)
 
 %.o: %.S
-	@echo "  AS       $@"
+	@echo "  AS            $@"
 	@$(AS) -fPIC -mcpu=arm1176jzf-s -c $< -o $@
 
 $(IMAGE): $(OBJS)
-	@echo "  LD       $@"
+	@echo "  LD            $@"
 	@$(LD) $(OBJS) -o $(IMAGE) -T $(LINKERSCRIPT)
+
+$(RAW): $(IMAGE)
+	@echo "  OBJCOPY       $@"
+	@$(OBJCOPY) $(IMAGE) -O binary $(RAW)
 
