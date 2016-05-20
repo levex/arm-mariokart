@@ -82,10 +82,10 @@ uart_wait_ready_send:
 	ldr uart0_base, =0x20201000
 
 	// check UART0_FR
-	lel:
+	1:
 		ldr r1, [r0, #0x18]    // UART0_FR
 		ands r1, r1, #(1 << 5)
-		bne lel // check if ands returned zero
+		bne 1b // check if ands returned zero
 
 	pop {r0-r1}
 	pop {lr}
@@ -103,10 +103,10 @@ uart_wait_ready_receive:
 	ldr uart0_base, =0x20201000
 
 	// check UART0_FR
-	lel2:
+	1:
 		ldr r1, [r0, #0x18]    // UART0_FR
 		ands r1, r1, #(1 << 4)
-		bne lel2 // check if ands returned zero
+		bne 1b // check if ands returned zero
 
 	pop {r0-r1}
 	pop {lr}
@@ -162,14 +162,14 @@ uart_send_string:
 	push {r1}
 
 	mov r1, r0   // r1 = r0
-	dayum:
+	1:
 		ldrb r0, [r1], #1   // r0 = *(r1 ++);
 		bl uart_send_byte   // else uart_send_byte(r0)
 		cmp r0, #0  // if (r0 == 0)
-		beq boom       //    goto 2;
-		b dayum         // goto 1
+		beq 2f //    goto 2;
+		b 1b // goto 1
 
-	boom:
+	2:
 	pop {r1}
 	pop {lr}
 	bx lr
