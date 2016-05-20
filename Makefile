@@ -3,6 +3,8 @@ CC=arm-none-eabi-gcc
 LD=arm-none-eabi-ld
 OBJCOPY=arm-none-eabi-objcopy
 
+ASFLAGS=-fPIC -mcpu=arm1176jzf-s
+
 IMAGE=kart.img
 RAW=kart.bin
 LINKERSCRIPT=linker.ld
@@ -19,7 +21,7 @@ clean:
 
 %.o: %.S
 	@echo "  AS            $@"
-	@$(AS) -fPIC -mcpu=arm1176jzf-s -c $< -o $@
+	@$(AS) $(ASFLAGS) -c $< -o $@
 
 $(IMAGE): $(OBJS)
 	@echo "  LD            $@"
