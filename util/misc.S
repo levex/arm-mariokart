@@ -21,3 +21,16 @@ delay:
 		ble delay_loop
 	pop {r1}
 	bx lr
+
+/* Execute a memory barrier */
+.globl memory_barrier
+memory_barrier:
+    push {r3}
+    mov r3, #0
+    mcr p15, 0, r3, C7, C6, 0
+    mcr p15, 0, r3, c7, c10, 0
+    mcr p15, 0, r3, c7, c14, 0
+    mcr p15, 0, r3, c7, c10, 4
+    mcr p15, 0, r3, c7, c10, 5
+    pop {r3}
+    mov pc, lr
