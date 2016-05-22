@@ -6,8 +6,8 @@
 gpu_framebuffer_struct:
     .word 640  /* width */
     .word 480  /* height */
-    .word 480  /* virtual (???) width */
-    .word 640  /* virtual (???) height */
+    .word 640  /* virtual (???) width */
+    .word 480  /* virtual (???) height */
     .word 000  /* pitch, not entirely sure what this is */
     .word 024  /* depth */
     .word 000  /* x_offset */
