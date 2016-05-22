@@ -30,4 +30,3 @@ $(IMAGE): $(OBJS)
 $(RAW): $(IMAGE)
 	@echo "  OBJCOPY       $@"
 	@$(OBJCOPY) $(IMAGE) -O binary $(RAW)
-

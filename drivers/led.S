@@ -46,7 +46,7 @@ led_ok_turn_on:
     bx lr
 
 .align
-hello: .asciz "Hello, world!\n"
+hello: .asciz "Hello, Lev!\n"
 .align
 
 .globl led_blinker
