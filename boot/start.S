@@ -17,6 +17,9 @@ _start:
 	mov r0, #0x0A // \n
 	bl uart_send_byte
 
+	// Initialize the framebuffer
+	bl fb_init
+
 	// Blink LEDs to check if it works
 	bl led_blinker
 
