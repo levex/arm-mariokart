@@ -12,6 +12,7 @@ LINKERSCRIPT=linker.ld
 SRCS = $(wildcard boot/*.S)
 SRCS += $(wildcard util/*.S)
 SRCS += $(wildcard drivers/*.S)
+SRCS += $(wildcard sprites/*.S)
 OBJS = $(SRCS:.S=.o)
 
 all: $(RAW)
