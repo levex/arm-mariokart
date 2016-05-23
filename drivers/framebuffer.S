@@ -61,6 +61,12 @@ fb_init:
     ldr r1, =240
     bl fb_put_pixel
 
+    mov r0, #0
+    mov r1, #0
+    mov r2, #100
+    mov r3, #100
+    bl fb_draw_line
+
     pop {r0, lr}
     mov pc, lr
 
@@ -89,15 +95,35 @@ fb_put_pixel:
 
 /*
  * fb_draw_line - draw line from (r0, r1) to (r2, r3)
+ * This uses Bresenham's line algorithm
  */
 .globl fb_draw_line
 fb_draw_line:
    push {r4, lr}
 
-   /* calculate slope */
-   sub r4, r2, r0 /* dX */
-   sub r5, r3, r1 /* dY */
-   /* WIP */
+   sub r4, r2, r0 // dx = x1 - x0
+   sub r5, r3, r1 // dy = y1 - y0
+   sub r6, r5, r4 // D = dy - dx
+   mov r7, r1 // y = y0
 
+   mov r8, r0 // x = x0
+   sub r2, r2, #1  // x1 = x1 -1
+   1:
+      cmp r8, r2
+      beq 2f
+      push {r0, r1, r2}
+        mov r0, r8
+        mov r1, r7
+	mov r2, #0x00FF00
+        bl fb_put_pixel
+      pop {r0, r1, r2}
+      cmp r8, #0    // if x >= 0
+        addge r7, r7, #1  // y += 1
+	subge r6, r6, r4  // D = D - dx
+      add r6, r6, r5
+      add r8, r8, #1
+      b 1b
+
+   2:
    pop {r4, lr}
    mov pc, lr
