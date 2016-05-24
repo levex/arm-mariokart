@@ -10,7 +10,7 @@ gpu_framebuffer_struct:
              .word 640  /* virtual (???) width */
              .word 480  /* virtual (???) height */
     pitch:   .word 000  /* pitch, not entirely sure what this is */
-             .word 024  /* depth */
+             .word 032  /* depth */
              .word 000  /* x_offset */
              .word 000  /* y_offset */
     fb_addr: .word 000  /* pointer to framebuffer, set by GPU */
@@ -36,27 +36,27 @@ fb_init:
     ldr r0, =framebuffer_acquired_str
     bl uart_send_string
 
-    ldr r2, =0xFF0000
+    ldr r2, =0xFF0000FF
     ldr r0, =320
     ldr r1, =240
     bl fb_put_pixel
 
-    ldr r2, =0x00FF00
+    ldr r2, =0x0000FF00
     ldr r0, =319
     ldr r1, =240
     bl fb_put_pixel
 
-    ldr r2, =0x00FF00
+    ldr r2, =0x00FF0000
     ldr r0, =318
     ldr r1, =240
     bl fb_put_pixel
 
-    ldr r2, =0x00FF00
+    ldr r2, =0x00FF0000
     ldr r0, =317
     ldr r1, =240
     bl fb_put_pixel
 
-    ldr r2, =0x00FF00
+    ldr r2, =0x00FF0000
     ldr r0, =316
     ldr r1, =240
     bl fb_put_pixel
@@ -82,7 +82,7 @@ fb_put_pixel:
     ldr r3, pitch
     mul r1, r1, r3 // y = y * pitch
 
-    mov r3, #3
+    mov r3, #4
     mul r0, r0, r3 // x = x * 3
 
     add r4, r0, r1  // r4 = 3x + y * pitch
@@ -99,7 +99,7 @@ fb_put_pixel:
  */
 .globl fb_draw_line
 fb_draw_line:
-   push {r4, lr}
+   push {r3-r7, lr}
 
    sub r4, r2, r0 // dx = x1 - x0
    sub r5, r3, r1 // dy = y1 - y0
@@ -114,7 +114,7 @@ fb_draw_line:
       push {r0, r1, r2}
         mov r0, r8
         mov r1, r7
-	mov r2, #0x00FF00
+	ldr r2, =0xFFFF0000
         bl fb_put_pixel
       pop {r0, r1, r2}
       cmp r8, #0    // if x >= 0
@@ -125,5 +125,5 @@ fb_draw_line:
       b 1b
 
    2:
-   pop {r4, lr}
+   pop {r3-r7, lr}
    mov pc, lr
