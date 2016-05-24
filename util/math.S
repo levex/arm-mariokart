@@ -176,19 +176,12 @@ mat_det_ext:
 */
 .globl max3
 max3:
-    push {lr}
+    cmp r0, r1
+    movlt r3, r1
+    movge r3, r0
+    cmp r2, r3
+    movgt r3, r2
 
-    push {r2}
-    bl max2
-    mov r0, r2
-    pop {r2}
-    mov r1, r2
-    push {r2}
-    bl max2
-    mov r3, r2
-    pop {r2}
-
-    pop {lr}
     bx lr
 
 /*
@@ -199,19 +192,12 @@ max3:
 */
 .globl min3
 min3:
-    push {lr}
+    cmp r0, r1
+    movlt r3, r0
+    movge r3, r1
+    cmp r2, r3
+    movlt r3, r2
 
-    push {r2}
-    bl min2
-    mov r0, r2
-    pop {r2}
-    mov r1, r2
-    push {r2}
-    bl min2
-    mov r3, r2
-    pop {r2}
-
-    pop {lr}
     bx lr
 
 
@@ -222,18 +208,10 @@ min3:
 
 .globl max2
 max2:
-    push {lr}
-
     cmp r0, r1
-    ble max2_end_r1
-    mov r2, r0
-    b max2_end
+    movlt r2, r1
+    movge r2, r0
 
-    max2_end_r1:
-        mov r2, r1
-
-    max2_end:
-    pop {lr}
     bx lr
 
 /*
@@ -243,18 +221,10 @@ max2:
 
 .globl min2
 min2:
-    push {lr}
-
     cmp r0, r1
-    ble min2_r0
-    mov r2, r1
-    b min2_end
+    movlt r2, r0
+    movge r2, r1
 
-    min2_r0:
-        mov r2, r0
-
-    min2_end:
-    pop {lr}
     bx lr
 
 /*
