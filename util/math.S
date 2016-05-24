@@ -16,26 +16,20 @@ mat_mult:
     mov r3, #0  //A row counter
     mmult_a_row:
         ldr r6, [r0]
-        mov r7, #4
-        mul r6, r7
-        cmp r3, r6
+        cmp r3, r6, LSL #4
         beq mmult_end
 
         mov r4, #0  //B col counter
     mmult_b_col:
         ldr r6, [r1, #4]
-        mov r7, #4
-        mul r6, r7
-        cmp r4, r6
+        cmp r4, r6, LSL #4
         beq mmult_b_col_end
 
         mov r5, #0   //B row counter
         mov r8, #0   //result accumulator
     mmult_element:
         ldr r6, [r1]
-        mov r7, #4
-        mul r6, r7
-        cmp r5, r6
+        cmp r5, r6, LSL #4
         beq mmult_element_end
 
         mov r6, #3
@@ -109,17 +103,13 @@ mat_add:
     mov r3, #0
     add_row_loop:
         ldr r5, [r0]
-        mov r6, #4
-        mul r5, r6
-        cmp r3, r5
+        cmp r3, r5, LSL #2
         beq add_end
 
         mov r4, #0
     add_col_loop:
         ldr r5, [r0, #4]
-        mov r6, #4
-        mul r5, r6
-        cmp r4, r5
+        cmp r4, r5, LSL #2
         beq add_end_col
 
         mov r5, #3
