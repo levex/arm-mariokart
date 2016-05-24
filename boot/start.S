@@ -19,7 +19,8 @@ _start:
 
 	// Initialize the framebuffer
 	bl fb_init
-
+    // Test rasterizer
+    bl triangle
 	// Blink LEDs to check if it works
 	bl led_blinker
 

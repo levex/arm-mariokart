@@ -65,7 +65,7 @@ fb_init:
     mov r1, #0
     mov r2, #100
     mov r3, #100
-    bl fb_draw_line
+//    bl fb_draw_line
 
     pop {r0, lr}
     mov pc, lr
