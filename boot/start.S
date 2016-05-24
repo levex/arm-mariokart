@@ -22,6 +22,7 @@ _start:
     // Test rasterizer
     bl triangle
 	// Blink LEDs to check if it works
+	mov r1, #0
 	bl led_blinker
 
 	// ideally do more stuff here

@@ -59,6 +59,20 @@ led_blinker:
     ldr r0, =hello
     bl uart_send_string
 
+    mov r0, r1
+    bl uart_send_int_dec
+    mov r0, #0x0A
+    bl uart_send_byte
+    mov r0, r1
+    bl uart_send_int_hex
+    mov r0, #0x0A
+    bl uart_send_byte
+    mov r0, r1
+    bl uart_send_int_bin
+    mov r0, #0x0A
+    bl uart_send_byte
+    add r1, r1, #1
+
     bl led_ok_turn_off
 
     ldr r0, =5000000
