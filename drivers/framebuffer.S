@@ -103,7 +103,7 @@ fb_draw_line:
 
    sub r4, r2, r0 // dx = x1 - x0
    sub r5, r3, r1 // dy = y1 - y0
-   sub r6, r5, r4 // D = dy - dx
+   sub r3, r5, r4 // D = dy - dx
    mov r7, r1 // y = y0
 
    mov r8, r0 // x = x0
@@ -119,8 +119,8 @@ fb_draw_line:
       pop {r0, r1, r2}
       cmp r8, #0    // if x >= 0
         addge r7, r7, #1  // y += 1
-	subge r6, r6, r4  // D = D - dx
-      add r6, r6, r5
+	subge r3, r3, r4  // D = D - dx
+      add r3, r3, r5
       add r8, r8, #1
       b 1b
 
