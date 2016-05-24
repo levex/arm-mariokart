@@ -5,7 +5,7 @@
 /* Matrix multiplication
 *  r0 pointer to matrix A
 *  r1 pointer to matrix B
-*  r2 pointer to matrix C -- result matrix
+*  r2 pointer to matrix C -- r8 matrix
 */
 
 .globl mat_mult
@@ -13,85 +13,134 @@ mat_mult:
     push {lr}
     push {r3-r8}
 
-    a_row .req r3
-    b_col .req r4
-    b_row .req r5
-    result .req r8
-
-    mov a_row, #0
-    matrix:
+    mov r3, #0  //A row counter
+    mmult_a_row:
         ldr r6, [r0]
         mov r7, #4
         mul r6, r7
-        cmp a_row, r6
-        beq end
+        cmp r3, r6
+        beq mmult_end
 
-        mov b_col, #0
-    row:
+        mov r4, #0  //B col counter
+    mmult_b_col:
         ldr r6, [r1, #4]
         mov r7, #4
         mul r6, r7
-        cmp b_col, r6
-        beq rowend
+        cmp r4, r6
+        beq mmult_b_col_end
 
-        mov b_row, #0
-        mov result, #0   //result
-    element:
-        ldr r6, [r1] //B row counter
+        mov r5, #0   //B row counter
+        mov r8, #0   //result accumulator
+    mmult_element:
+        ldr r6, [r1]
         mov r7, #4
         mul r6, r7
-        cmp b_row, r6
-        beq elementEnd
+        cmp r5, r6
+        beq mmult_element_end
 
         mov r6, #3
-        mul r6, a_row  //r7 = A row * 3
-        add r6, b_row      //r7 = A row * 3 + B row
+        mul r6, r3  //r7 = A row * 3
+        add r6, r5      //r7 = A row * 3 + B row
         add r6, #8         //r7 = &A + r7
         ldr r7, [r0, r6]  //r6 = A[A row * 3 + B row]
 
         mov r6, #3
-        mul r6, b_row       //r7 = B row * 3
-        add r6, b_col       //r7 = B row * 3 + B col
+        mul r6, r5       //r7 = B row * 3
+        add r6, r4       //r7 = B row * 3 + B col
         add r6, #8          //r7 = &B + r7
         ldr r6, [r1, r6]  //r7 = B[B row * 3 + B col]
 
         mul r6, r7
-        add result, r6      //add to the result
+        add r8, r6      //add to the r8
 
-        add b_row, #4      //inc B row counter
-        b element
+        add r5, #4      //inc B row counter
+        b mmult_element
 
-    elementEnd:
+    mmult_element_end:
         mov r6, #3
-        mul r6, a_row
-        add r6, b_col
+        mul r6, r3
+        add r6, r4
         add r6, r2
-        str result, [r6, #8]
+        str r8, [r6, #8]
 
-        add b_col, #4
-        b row
+        add r4, #4  //increment B col counter
+        b mmult_b_col
 
-    rowend:
-        add a_row, #4
-        b matrix
+    mmult_b_col_end:
+        add r3, #4  //increment A row counter
+        b mmult_a_row
 
-    end:
+    mmult_end:
     pop {r3-r8}
     pop {lr}
     bx lr
 
 
-.globl mat_mult_test
-mat_mult_test:
+.globl mat_add_test
+mat_add_test:
     push {lr}
     push {r0-r2}
 
     ldr r0, =matA
     ldr r1, =matB
     ldr r2, =matC
-    bl mat_mult
+    bl mat_add
+
+    ldr r0, [r2, #8]
+    add r0, #48
+    bl uart_send_byte
 
     pop {r0-r2}
+    pop {lr}
+    bx lr
+
+
+/* Matrix addition
+*  r0 - matrix A
+*  r1 - matrix B
+*  r2 - matrix C - result
+*/
+
+.globl mat_add
+mat_add:
+    push {lr}
+    push {r3-r7}
+
+    mov r3, #0
+    add_row_loop:
+        ldr r5, [r0]
+        mov r6, #4
+        mul r5, r6
+        cmp r3, r5
+        beq add_end
+
+        mov r4, #0
+    add_col_loop:
+        ldr r5, [r0, #4]
+        mov r6, #4
+        mul r5, r6
+        cmp r4, r5
+        beq add_end_col
+
+        mov r5, #3
+        mul r5, r3
+        add r5, r4
+        add r5, #8
+
+        ldr r6, [r0, r5]
+        ldr r7, [r1, r5]
+        add r6, r7
+        str r6, [r2, r5]
+
+        add r4, #4
+        b add_col_loop
+
+    add_end_col:
+        add r3, #4
+        b add_row_loop
+
+    add_end:
+    pop {r3-r7}
     pop {lr}
     bx lr
 
