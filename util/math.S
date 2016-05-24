@@ -257,6 +257,42 @@ min2:
     pop {lr}
     bx lr
 
+/*
+ * udiv - does unsigned division of r0 / r1
+ *
+ * result is stored in r0
+ */
+.globl udiv
+udiv:
+    push {r1-r3}
+
+    clz r2, r1
+    clz r3, r0
+    subs r2, r3
+    lsl r3, r1, r2
+    mov r1, r0
+    mov r0, #0
+    blt 3f
+
+    1:
+        cmp r1, r3
+        blt 2f
+
+        add r0, r0, #1
+        subs r1, r3
+        lsleq r0, r2
+        beq 3f
+    2:
+        subs r2, #1
+        lsrge r3, #1
+        lslge r0, #1
+        bge 1b
+
+
+    3:
+    pop {r1-r3}
+    bx lr
+
 matA:
     .word 3, 3
     .word 1, 1, 1
