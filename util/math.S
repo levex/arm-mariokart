@@ -70,17 +70,15 @@ mat_mult:
     bx lr
 
 
-.globl mat_add_test
-mat_add_test:
+.globl mat_det_test
+mat_det_test:
     push {lr}
     push {r0-r2}
 
-    ldr r0, =matA
-    ldr r1, =matB
-    ldr r2, =matC
-    bl mat_add
+    ldr r0, =matB
+    bl mat_det_ext
 
-    ldr r0, [r2, #8]
+    mov r0, r1
     add r0, #48
     bl uart_send_byte
 
@@ -134,6 +132,41 @@ mat_add:
     pop {lr}
     bx lr
 
+
+/* Computes determinant of 3x3
+*  matrix with bottom row with only
+*  ones.
+*  Address of matrix is stored in r0
+*  result is stored in r1
+*/
+
+.globl mat_det_ext
+mat_det_ext:
+    push {lr}
+    push {r2-r8}
+
+    add r0, #8
+
+    ldmia r0, {r2,r3,r4,r5,r6,r7}
+    mul r2, r2, r6
+    mul r5, r5, r4
+    mul r3, r3, r7
+    add r2, r5
+    add r2, r3
+
+    ldmia r0, {r3,r4,r5,r6,r7,r8}
+    mul r5, r5, r7
+    mul r4, r4, r6
+    mul r3, r3, r8
+    add r3, r4
+    add r3, r5
+
+    sub r1, r2, r3
+
+    pop {r2-r8}
+    pop {lr}
+    bx lr
+
 matA:
     .word 3, 3
     .word 1, 1, 1
@@ -142,8 +175,8 @@ matA:
 
 matB:
     .word 3, 3
-    .word 1, 1, 1
-    .word 1, 1, 1
+    .word 2, 2, 2
+    .word 3, 3, 3
     .word 1, 1, 1
 
 matC:
