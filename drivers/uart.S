@@ -173,3 +173,87 @@ uart_send_string:
 	pop {r1}
 	pop {lr}
 	bx lr
+
+/*
+ * uart_send_int - sends an int stored in r0 over UART
+ *
+ * Parameters:
+ * r0 contains the number to be sent
+ * r1 contains the base to use (must be between 2 and 36)
+ */
+.globl uart_send_int
+uart_send_int:
+    push {lr}
+    push {r2-r4}
+
+    mov r4, #0
+    mov r2, r0
+    cmp r2, #0
+    bge 1f
+    mov r0, #0x2D       // ascii code of '-'
+    bl uart_send_byte
+    neg r2, r2
+
+    1:
+        mov r0, r2
+        bl udiv
+        mov r3, r0
+        mul r0, r1, r3
+        sub r0, r2, r0
+        push {r0}
+        add r4, #1
+        cmp r3, #0
+        beq 2f
+        mov r2, r3
+        b 1b
+
+    2:
+        pop {r0}
+        cmp r0, #10
+        addlt r0, #0x30  // if r0 < 10, add it to ascii code of '0' to get char
+        subge r0, #10    // else remove 10
+        addge r0, #0x41  // and add ascii code of 'A' to get hex value
+        bl uart_send_byte
+        sub r4, #1
+        cmp r4, #0
+        bne 2b
+
+    pop {r2-r4}
+    pop {lr}
+    bx lr
+
+.globl uart_send_int_bin
+uart_send_int_bin:
+    push {lr}
+    push {r1}
+
+    mov r1, #2
+    bl uart_send_int
+
+    pop {r1}
+    pop {lr}
+    bx lr
+
+.globl uart_send_int_dec
+uart_send_int_dec:
+    push {lr}
+    push {r1}
+
+    mov r1, #10
+    bl uart_send_int
+
+    pop {r1}
+    pop {lr}
+    bx lr
+
+.globl uart_send_int_hex
+uart_send_int_hex:
+    push {lr}
+    push {r1}
+
+    mov r1, #16
+    bl uart_send_int
+
+    pop {r1}
+    pop {lr}
+    bx lr
