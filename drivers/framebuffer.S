@@ -93,6 +93,29 @@ fb_put_pixel:
     pop {r3, r4, lr}
     mov pc, lr
 
+.globl fb_clear
+fb_clear:
+    push {r0, r1, r2}
+
+    ldr r0, =gpu_framebuffer_struct
+    ldr r1, [r0, #4]
+
+    ldr r0, pitch
+    mul r0, r0, r1
+
+    mov r1, #0x00000000
+
+    ldr r2, fb_addr
+
+    1:
+        sub r0, #4
+        str r1, [r2, r0]
+        cmp r0, #0
+        bne 1b
+
+    pop {r0, r1, r2}
+    mov pc, lr
+
 /*
  * fb_draw_line - draw line from (r0, r1) to (r2, r3)
  * This uses Bresenham's line algorithm
