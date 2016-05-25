@@ -15,6 +15,8 @@ SRCS += $(wildcard drivers/*.S)
 SRCS += $(wildcard sprites/*.S)
 OBJS = $(SRCS:.S=.o)
 
+SPRITES = $(wildcard sprites/*.bmp)
+
 all: $(RAW)
 
 clean:
@@ -24,10 +26,12 @@ clean:
 	@echo "  AS            $@"
 	@$(AS) $(ASFLAGS) -c $< -o $@
 
-$(IMAGE): $(OBJS)
+$(IMAGE): $(OBJS) $(SPRITES)
 	@echo "  LD            $@"
 	@$(LD) $(OBJS) -o $(IMAGE) -T $(LINKERSCRIPT)
 
 $(RAW): $(IMAGE)
 	@echo "  OBJCOPY       $@"
 	@$(OBJCOPY) $(IMAGE) -O binary $(RAW)
+	@echo ""
+	@echo "Sprites compiled in: $(SPRITES)"
