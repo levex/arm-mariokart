@@ -59,6 +59,8 @@ led_blinker:
     ldr r0, =hello
     bl uart_send_string
 
+    bl triangle_test
+
     mov r0, r1
     bl uart_send_int_dec
     mov r0, #0x0A
@@ -77,6 +79,8 @@ led_blinker:
 
     ldr r0, =5000000
     bl delay
+
+    bl fb_clear
 
     b led_blinker
 
