@@ -124,20 +124,16 @@ triangle:
 */
 .globl load_3x
 load_3x:
-    push {lr}
     ldr r0, [r0]
     ldr r1, [r1]
     ldr r2, [r2]
-    pop {lr}
     bx lr
 
 .globl load_3y
 load_3y:
-    push {lr}
     ldr r0, [r0, #4]
     ldr r1, [r1, #4]
     ldr r2, [r2, #4]
-    pop {lr}
     bx lr
 
 /*
@@ -150,7 +146,6 @@ load_3y:
 
 .globl edge_f
 edge_f:
-    push {lr}
     push {r4-r11}
 
     ldmia r0, {r4,r5}
@@ -170,7 +165,6 @@ edge_f:
     mov r3, r10
 
     pop {r4-r11}
-    pop {lr}
     bx lr
 
 /*
@@ -181,7 +175,6 @@ edge_f:
 */
 .globl create_pixel
 create_pixel:
-    push {lr}
     push {r2}
 
     ldr r2, =vertP
@@ -189,7 +182,6 @@ create_pixel:
     str r1, [r2, #4]
 
     pop {r2}
-    pop {lr}
     bx lr
 
 
