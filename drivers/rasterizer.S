@@ -151,33 +151,25 @@ load_3y:
 .globl edge_f
 edge_f:
     push {lr}
-    push {r4-r9}
+    push {r4-r11}
 
     ldmia r0, {r4,r5}
     ldmia r1, {r6,r7}
     ldmia r2, {r8,r9}
 
-    ldr r3, =oneBottomMat
-    add r3, #8
-    str r4, [r3]
-    str r5, [r3, #12]
+    sub r10, r7, r9
+    mul r10, r10, r4
+    sub r11, r8, r6
+    mul r11, r11, r5
+    add r10, r10, r11
+    mul r6, r6, r9
+    mul r7, r7, r8
+    add r10, r10, r6
+    sub r10, r10, r7
 
-    add r3, #4
-    str r6, [r3]
-    str r7, [r3, #12]
+    mov r3, r10
 
-    add r3, #4
-    str r8, [r3]
-    str r9, [r3, #12]
-
-    sub r3, #16
-    push {r0-r1}
-        mov r0, r3
-        bl mat_det_ext
-        mov r3, r1
-    pop {r0-r1}
-
-    pop {r4-r9}
+    pop {r4-r11}
     pop {lr}
     bx lr
 
