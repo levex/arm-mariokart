@@ -10,7 +10,7 @@ gpu_framebuffer_struct:
              .word 640  /* virtual (???) width */
              .word 480  /* virtual (???) height */
     pitch:   .word 000  /* pitch, not entirely sure what this is */
-             .word 032  /* depth */
+             .word  32  /* depth */
              .word 000  /* x_offset */
              .word 000  /* y_offset */
     fb_addr: .word 000  /* pointer to framebuffer, set by GPU */
