@@ -2,6 +2,83 @@
 
 //Math functions
 
+
+/* Returns a translation matrix. Arguments:
+*  r0 - translation amount in X direction
+*  r1 - translation amount in Y direction
+*  r2 - translation amount in Z direction
+*  r3 - pointer to 4x4 matrix reprenenting the translation
+*/
+.globl get_translation_matrix
+get_translation_matrix:
+    push {lr}
+    push {r4-r5}
+
+    mov r4, #0
+    mov r5, #1
+
+    str r5, [r3]       ; 1
+    str r4, [r3, #4]   ; 0
+    str r4, [r3, #8]   ; 0
+    str r0, [r3, #12]  ; X
+
+    str r4, [r3, #16]  ; 0
+    str r5, [r3, #20]  ; 1
+    str r4, [r3, #24]  ; 0
+    str r1, [r3, #28]  ; Y
+
+    str r4, [r3, #32]  ; 0
+    str r4, [r3, #36]  ; 0
+    str r5, [r3, #40]  ; 1
+    str r2, [r3, #44]  ; Z
+    
+    str r4, [r3, #48]  ; 0
+    str r4, [r3, #52]  ; 0
+    str r4, [r3, #56]  ; 0
+    str r5, [r3, #60]  ; 1
+
+    pop {r4-r5}
+    pop {lr}
+    bx lr
+
+/* Returns a scaling matrix. Arguments:
+*  r0 - scaling amount in X direction
+*  r1 - scaling amount in Y direction
+*  r2 - scaling amount in Z direction
+*  r3 - pointer to 4x4 matrix reprenenting the scaling
+*/
+.globl get_scaling_matrix
+get_scaling_matrix:
+    push {lr}
+    push {r4}
+
+    mov r4, #0
+    mov r5, #1
+
+    str r0, [r3]       ; X
+    str r4, [r3, #4]   ; 0
+    str r4, [r3, #8]   ; 0
+    str r4, [r3, #12]  ; 0
+
+    str r4, [r3, #16]  ; 0
+    str r1, [r3, #20]  ; Y
+    str r4, [r3, #24]  ; 0
+    str r4, [r3, #28]  ; 0
+
+    str r4, [r3, #32]  ; 0
+    str r4, [r3, #36]  ; 0
+    str r2, [r3, #40]  ; Z
+    str r4, [r3, #44]  ; 0
+    
+    str r4, [r3, #48]  ; 0
+    str r4, [r3, #52]  ; 0
+    str r4, [r3, #56]  ; 0
+    str r5, [r3, #60]  ; 1
+
+    pop {r4}
+    pop {lr}
+    bx lr
+
 /* Matrix multiplication
 *  r0 pointer to matrix A
 *  r1 pointer to matrix B
