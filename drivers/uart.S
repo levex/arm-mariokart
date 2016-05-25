@@ -257,3 +257,14 @@ uart_send_int_hex:
     pop {r1}
     pop {lr}
     bx lr
+
+.globl uart_send_newline
+uart_send_newline:
+    push {r0, lr}
+
+    mov r0, #'\n'
+    bl uart_send_byte
+    mov r0, #'\r'
+    bl uart_send_byte
+
+    pop {r0, pc}
