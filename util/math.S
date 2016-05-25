@@ -162,6 +162,7 @@ mat_det_ext:
     add r3, r5
 
     sub r1, r2, r3
+    sub r0, #8
 
     pop {r2-r8}
     pop {lr}

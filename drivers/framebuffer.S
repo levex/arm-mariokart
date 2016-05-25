@@ -83,9 +83,9 @@ fb_put_pixel:
     mul r1, r1, r3 // y = y * pitch
 
     mov r3, #4
-    mul r0, r0, r3 // x = x * 3
+    mul r0, r0, r3 // x = x * 4
 
-    add r4, r0, r1  // r4 = 3x + y * pitch
+    add r4, r0, r1  // r4 = 4x + y * pitch
 
     ldr r3, fb_addr
     str r2, [r3, r4]
