@@ -3,7 +3,7 @@ CC=arm-none-eabi-gcc
 LD=arm-none-eabi-ld
 OBJCOPY=arm-none-eabi-objcopy
 
-ASFLAGS=-fPIC -mcpu=arm1176jzf-s
+ASFLAGS=-fPIC -mcpu=arm1176jzf-s -mfpu=vfpv3
 
 IMAGE=kart.img
 RAW=kart.bin
