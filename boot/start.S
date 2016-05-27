@@ -23,7 +23,7 @@ _start:
         // Test rasterizer
         //bl triangle_test
 
-	ldr r0, =mario_face
+	ldr r0, =sky_pbmp
 	bl pbmp_draw
 
 	// Blink LEDs to check if it works
