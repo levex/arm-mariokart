@@ -4,6 +4,49 @@
 //  I guess function is pretty obivous from name
 
 
+/*  TECHNICAL NOTES
+*
+*   Functions are not making changes to the input arguments!
+*   Colors are in format 0xRRGGBB
+*/
+
+
+.globl vfp_test
+vfp_test:
+    push {lr}
+    push {r0-r2}
+
+    //enable vfp in secure mode
+    LDR r0, =(0xF << 20)
+    MCR p15, 0, r0, c1, c0, 2
+
+    //enable FP processor in general
+    //EN bit in FPEXC
+    MOV r3, #0x40000000
+    VMSR FPEXC, r3
+
+    //do whatever you want with VFP :D
+    mov r0, #6
+    mov r1, #2
+
+    //set STRIDE = 0 and LEN = 0
+    vmrs r2, FPSCR
+    and r2, #0xFFC8FFFF
+    vmsr FPSCR, r2
+
+    //move some stuff into VFP
+    vmov s0, r0
+    vmov s1, r1
+    //read back
+    vmov r0, s0
+
+    add r0, #48
+    bl uart_send_byte
+
+    pop {r0-r2}
+    pop {lr}
+    bx lr
+
 .globl triangle_test
 triangle_test:
     push {lr}
@@ -11,6 +54,12 @@ triangle_test:
     ldr r1, =vertB
     ldr r2, =vertC
     bl triangle
+
+    ldr r0, =vertD
+    ldr r1, =vertE
+    ldr r2, =vertF
+    bl triangle
+
     pop {lr}
     bx lr
 
@@ -100,7 +149,7 @@ triangle:
         push {r0-r2}
             mov r0, r9
             mov r1, r8
-            ldr r2, =0x0000FF00
+            ldr r2, =0x000000FF
             bl fb_put_pixel
         pop {r0-r2}
 
@@ -185,15 +234,24 @@ create_pixel:
     bx lr
 
 
-//Triangle vertices - x | y coord
+//Triangle vertices - x | y coord, u | v texture coord
 vertA:
-    .word 70, 100
+    .word 70, 100, 0, 1
 
 vertB:
-    .word 140, 100
+    .word 140, 100, 1, 1
 
 vertC:
-    .word 100, 200
+    .word 100, 200, 0, 0
+
+vertD:
+    .word 160, 200, 0, 0
+
+vertE:
+    .word 200, 200, 1, 0
+
+vertF:
+    .word 200, 120, 1, 1
 
 vertP:
     .word 0, 0
