@@ -48,4 +48,4 @@ $(RAW): $(IMAGE)
 	@echo "  OBJCOPY       $@"
 	@$(OBJCOPY) $(IMAGE) -O binary $(RAW)
 	@echo ""
-	@echo "Sprites compiled in: $(SPRITES)"
+	@echo "Sprites compiled in: $(subst sprites/,,$(SPRITES))"

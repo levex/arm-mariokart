@@ -77,7 +77,7 @@ fb_init:
  */
 .globl fb_put_pixel
 fb_put_pixel:
-    push {r3, r4, lr}
+    push {r0-r4, lr}
 
     ldr r3, pitch
     mul r1, r1, r3 // y = y * pitch
@@ -90,7 +90,7 @@ fb_put_pixel:
     ldr r3, fb_addr
     str r2, [r3, r4]
 
-    pop {r3, r4, lr}
+    pop {r0-r4, lr}
     mov pc, lr
 
 .globl fb_clear

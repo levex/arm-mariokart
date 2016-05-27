@@ -48,13 +48,17 @@ int main (int argc, char *argv[]) {
 	uint32_t *color = (uint32_t *) (buf + sizeof(struct bm_file_header)
 		              + bdh->bdh_header_size);
 	char *data = buf + bmf->bmf_pixdataoff;
+	int w = out[0];
+	int h = out[1];
+
 	for (x = 0; x < bdh->bdh_im_width; x ++) {
 		for (y = 0; y < bdh->bdh_im_height; y ++) {
 			uint8_t d = data[x + y * bdh->bdh_im_width];
-			out[2 + x + y * bdh->bdh_im_width]
+			out[2 + x + (h - y) * bdh->bdh_im_width]
 				= color[d];
 		}
 	}
+
 	fdout = open(argv[2], O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
 	write(fdout, out, 8 + bdh->bdh_im_width * bdh->bdh_im_height * 4);
 
