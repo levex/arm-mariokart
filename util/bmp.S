@@ -1,4 +1,5 @@
 .section ".text"
+.include "drivers/pixel.S"
 
 /* bmp.S
  * 
@@ -106,7 +107,7 @@ bmp_draw:
      mov r0, r4   // r0 = x
      mov r1, r5   // r1 = y
      // r2 = real color
-     bl fb_put_pixel // put pixel
+     put_pixel // put pixel
    pop {r0, r1}
    mov r2, r9  // r2 = r9 = width
    add r4, r4, #1 // x = x + 1

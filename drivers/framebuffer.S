@@ -1,4 +1,5 @@
 .section ".text"
+.include "drivers/pixel.S"
 
 // Framebuffer driver
 // Requests a framebuffer address using the mailbox
@@ -36,84 +37,81 @@ fb_init:
     ldr r0, =framebuffer_acquired_str
     bl uart_send_string
 
-    ldr r2, =0xFF0000FF
-    ldr r0, =320
-    ldr r1, =240
-    bl fb_put_pixel
-
-    ldr r2, =0x0000FF00
-    ldr r0, =319
-    ldr r1, =240
-    bl fb_put_pixel
-
-    ldr r2, =0x00FF0000
-    ldr r0, =318
-    ldr r1, =240
-    bl fb_put_pixel
-
-    ldr r2, =0x00FF0000
-    ldr r0, =317
-    ldr r1, =240
-    bl fb_put_pixel
-
-    ldr r2, =0x00FF0000
-    ldr r0, =316
-    ldr r1, =240
-    bl fb_put_pixel
-
-    mov r0, #0
-    mov r1, #0
-    mov r2, #100
-    mov r3, #100
-//    bl fb_draw_line
+    ldr r12, fb_addr
 
     pop {r0, lr}
     mov pc, lr
 
 /*
- * fb_put_pixel -> put r2 at (r0, r1), (x, y)
+ * Copies a rectangle of data onto the framebuffer
  *
- * Does not handle out of range!
+ * Parameters:
+ * r0 - starting x
+ * r1 - starting y
+ * r2 - pointer to data
+ * r3 - width
+ * r4 - height
  */
-.globl fb_put_pixel
-fb_put_pixel:
-    push {r0-r4, lr}
+.globl fb_copy_rect
+fb_copy_rect:
+    push {r3-r5}
+    ldr r10, pitch
+    mul r10, r1, r10 // r10 = y * pitch
+    add r10, r0, lsl #2  // r10 = 4x + y * pitch
+    add r10, r12, r10
+    mov r0, r10
+    ldr r5, pitch
+    sub r5, r3
+    sub r5, r3
+    sub r5, r3
+    sub r5, r3
+    mov r1, r5
 
-    ldr r3, pitch
-    mul r1, r1, r3 // y = y * pitch
+    mov r11, r3
 
-    mov r3, #4
-    mul r0, r0, r3 // x = x * 4
+    1:
+        pld [r2, #0xC0]
+        vldm r2!, {d0-d7}
+        vstm r10!, {d0-d7}
+        subs r3, #16
+        addle r10, r5
+        movle r3, r11
+        suble r4, #1
+        cmp r4, #0
+        bne 1b
 
-    add r4, r0, r1  // r4 = 4x + y * pitch
-
-    ldr r3, fb_addr
-    str r2, [r3, r4]
-
-    pop {r0-r4, lr}
+    pop {r3-r5}
     mov pc, lr
 
 .globl fb_clear
 fb_clear:
-    push {r0, r1, r2}
+    push {r0-r9}
 
     ldr r0, =gpu_framebuffer_struct
     ldr r1, [r0, #4]
 
     ldr r0, pitch
-    mul r0, r0, r1
+    mul r1, r0, r1
 
-    mov r1, #0x00000000
+    ldr r0, fb_addr
 
-    ldr r2, fb_addr
+    add r1, r1, r0
+
+    mov r2, #0
+    mov r3, #0
+    mov r4, #0
+    mov r5, #0
+    mov r6, #0
+    mov r7, #0
+    mov r8, #0
+    mov r9, #0
 
     1:
-        sub r0, #4
-        str r1, [r2, r0]
-        cmp r0, #0
-        bne 1b
+        stmia r0!, {r2-r9}
+        cmp r0, r1
+        blt 1b
 
-    pop {r0, r1, r2}
+    pop {r0-r9}
     mov pc, lr
 
 /*
@@ -137,12 +135,12 @@ fb_draw_line:
       push {r0, r1, r2}
         mov r0, r8
         mov r1, r7
-	ldr r2, =0xFFFF0000
-        bl fb_put_pixel
+        ldr r2, =0xFFFF0000
+        put_pixel
       pop {r0, r1, r2}
       cmp r8, #0    // if x >= 0
         addge r7, r7, #1  // y += 1
-	subge r3, r3, r4  // D = D - dx
+      subge r3, r3, r4  // D = D - dx
       add r3, r3, r5
       add r8, r8, #1
       b 1b
@@ -150,3 +148,4 @@ fb_draw_line:
    2:
    pop {r3-r7, lr}
    mov pc, lr
+

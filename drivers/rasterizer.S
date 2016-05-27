@@ -1,4 +1,5 @@
 .section ".text"
+.include "drivers/pixel.S"
 
 //  Triangle rasterizer
 //  I guess function is pretty obivous from name
@@ -24,7 +25,7 @@ triangle_test:
 .globl triangle
 triangle:
     push {lr}
-    push {r3-r12}
+    push {r3-r11}
 
     push {r0-r2}
         bl load_3x
@@ -101,7 +102,7 @@ triangle:
             mov r0, r9
             mov r1, r8
             ldr r2, =0x0000FF00
-            bl fb_put_pixel
+            put_pixel
         pop {r0-r2}
 
     box_next_pixel:
@@ -113,7 +114,7 @@ triangle:
         b box_row
 
     box_end:
-    pop {r3-r12}
+    pop {r3-r11}
     pop {lr}
     bx lr
 
