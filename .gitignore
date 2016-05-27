@@ -1,3 +1,5 @@
 *.img
 *.o
 *.bin
+*.pbmp
+bmpconv

@@ -5,6 +5,9 @@ OBJCOPY=arm-none-eabi-objcopy
 
 ASFLAGS=-fPIC -mcpu=arm1176jzf-s -mfpu=vfpv3
 
+HOSTCCFLAGS=
+HOSTCC=gcc
+
 IMAGE=kart.img
 RAW=kart.bin
 LINKERSCRIPT=linker.ld
@@ -16,17 +19,28 @@ SRCS += $(wildcard sprites/*.S)
 OBJS = $(SRCS:.S=.o)
 
 SPRITES = $(wildcard sprites/*.bmp)
+SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
 
 all: $(RAW)
 
 clean:
-	-@rm $(OBJS) $(IMAGE)
+	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv
+
+sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
 
 %.o: %.S
 	@echo "  AS            $@"
 	@$(AS) $(ASFLAGS) -c $< -o $@
 
-$(IMAGE): $(OBJS) $(SPRITES)
+bmpconv: util/bmp_converter.c
+	@echo "  HOSTCC        $@"
+	@$(HOSTCC) $(HOSTCCFLAGS) util/bmp_converter.c -o bmpconv
+
+%.pbmp: %.bmp bmpconv
+	@echo "  BMPCONV       $@"
+	@./bmpconv $< $@
+
+$(IMAGE): $(OBJS) $(SPRITES_OBJS)
 	@echo "  LD            $@"
 	@$(LD) $(OBJS) -o $(IMAGE) -T $(LINKERSCRIPT)
 

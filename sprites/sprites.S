@@ -1,3 +1,4 @@
 .section ".data"
 
-mario_face: .incbin "sprites/mario.bmp"
+.globl mario_face
+mario_face: .incbin "sprites/mario.pbmp"
