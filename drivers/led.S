@@ -59,21 +59,17 @@ led_blinker:
     ldr r0, =hello
     bl uart_send_string
 
-    bl triangle_test
+    mov r0, #0
+    mov r1, #0
+    ldr r2, =sky_pbmp
+    bl pbmp_draw
 
-    mov r0, r1
-    bl uart_send_int_dec
-    mov r0, #0x0A
-    bl uart_send_byte
-    mov r0, r1
-    bl uart_send_int_hex
-    mov r0, #0x0A
-    bl uart_send_byte
-    mov r0, r1
-    bl uart_send_int_bin
-    mov r0, #0x0A
-    bl uart_send_byte
-    add r1, r1, #1
+    mov r0, #100
+    mov r1, #100
+    ldr r2, =mario_face
+    bl pbmp_draw
+
+    bl triangle_test
 
     bl led_ok_turn_off
 
