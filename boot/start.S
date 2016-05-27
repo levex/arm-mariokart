@@ -19,8 +19,13 @@ _start:
 
 	// Initialize the framebuffer
 	bl fb_init
-    // Test rasterizer
-    bl triangle_test
+
+        // Test rasterizer
+        bl triangle_test
+
+	ldr r0, =mario_face
+	bl bmp_draw
+
 	// Blink LEDs to check if it works
 	mov r1, #0
 	bl led_blinker
