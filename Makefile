@@ -17,6 +17,7 @@ SRCS += $(wildcard util/*.S)
 SRCS += $(wildcard drivers/*.S)
 SRCS += $(wildcard sprites/*.S)
 OBJS = $(SRCS:.S=.o)
+OBJS += util/lookup_tables.o
 
 SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
@@ -24,7 +25,8 @@ SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
 all: $(RAW)
 
 clean:
-	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv
+	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv lookup_generator
+	-@rm -f util/lookup_tables.S
 
 sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
 
@@ -35,6 +37,14 @@ sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
 bmpconv: util/bmp_converter.c
 	@echo "  HOSTCC        $@"
 	@$(HOSTCC) $(HOSTCCFLAGS) util/bmp_converter.c -o bmpconv
+
+lookup_generator: util/generate_lookup.c
+	@echo "  HOSTCC        $@"
+	@$(HOSTCC) -lm $(HOSTCCFLAGS) util/generate_lookup.c -o lookup_generator
+
+util/lookup_tables.S: lookup_generator
+	@echo "  GENLKUP       $@"
+	@./lookup_generator
 
 %.pbmp: %.bmp bmpconv
 	@echo "  BMPCONV       $@"

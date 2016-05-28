@@ -3,3 +3,5 @@
 *.bin
 *.pbmp
 bmpconv
+lookup_generator
+util/lookup_tables.S
