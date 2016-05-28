@@ -192,66 +192,6 @@ mat_add:
     pop {lr}
     bx lr
 
-
-/*
-* max3
-* returns maximum of three numbers
-* stored in r0, r1, r2
-* result is returned in r3
-*/
-.globl max3
-max3:
-    cmp r0, r1
-    movlt r3, r1
-    movge r3, r0
-    cmp r2, r3
-    movgt r3, r2
-
-    bx lr
-
-/*
-* min3
-* returns minimum of three numbers
-* stored in r0, r1, r2
-* result is returned in r3
-*/
-.globl min3
-min3:
-    cmp r0, r1
-    movlt r3, r0
-    movge r3, r1
-    cmp r2, r3
-    movlt r3, r2
-
-    bx lr
-
-
-/*
- * max2
- * return max of r0 r1 in r2
-*/
-
-.globl max2
-max2:
-    cmp r0, r1
-    movlt r2, r1
-    movge r2, r0
-
-    bx lr
-
-/*
- * min2
- * return min of r0 r1 in r2
-*/
-
-.globl min2
-min2:
-    cmp r0, r1
-    movlt r2, r0
-    movge r2, r1
-
-    bx lr
-
 /*
  * udiv - does unsigned division of r0 / r1
  *

@@ -4,6 +4,24 @@
 //  Triangle rasterizer
 //  I guess function is pretty obivous from name
 
+/*
+ * Loads x coords of 3 vertices
+ * in r0 r1 r2
+ * into r0 r1 r2
+ */
+
+.macro load_3x
+    ldr r0, [r0]
+    ldr r1, [r1]
+    ldr r2, [r2]
+.endm
+
+.macro load_3y
+    ldr r0, [r0, #4]
+    ldr r1, [r1, #4]
+    ldr r2, [r2, #4]
+.endm
+
 
 .globl triangle_test
 triangle_test:
@@ -28,24 +46,24 @@ triangle:
     push {r3-r11}
 
     push {r0-r2}
-        bl load_3x
-        bl max3
-        mov r4, r3  // r4 = max x coord
+        load_3x
+        max3
+        mov r4, r10  // r4 = max x coord
     pop {r0-r2}
     push {r0-r2}
-        bl load_3x
-        bl min3
-        mov r5, r3  // r5 = min x coord
+        load_3x
+        min3
+        mov r5, r10  // r5 = min x coord
     pop {r0-r2}
     push {r0-r2}
-        bl load_3y
-        bl max3
-        mov r6, r3  // r6 = max y coord
+        load_3y
+        max3
+        mov r6, r10  // r6 = max y coord
     pop {r0-r2}
     push {r0-r2}
-        bl load_3y
-        bl min3
-        mov r7, r3  // r7 = min y coord
+        load_3y
+        min3
+        mov r7, r10  // r7 = min y coord
     pop {r0-r2}
 
     //determine wounding of triangle
@@ -116,25 +134,6 @@ triangle:
     box_end:
     pop {r3-r11}
     pop {lr}
-    bx lr
-
-/*
- * Loads x coords of 3 vertices
-   in r0 r1 r2
- * into r0 r1 r2
-*/
-.globl load_3x
-load_3x:
-    ldr r0, [r0]
-    ldr r1, [r1]
-    ldr r2, [r2]
-    bx lr
-
-.globl load_3y
-load_3y:
-    ldr r0, [r0, #4]
-    ldr r1, [r1, #4]
-    ldr r2, [r2, #4]
     bx lr
 
 /*
