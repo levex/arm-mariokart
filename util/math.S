@@ -3,6 +3,24 @@
 //Math functions
 
 
+// Trigonometric functions
+
+// takes angle in r0, returns r0 = sin(r0)
+.globl sin
+sin:
+    ldr r10, =sine_lookup
+    lsl r0, #2
+    ldr r0, [r10, r0]
+    mov pc, lr
+
+// takes angle in r0, returns r0 = cos(r0)
+.globl cos
+cos:
+    ldr r10, =cosine_lookup
+    lsl r0, #2
+    ldr r0, [r10, r0]
+    mov pc, lr
+
 /* Returns a translation matrix. Arguments:
 *  r0 - translation amount in X direction
 *  r1 - translation amount in Y direction
