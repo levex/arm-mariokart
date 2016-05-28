@@ -1,5 +1,5 @@
 .section ".text"
-.include "drivers/pixel.S"
+.include "util/macros.S"
 
 //  Triangle rasterizer
 //  I guess function is pretty obivous from name

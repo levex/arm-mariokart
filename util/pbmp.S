@@ -1,5 +1,5 @@
 .section ".text"
-.include "drivers/pixel.S"
+.include "util/macros.S"
 
 // preprocessed bmp driver
 // pbmps have the following formats:
@@ -20,5 +20,5 @@ pbmp_draw:
 
     pop {r2-r4, lr}
     mov pc, lr
-    
+
 // @ vim:ft=armv5

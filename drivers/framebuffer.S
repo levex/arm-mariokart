@@ -1,5 +1,5 @@
 .section ".text"
-.include "drivers/pixel.S"
+.include "util/macros.S"
 
 // Framebuffer driver
 // Requests a framebuffer address using the mailbox
