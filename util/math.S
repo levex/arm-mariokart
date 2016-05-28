@@ -46,38 +46,27 @@ get_translation_matrix:
 *  r1 - scaling amount in Y direction
 *  r2 - scaling amount in Z direction
 *  r3 - pointer to 4x4 matrix reprenenting the scaling
+*  Trashes: r4-r7
 */
 .globl get_scaling_matrix
 get_scaling_matrix:
-    push {lr}
-    push {r4}
-
     mov r4, #0
-    mov r5, #1
+    mov r5, #0
+    mov r6, #0
+    mov r7, #0
 
-    str r0, [r3]       // X
-    str r4, [r3, #4]   // 0
-    str r4, [r3, #8]   // 0
-    str r4, [r3, #12]  // 0
+    str r0, [r3], #4     // X
+    stmia r3!, {r4-r7}   // (0 0 0 0)T
+    str r1, [r3], #4     // Y
+    stmia r3!, {r4-r7}   // (0 0 0 0)T
+    str r2, [r3], #4     // Z
+    stmia r3!, {r4-r7}   // (0 0 0 0)T
+    mov r2, #1           // 1
+    str r2, [r3]         // TODO: there has to be a better way
 
-    str r4, [r3, #16]  // 0
-    str r1, [r3, #20]  // Y
-    str r4, [r3, #24]  // 0
-    str r4, [r3, #28]  // 0
+    mov pc, lr
 
-    str r4, [r3, #32]  // 0
-    str r4, [r3, #36]  // 0
-    str r2, [r3, #40]  // Z
-    str r4, [r3, #44]  // 0
 
-    str r4, [r3, #48]  // 0
-    str r4, [r3, #52]  // 0
-    str r4, [r3, #56]  // 0
-    str r5, [r3, #60]  // 1
-
-    pop {r4}
-    pop {lr}
-    bx lr
 
 /* Matrix multiplication
 *  r0 pointer to matrix A
