@@ -11,7 +11,6 @@
 */
 .globl get_translation_matrix
 get_translation_matrix:
-    push {lr}
     push {r4-r5}
 
     mov r4, #0
@@ -38,8 +37,7 @@ get_translation_matrix:
     str r5, [r3, #60]  // 1
 
     pop {r4-r5}
-    pop {lr}
-    bx lr
+    mov pc, lr
 
 /* Returns a scaling matrix. Arguments:
 *  r0 - scaling amount in X direction
