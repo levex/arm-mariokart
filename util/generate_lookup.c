@@ -17,16 +17,18 @@ static float cos_lookup[360];
 #define SINE_BEGIN "\n.globl sine_lookup\nsine_lookup:\n"
 #define COSINE_BEGIN "\n.globl cosine_lookup\ncosine_lookup:\n"
 
+#define PI 3.14159265
+
 int main (int argc, char *argv[]) {
 	int i, fdout;
 
 	/* calculate sine lookup table */
 	for (i = 0; i < 360; i ++)
-		sin_lookup[i] = (float) sin(i * 3.14159265 / 180);
+		sin_lookup[i] = (float) sin(i * PI / 180);
 
 	/* calculate cosine lookup table */
 	for (i = 0; i < 360; i ++)
-		cos_lookup[i] = (float) cos(i * 3.14159265 / 180);
+		cos_lookup[i] = (float) cos(i * PI / 180);
 
 	
 	fdout = open(SINE_OUTPUT, O_RDWR | O_CREAT,
@@ -39,19 +41,15 @@ int main (int argc, char *argv[]) {
 
 	/* write sine lookup */
 	write(fdout, SINE_BEGIN, strlen(SINE_BEGIN));
-	for (i = 0; i < 360; i ++) {
-		write(fdout, "  .word ", 8);
-		dprintf(fdout, "0x%x // %f \n", *(uint32_t *) &sin_lookup[i],
+	for (i = 0; i < 360; i ++)
+		dprintf(fdout, "  .word 0x%x // %f \n", *(uint32_t *) &sin_lookup[i],
 				sin_lookup[i]);
-        }
 
 	/* write cosine lookup */
 	write(fdout, COSINE_BEGIN, strlen(COSINE_BEGIN));
-	for (i = 0; i < 360; i ++) {
-		write(fdout, "  .word ", 8);
-		dprintf(fdout, "0x%x // %f \n", *(uint32_t *) &cos_lookup[i],
+	for (i = 0; i < 360; i ++)
+		dprintf(fdout, "    .word 0x%x // %f \n", *(uint32_t *) &cos_lookup[i],
 				cos_lookup[i]);
-        }
 
 	return 0;
 }
