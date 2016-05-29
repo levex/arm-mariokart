@@ -11,13 +11,13 @@ _start:
     // setup UART
     bl uart_init
 
-    mov r0, #0x47 // G
+    mov r0, #'G'
     bl uart_send_byte
-    mov r0, #0x32 // 2
+    mov r0, #'2'
     bl uart_send_byte
-    mov r0, #0x34 // 4
+    mov r0, #'4'
     bl uart_send_byte
-    mov r0, #0x0A // \n
+    mov r0, #'\n'
     bl uart_send_byte
 
     // Initialize the framebuffer
