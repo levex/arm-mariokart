@@ -28,6 +28,7 @@ all: $(RAW)
 clean:
 	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv lookup_generator
 	-@rm -f tools/lookup_tables.S
+	-@rm -f $(RAW)
 
 sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
 
