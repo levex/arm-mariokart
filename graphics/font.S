@@ -12,18 +12,18 @@ render_string:
   push {r4, lr}
 
   mov r4, r3               // r4 = r3 (pointer to first character)
+  mov r5, #0               // x_offset = 0
   1:
-    ldrb r3, [r4], #1      // r3 = *(r4 ++);
+    ldrb r3, [r4], #1         // r3 = *(r4 ++);
 
-    mov r5, #0             // x_offset = 0
     push {r0}
     add r0, r0, r5         
-    bl render_char         // render current character at x + x_offset
+    bl render_char            // render current character at x + x_offset
     pop {r0}
-    add r5, r5, #8         // x_offset += 8
+    add r5, r5, #8            // x_offset += 8
 
-    cmp r3, #0             // if (r3 != 0)
-    bne 1b                 //   goto 1;
+    cmp r3, #0                // if (r3 != 0)
+    bne 1b                    //   goto 1;
 
   pop {r4, pc}
 
@@ -46,7 +46,7 @@ render_char:
   mov r7, #0              // current_y = 0
   1: 
     cmp r7, #4               // if (current_y >= 4)
-    movge r4, r5             //   r4 = r5 (use last 4 bytes)
+      movge r4, r5           //   r4 = r5 (use last 4 bytes)
     mov r6, #0x80            // mask = 1000 0000
     mov r8, #0               // current_x = 0
     2: 
