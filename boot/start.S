@@ -21,11 +21,46 @@ _start:
     // Initialize the framebuffer
     bl fb_init
 
+    mov r4, #0xFF000000
+    rainbow:
+    add r4, #0x0100
+
     mov r0, #100
     mov r1, #100
-    ldr r2, =0xFF00FF00
-    ldr r3, =alphabet_str
+    mov r2, r4
+    ldr r3, =procrastination1
     bl render_string
+
+    mov r0, #100
+    mov r1, #150
+    mov r2, r4
+    ldr r3, =procrastination2
+    bl render_string
+
+    mov r0, #100
+    mov r1, #200
+    mov r2, r4
+    ldr r3, =procrastination3
+    bl render_string
+
+    mov r0, #100
+    mov r1, #250
+    mov r2, r4
+    ldr r3, =procrastination4
+    bl render_string
+
+    mov r0, #100
+    mov r1, #300
+    mov r2, r4
+    ldr r3, =procrastination5
+    bl render_string
+
+    /*mov r0, #1
+    bl wait_realtime*/
+    ldr r0, =1000
+    bl delay
+    b rainbow
+
 
     // Test rasterizer
     //bl triangle_test
