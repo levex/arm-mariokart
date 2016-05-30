@@ -24,7 +24,7 @@ _start:
     mov r0, #100
     mov r1, #100
     ldr r2, =0xFF00FF00
-    ldr r3, =framebuffer_acquired_str
+    ldr r3, =alphabet_str
     bl render_string
 
     // Test rasterizer

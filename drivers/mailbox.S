@@ -66,11 +66,6 @@ mail_wait_till_ready_receive:
     pop {r0, lr}
     mov pc, lr
 
-.align
-.globl framebuffer_acquired_str
-framebuffer_acquired_str: .asciz "\nFRAMEBUFFER acquired\n"
-.align
-
 /*
  * mail_read_mailbox - Reads the pointer into r0
  */

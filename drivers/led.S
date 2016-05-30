@@ -45,10 +45,6 @@ led_ok_turn_on:
     pop {lr}
     bx lr
 
-.align
-hello: .asciz "Hello, Lev!\n"
-.align
-
 .globl led_blinker
 led_blinker:
     bl led_ok_turn_on
@@ -56,7 +52,7 @@ led_blinker:
     ldr r0, =5000000
     bl delay
 
-    ldr r0, =hello
+    ldr r0, =hello_str
     bl uart_send_string
 
     mov r0, #0
