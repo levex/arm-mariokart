@@ -5,3 +5,4 @@
 bmpconv
 lookup_generator
 tools/lookup_tables.S
+.DS_Store
