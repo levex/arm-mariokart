@@ -31,3 +31,20 @@ procrastination4: .asciz "MOTHERFUCKING RAINBOW\n"
 .align
 .globl procrastination5
 procrastination5: .asciz "NOOT NOOT\n"
+
+/* Game strings */
+.align
+.globl score_str
+score_str: .asciz "Score:"
+
+.align
+.globl health_str
+health_str: .asciz "Health:"
+
+.align
+.globl speed_str
+speed_str: .asciz "Speed:"
+
+.align
+.globl powerups_str
+powerups_str: .asciz "Powerups:"
