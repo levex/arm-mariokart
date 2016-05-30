@@ -7,7 +7,7 @@
 #include <string.h>
 #include <math.h>
 
-#define SINE_OUTPUT "util/lookup_tables.S"
+#define SINE_OUTPUT "tools/lookup_tables.S"
 static float sin_lookup[360];
 static float cos_lookup[360];
 

@@ -17,8 +17,8 @@ SRCS += $(wildcard util/*.S)
 SRCS += $(wildcard drivers/*.S)
 SRCS += $(wildcard graphics/*.S)
 SRCS += $(wildcard sprites/*.S)
-OBJS = $(SRCS:.S=.o)
-OBJS += util/lookup_tables.o
+OBJS = $(subst tools/lookup_tables.o,, $(SRCS:.S=.o))
+OBJS += tools/lookup_tables.o
 
 SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
@@ -27,7 +27,7 @@ all: $(RAW)
 
 clean:
 	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv lookup_generator
-	-@rm -f util/lookup_tables.S
+	-@rm -f tools/lookup_tables.S
 
 sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
 
@@ -35,15 +35,15 @@ sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
 	@echo "  AS            $@"
 	@$(AS) $(ASFLAGS) -c $< -o $@
 
-bmpconv: util/bmp_converter.c
+bmpconv: tools/bmp_converter.c
 	@echo "  HOSTCC        $@"
-	@$(HOSTCC) $(HOSTCCFLAGS) util/bmp_converter.c -o bmpconv
+	@$(HOSTCC) $(HOSTCCFLAGS) tools/bmp_converter.c -o bmpconv
 
-lookup_generator: util/generate_lookup.c
+lookup_generator: tools/generate_lookup.c
 	@echo "  HOSTCC        $@"
-	@$(HOSTCC) -lm $(HOSTCCFLAGS) util/generate_lookup.c -o lookup_generator
+	@$(HOSTCC) -lm $(HOSTCCFLAGS) tools/generate_lookup.c -o lookup_generator
 
-util/lookup_tables.S: lookup_generator
+tools/lookup_tables.S: lookup_generator
 	@echo "  GENLKUP       $@"
 	@./lookup_generator
 
