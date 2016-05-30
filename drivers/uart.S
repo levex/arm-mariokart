@@ -248,15 +248,12 @@ uart_send_int_dec:
 
 .globl uart_send_int_hex
 uart_send_int_hex:
-    push {lr}
-    push {r1}
+    push {r1, lr}
 
     mov r1, #16
     bl uart_send_int
 
-    pop {r1}
-    pop {lr}
-    bx lr
+    pop {r1, pc}
 
 .globl uart_send_newline
 uart_send_newline:

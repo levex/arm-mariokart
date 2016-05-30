@@ -62,7 +62,6 @@ get_rotation_z_matrix:
     str r4, [r1, #60]  // 1
 
     pop {r2-r5, pc}
-
 /* Returns a rotation around Y matrix. Arguments:
 *  r0 - rotation amount in Y direction
 *  r1 - pointer to 4x4 matrix reprenenting the rotation
@@ -208,6 +207,75 @@ get_scaling_matrix:
 
     mov pc, lr
 
+/*
+ * Transforms a vertex based on the matrix
+ *
+ * r1 - Pointer to Transformation matrix
+ * r2 - Pointer to Vertex
+ */
+.globl transform_vertex
+transform_vertex:
+    push {lr}
+
+    ldr r3, [r1]  // r3 = a
+    ldr r4, [r2]  // r4 = x
+    mul r0, r3, r4 // r0 = ax
+
+    ldr r3, [r1, #4] // r3 = b
+    ldr r4, [r2, #4] // r4 = y
+    mla r0, r3, r4, r0 // r0 = by + ax
+
+    ldr r3, [r1, #8] // r3 = c
+    ldr r4, [r2, #8] // r4 = z
+    mla r0, r3, r4, r0 // r0 = by + ax + cz
+    
+    ldr r3, [r1, #12] // r3 = d
+    add r0, r0, r3    // r0 = d + by + ax + cz
+    mov r5, r0        // r5 = v1
+
+    // second element now
+    ldr r3, [r1, #16] // r3 = e
+    ldr r4, [r2]      // r4 = x
+    mul r0, r3, r4    // r0 = ex
+
+    ldr r3, [r1, #20] // r3 = f
+    ldr r4, [r2, #4] // r4 = y
+    mla r0, r3, r4, r0 // r0 = fy + ex
+
+    ldr r3, [r1, #24] // r3 = g
+    ldr r4, [r2, #8] // r4 = z
+    mla r0, r3, r4, r0 // r0 = gz + fy + ex
+
+    ldr r3, [r1, #28] // r3 = h
+    add r0, r0, r3    // r0 = h + gz + fy + ex
+    mov r6, r0     // r6 = v2
+
+    // third element
+    ldr r3, [r1, #32] // r3 = i
+    ldr r4, [r2]      // r4 = x
+    mul r0, r3, r4    // r0 = ix
+
+    ldr r3, [r1, #36] // r3 = j
+    ldr r4, [r2, #4]  // r4 = y
+    mla r0, r3, r4, r0  // r0 = jy + ix
+
+    ldr r3, [r1, #40] // r3 = k
+    ldr r4, [r2, #8]  // r4 = z
+    mla r0, r3, r4, r0  // r0 = kz + jy + ix
+
+    ldr r3, [r1, #44] // r3 = l
+    add r0, r0, r3    // r0 = l + kz + jy + ix
+    mov r7, r0        // r7 = v3
+
+    // forth element
+    mov r8, #1         // r8 = v4
+
+    str r5, [r2]
+    str r6, [r2, #4]
+    str r7, [r2, #8]
+    str r8, [r2, #12]
+    
+    pop {pc}
 
 
 /* Matrix multiplication

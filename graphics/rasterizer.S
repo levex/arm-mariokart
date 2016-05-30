@@ -26,12 +26,51 @@
 .globl triangle_test
 triangle_test:
     push {lr}
+
+    ldr r1, =testTranslation
+    ldr r2, =vertA
+    bl transform_vertex
+
+    ldr r1, =testTranslation
+    ldr r2, =vertB
+    bl transform_vertex
+
+    ldr r1, =testTranslation
+    ldr r2, =vertC
+    bl transform_vertex
+
     ldr r0, =vertA
     ldr r1, =vertB
     ldr r2, =vertC
     bl triangle
-    pop {lr}
-    bx lr
+    pop {pc}
+
+//Triangle vertices - x, y, z, w coord
+.balign 16
+vertA:
+    .word 70, 100, 0, 1
+
+vertB:
+    .word 140, 100, 0, 1
+
+vertC:
+    .word 100, 200, 0, 1
+
+vertP:
+    .word 0, 0, 0, 1
+
+oneBottomMat:
+    .word 3, 3
+    .word 0, 0, 0
+    .word 0, 0, 0
+    .word 1, 1, 1
+
+.balign 16
+testTranslation:
+    .word 1, 0, 0, 200
+    .word 0, 1, 0, 0
+    .word 0, 0, 1, 0
+    .word 0, 0, 0, 1
 
 /*
  *  Rasterizes a triangle from
@@ -183,23 +222,3 @@ create_pixel:
 
     pop {r2}
     bx lr
-
-
-//Triangle vertices - x | y coord
-vertA:
-    .word 70, 100
-
-vertB:
-    .word 140, 100
-
-vertC:
-    .word 100, 200
-
-vertP:
-    .word 0, 0
-
-oneBottomMat:
-    .word 3, 3
-    .word 0, 0, 0
-    .word 0, 0, 0
-    .word 1, 1, 1

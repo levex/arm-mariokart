@@ -14,14 +14,8 @@ _start:
     // Initialize the framebuffer
     bl fb_init
 
-    b game_loop
-
-    //b procrastination
-
-
-
     // Test rasterizer
-    //bl triangle_test
+    bl triangle_test
 
     // Blink LEDs to check if it works
     //bl led_blinker
@@ -32,15 +26,15 @@ _start:
 
 vfp_init:
     //enable vfp in secure mode
-    ldr r0, =(0xF << 20)
+    mcr p15, #0, r0, c1, c0, #2
+    orr r0, r0, #(0xF << 20)
     mcr p15, #0, r0, c1, c0, #2
 
     //enable FP processor in general
     //EN bit in fpexc
     mov r3, #0x40000000
     vmsr fpexc, r3
-
-    bx lr
+    mov pc, lr
 
 procrastination:
     mov r4, #0xFF000000
