@@ -38,16 +38,13 @@ render_string:
 render_char:
   push {r4-r9}
 
-  ldr r9, =font8x8
-  ldr r4, [r9, r3]        // r4 = font8x8[r3] (first 4 bytes)
-  add r7, r3, #4
-  ldr r5, [r3, r7]        // r5 = font8x8[r3] (last 4 bytes)
+  ldr r9, =font8x8        // *font
+  sub r3, r3, #1          // decrement character by 1
 
   mov r7, #0              // current_y = 0
   1: 
-    cmp r7, #4               // if (current_y >= 4)
-      movge r4, r5           //   r4 = r5 (use last 4 bytes)
-    mov r6, #0x80            // mask = 1000 0000
+    ldrb r4, [r9, r3]        // r4 = font8x8[r3] (first byte)
+    mov r6, #0x80            // mask = 10 00 00 00
     mov r8, #0               // current_x = 0
     2: 
       tst r4, r6               // r4 & mask (test the current bit)
@@ -62,6 +59,7 @@ render_char:
       cmp r8, #8             // while current_x < 8
       blt 2b
 
+    add r3, r3, #1           // r3++ (advance pointer by 1 byte)
     add r7, r7, #1           // current_y++
     cmp r7, #8               // while current_y < 8
     blt 1b

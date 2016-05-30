@@ -26,8 +26,11 @@ _start:
     mov r0, #0
     mov r1, #0
     ldr r2, =0xFF00FF00
+    /*
     ldr r3, =framebuffer_acquired_str
-    bl render_string
+    bl render_string */
+    mov r3, #'a'
+    bl render_char
 
         // Test rasterizer
         //bl triangle_test
