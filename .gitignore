@@ -4,4 +4,4 @@
 *.pbmp
 bmpconv
 lookup_generator
-util/lookup_tables.S
+tools/lookup_tables.S
