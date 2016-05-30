@@ -17,23 +17,18 @@ _start:
     bl uart_send_byte
     mov r0, #'4'
     bl uart_send_byte
-    mov r0, #'\n'
-    bl uart_send_byte
 
     // Initialize the framebuffer
     bl fb_init
 
-    mov r0, #0
-    mov r1, #0
+    mov r0, #100
+    mov r1, #100
     ldr r2, =0xFF00FF00
-    /*
     ldr r3, =framebuffer_acquired_str
-    bl render_string */
-    mov r3, #'a'
-    bl render_char
+    bl render_string
 
-        // Test rasterizer
-        //bl triangle_test
+    // Test rasterizer
+    //bl triangle_test
 
     // Blink LEDs to check if it works
     //bl led_blinker

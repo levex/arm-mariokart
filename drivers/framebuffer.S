@@ -140,7 +140,7 @@ fb_draw_line:
       pop {r0, r1, r2}
       cmp r8, #0    // if x >= 0
         addge r7, r7, #1  // y += 1
-      subge r3, r3, r4  // D = D - dx
+        subge r3, r3, r4  // D = D - dx
       add r3, r3, r5
       add r8, r8, #1
       b 1b
