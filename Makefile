@@ -15,6 +15,7 @@ LINKERSCRIPT=linker.ld
 SRCS = $(wildcard boot/*.S)
 SRCS += $(wildcard util/*.S)
 SRCS += $(wildcard drivers/*.S)
+SRCS += $(wildcard graphics/*.S)
 SRCS += $(wildcard sprites/*.S)
 OBJS = $(SRCS:.S=.o)
 OBJS += util/lookup_tables.o
