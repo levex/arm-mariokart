@@ -13,7 +13,7 @@ RAW=kart.bin
 LINKERSCRIPT=linker.ld
 
 SRCS = $(wildcard boot/*.S)
-SRCS += $(wildcard util/*.S)
+SRCS += $(subst util/macros.S,, $(wildcard util/*.S))
 SRCS += $(wildcard drivers/*.S)
 SRCS += $(wildcard graphics/*.S)
 SRCS += $(wildcard sprites/*.S)
