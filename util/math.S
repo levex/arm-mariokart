@@ -21,6 +21,89 @@ cos:
     ldr r0, [r10, r0]
     mov pc, lr
 
+/* Returns a rotation around Z matrix. Arguments:
+*  r0 - rotation amount in Z direction
+*  r1 - pointer to 4x4 matrix reprenenting the rotation
+*/
+.globl get_rotation_z_matrix
+get_rotation_z_matrix:
+    push {r2-r5, lr}
+
+    mov r3, r0        // save zrot as r3
+    bl sin
+    mov r2, r0        // r2 = sin(zrot)
+    mov r0, r3        // r0 = zrot
+    bl cos            // r0 = cos(zrot)
+
+    mov r3, r2
+    eor r3, r3, #0x80000000 // r3 = -sin(zrot)
+
+    mov r4, #1
+    mov r5, #0
+
+    str r0, [r1]       // cos(zrot)
+    str r3, [r1, #4]   // -sin(zrot)
+    str r5, [r1, #8]   // 0
+    str r5, [r1, #12]  // 0
+
+    str r2, [r1, #16]  // sin(zrot)
+    str r0, [r1, #20]  // cos(zrot)
+    str r5, [r1, #24]  // 0
+    str r5, [r1, #28]  // 0
+
+    str r5, [r1, #32]  // 0
+    str r5, [r1, #36]  // 0
+    str r4, [r1, #40]  // 1
+    str r5, [r1, #44]  // 0
+
+    str r5, [r1, #48]  // 0
+    str r5, [r1, #52]  // 0
+    str r5, [r1, #56]  // 0
+    str r4, [r1, #60]  // 1
+
+    pop {r2-r5, pc}
+/* Returns a rotation around Y matrix. Arguments:
+*  r0 - rotation amount in Y direction
+*  r1 - pointer to 4x4 matrix reprenenting the rotation
+*/
+.globl get_rotation_y_matrix
+get_rotation_y_matrix:
+    push {r2-r5, lr}
+
+    mov r3, r0        // save yrot as r3
+    bl sin
+    mov r2, r0        // r2 = sin(yrot)
+    mov r0, r3        // r0 = xrot
+    bl cos            // r0 = cos(yrot)
+
+    mov r3, r2
+    eor r3, r3, #0x80000000 // r3 = -sin(yrot)
+
+    mov r4, #1
+    mov r5, #0
+
+    str r0, [r1]       // cos(yrot)
+    str r5, [r1, #4]   // 0
+    str r2, [r1, #8]   // sin(yrot)
+    str r5, [r1, #12]  // 0
+
+    str r5, [r1, #16]  // 0
+    str r4, [r1, #20]  // 1
+    str r5, [r1, #24]  // 0
+    str r5, [r1, #28]  // 0
+
+    str r3, [r1, #32]  // -sin(yrot)
+    str r5, [r1, #36]  // 0
+    str r0, [r1, #40]  // cos(yrot)
+    str r5, [r1, #44]  // 0
+
+    str r5, [r1, #48]  // 0
+    str r5, [r1, #52]  // 0
+    str r5, [r1, #56]  // 0
+    str r4, [r1, #60]  // 1
+
+    pop {r2-r5, pc}
+
 /* Returns a rotation around X matrix. Arguments:
 *  r0 - rotation amount in X direction
 *  r1 - pointer to 4x4 matrix reprenenting the rotation
@@ -34,7 +117,7 @@ get_rotation_x_matrix:
     mov r2, r0        // r2 = sin(xrot)
     mov r0, r3        // r0 = xrot
     bl cos            // r0 = cos(xrot)
-    
+
     mov r3, r2
     eor r3, r3, #0x80000000 // r3 = -sin(xrot)
 
@@ -55,7 +138,7 @@ get_rotation_x_matrix:
     str r2, [r1, #36]  // sin(xrot)
     str r0, [r1, #40]  // cos(xrot)
     str r5, [r1, #44]  // 0
-    
+
     str r5, [r1, #48]  // 0
     str r5, [r1, #52]  // 0
     str r5, [r1, #56]  // 0
