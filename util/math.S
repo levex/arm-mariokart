@@ -21,6 +21,48 @@ cos:
     ldr r0, [r10, r0]
     mov pc, lr
 
+/* Returns a rotation around X matrix. Arguments:
+*  r0 - rotation amount in X direction
+*  r1 - pointer to 4x4 matrix reprenenting the rotation
+*/
+.globl get_rotation_x_matrix
+get_rotation_x_matrix:
+    push {r2-r5, lr}
+
+    mov r3, r0        // save xrot as r3
+    bl sin
+    mov r2, r0        // r2 = sin(xrot)
+    mov r0, r3        // r0 = xrot
+    bl cos            // r0 = cos(xrot)
+    
+    mov r3, r2
+    eor r3, r3, #0x80000000 // r3 = -sin(xrot)
+
+    mov r4, #1
+    mov r5, #0
+
+    str r4, [r1]       // 1
+    str r5, [r1, #4]   // 0
+    str r5, [r1, #8]   // 0
+    str r5, [r1, #12]  // 0
+
+    str r5, [r1, #16]  // 0
+    str r0, [r1, #20]  // cos(xrot)
+    str r3, [r1, #24]  // -sin(xrot)
+    str r5, [r1, #28]  // 0
+
+    str r5, [r1, #32]  // 0
+    str r2, [r1, #36]  // sin(xrot)
+    str r0, [r1, #40]  // cos(xrot)
+    str r5, [r1, #44]  // 0
+    
+    str r5, [r1, #48]  // 0
+    str r5, [r1, #52]  // 0
+    str r5, [r1, #56]  // 0
+    str r4, [r1, #60]  // 1
+
+    pop {r2-r5, pc}
+
 /* Returns a translation matrix. Arguments:
 *  r0 - translation amount in X direction
 *  r1 - translation amount in Y direction
