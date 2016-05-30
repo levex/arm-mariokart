@@ -23,11 +23,17 @@ _start:
     // Initialize the framebuffer
     bl fb_init
 
+    mov r0, #0
+    mov r1, #0
+    ldr r2, =0xFF00FF00
+    ldr r3, =framebuffer_acquired_str
+    bl render_string
+
         // Test rasterizer
         //bl triangle_test
 
     // Blink LEDs to check if it works
-    bl led_blinker
+    //bl led_blinker
 
     // ideally do more stuff here
     bye:
