@@ -1,8 +1,4 @@
-.globl color_red
-color_red = 0xFF000000
+.EQU color_red,   0x00FF0000
+.EQU color_green, 0x0000FF00
+.EQU color_blue,  0x000000FF
 
-.globl color_green
-color_green = 0x00FF0000
-
-.globl color_blue
-color_blue = 0x0000FF00

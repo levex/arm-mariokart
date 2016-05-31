@@ -15,8 +15,11 @@ _start:
     bl fb_init
 
     // Test rasterizer
-    bl triangle_test
+    //bl triangle_test
 
+    b game_loop
+
+    //b procrastination
     // Blink LEDs to check if it works
     //bl led_blinker
 
