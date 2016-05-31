@@ -146,6 +146,15 @@ get_rotation_x_matrix:
 
     pop {r2-r5, pc}
 
+
+/* writes the perspective matrix to location r0 */
+.globl projection_matrix
+projection_matrix:
+  .word 0x3f800000,          0,          0,          0
+  .word          0, 0x3f800000,          0,          0
+  .word          0,          0, 0xbf800000, 0xc1a00000
+  .word          0,          0, 0xbf800000,          0
+
 /* Returns a translation matrix. Arguments:
 *  r0 - translation amount in X direction
 *  r1 - translation amount in Y direction
