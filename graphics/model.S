@@ -12,10 +12,10 @@ model_get_triangle_no:
     ldr r4, [r0]
     mov pc, lr
 
-// Displays the r0 model on the screen at (r2, r3)
+// Displays the r0 model
 .globl model_display
 model_display:
-    push {lr}
+    push {r0-r4, lr}
     bl model_get_triangle_no   // r4 = # of triangles
     mov r4, #0   // r4 = 0
     mov r3, r0    // save r0 as r3
@@ -28,7 +28,7 @@ model_display:
       add r4, r4, #1        // increment r4
       cmp r4, r4      // if (r1 == r4)  // r1:triangles# r4:current_tri
       bne 1b           //   get out
-    pop {pc}
+    pop {r0-r4, pc}
 
 .globl pobj_test_data
 pobj_test_data:
