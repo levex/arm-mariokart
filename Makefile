@@ -3,7 +3,7 @@ CC=arm-none-eabi-gcc
 LD=arm-none-eabi-ld
 OBJCOPY=arm-none-eabi-objcopy
 
-ASFLAGS=-fPIC -march=armv6zk -mcpu=arm1176jzf-s -mfpu=neon -mfloat-abi=hard
+ASFLAGS=-fPIC -march=armv6zk -mcpu=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard
 
 HOSTCCFLAGS=
 HOSTCC=gcc
