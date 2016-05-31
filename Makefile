@@ -17,6 +17,7 @@ SRCS += $(subst util/macros.S,, $(wildcard util/*.S))
 SRCS += $(wildcard drivers/*.S)
 SRCS += $(wildcard graphics/*.S)
 SRCS += $(wildcard sprites/*.S)
+SRCS += $(wildcard game/*.S)
 OBJS = $(subst tools/lookup_tables.o,, $(SRCS:.S=.o))
 OBJS += tools/lookup_tables.o
 
