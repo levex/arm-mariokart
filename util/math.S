@@ -9,16 +9,14 @@
 .globl sin
 sin:
     ldr r10, =sine_lookup
-    lsl r0, #2
-    ldr r0, [r10, r0]
+    ldr r0, [r10, r0, LSL #2]
     mov pc, lr
 
 // takes angle in r0, returns r0 = cos(r0)
 .globl cos
 cos:
     ldr r10, =cosine_lookup
-    lsl r0, #2
-    ldr r0, [r10, r0]
+    ldr r0, [r10, r0, LSL #2]
     mov pc, lr
 
 /* Returns a rotation around Z matrix. Arguments:
