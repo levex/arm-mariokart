@@ -20,6 +20,7 @@ SRCS += $(wildcard sprites/*.S)
 SRCS += $(wildcard game/*.S)
 OBJS = $(subst tools/lookup_tables.o,, $(SRCS:.S=.o))
 OBJS += tools/lookup_tables.o
+OBJS += gen/precalc.o
 
 SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
@@ -28,6 +29,8 @@ all: $(RAW)
 
 clean:
 	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv lookup_generator
+	-@rm -f precalculate
+	-@rm -f gen/*
 	-@rm -f tools/lookup_tables.S
 	-@rm -f $(RAW)
 
@@ -44,6 +47,14 @@ bmpconv: tools/bmp_converter.c
 lookup_generator: tools/generate_lookup.c
 	@echo "  HOSTCC        $@"
 	@$(HOSTCC) -lm $(HOSTCCFLAGS) tools/generate_lookup.c -o lookup_generator
+
+gen/precalc.S: precalculate
+	@echo "  PRECALC       $@"
+	@./precalculate
+
+precalculate: tools/precalculate.c
+	@echo "  HOSTCC        $@"
+	@$(HOSTCC) -lm $(HOSTCCFLAGS) tools/precalculate.c -o precalculate 
 
 tools/lookup_tables.S: lookup_generator
 	@echo "  GENLKUP       $@"
