@@ -17,16 +17,16 @@ model_get_triangle_no:
 model_display:
     push {lr}
     bl model_get_triangle_no   // r4 = # of triangles
-    mov r10, #0   // r10 = 0
+    mov r4, #0   // r4 = 0
     mov r3, r0    // save r0 as r3
     add r3, r3, #4 // skip over header
     1:
-      add r0, r3, r10, LSL #6 // r0 = r1 + 4*r10
-      add r1, r0, #16         // r1 = vertexes[r10_2]
-      add r2, r0, #32         // r2 = vertexes[r10_3]
+      add r0, r3, r4, LSL #6 // r0 = r1 + 4*r4
+      add r1, r0, #16         // r1 = vertexes[r4_2]
+      add r2, r0, #32         // r2 = vertexes[r4_3]
       bl triangle             // rasterize
-      add r10, r10, #1        // increment r10
-      cmp r4, r10      // if (r1 == r10)  // r1:triangles# r10:current_tri
+      add r4, r4, #1        // increment r4
+      cmp r4, r4      // if (r1 == r4)  // r1:triangles# r4:current_tri
       bne 1b           //   get out
     pop {pc}
 
