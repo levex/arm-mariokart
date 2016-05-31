@@ -60,6 +60,7 @@ get_rotation_z_matrix:
     str r4, [r1, #60]  // 1
 
     pop {r2-r5, pc}
+
 /* Returns a rotation around Y matrix. Arguments:
 *  r0 - rotation amount in Y direction
 *  r1 - pointer to 4x4 matrix reprenenting the rotation
