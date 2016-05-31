@@ -9,7 +9,7 @@
 */
 .globl render_string
 render_string:
-  push {r4, lr}
+  push {r0-r5, lr}
 
   mov r4, r3               // r4 = r3 (pointer to first character)
   mov r5, #0               // x_offset = 0
@@ -25,7 +25,7 @@ render_string:
     cmp r3, #0                // if (r3 != 0)
     bne 1b                    //   goto 1;
 
-  pop {r4, pc}
+  pop {r0-r5, pc}
 
 
 /* Draws a given character to the screen. Arguments:
@@ -36,7 +36,7 @@ render_string:
 */
 .globl render_char
 render_char:
-  push {r4-r9, lr}
+  push {r0-r9, lr}
 
   ldr r9, =font5x8        // *font
 
@@ -70,4 +70,4 @@ render_char:
     cmp r7, #5               // while current_x < 5
     blt 1b
 
-  pop {r4-r9, pc} 
+  pop {r0-r9, pc} 
