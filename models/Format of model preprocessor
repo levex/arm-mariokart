@@ -1,0 +1,22 @@
+Format of model preprocessor
+---------------------------------------------------------------------------------------
+  
+0x00: [Number of triangles] (uint32)
+
+0x04: [x] |
+0x08: [y] | Triangle 1, Point A (IEEE 32-bit Floating Point)
+0x12: [z] |
+
+0x16: [x] |
+0x20: [y] | Triangle 1, Point B (IEEE 32-bit Floating Point)
+0x24: [z] |
+
+0x28: [x] |
+0x32: [y] | Triangle 1, Point C (IEEE 32-bit Floating Point)
+0x36: [z] |
+
+... repeat for all triangles
+
+All 3 points of every triangle given in a counter-clockwise order
+
+Total file size: 4 + [Number of triangles] * 9 * 4

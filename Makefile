@@ -22,6 +22,9 @@ OBJS = $(subst tools/lookup_tables.o,, $(SRCS:.S=.o))
 OBJS += tools/lookup_tables.o
 OBJS += gen/precalc.o
 
+MODELS = $(wildcard models/*.stl)
+MODELS_OBJS = $(subst .stl,.pstl,$(MODELS))
+
 SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
 
@@ -31,6 +34,8 @@ clean:
 	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv lookup_generator
 	-@rm -f precalculate
 	-@rm -f gen/*
+	-@rm -f obj_converter
+	-@rm -f $(MODELS_OBJS)
 	-@rm -f tools/lookup_tables.S
 	-@rm -f $(RAW)
 
@@ -64,7 +69,15 @@ tools/lookup_tables.S: lookup_generator
 	@echo "  BMPCONV       $@"
 	@./bmpconv $< $@
 
-$(IMAGE): $(OBJS) $(SPRITES_OBJS)
+obj_converter: tools/obj_converter.c
+	@echo "  HOSTCC        $@"
+	@$(HOSTCC) $(HOSTCCFLAGS) tools/obj_converter.c -o obj_converter
+
+%.pstl: %.stl obj_converter
+	@echo "  PSTLCONV      $@"
+	@./obj_converter $< $@
+
+$(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS)
 	@echo "  LD            $@"
 	@$(LD) $(OBJS) -o $(IMAGE) -T $(LINKERSCRIPT)
 
