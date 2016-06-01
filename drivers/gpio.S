@@ -51,16 +51,37 @@ poll_gpio:
 
     mov r2, #(1 << 22)
     ands r2, r1             // check GPIO 22
-    bleq led_ok_turn_on     // <--- Button pressed
+    bleq gpio22_callback     // <--- Button pressed
 
     mov r2, #(1 << 23)      // GPIO 23
     ands r2, r1
-    bleq led_ok_turn_on     // <--- Button pressed
+    bleq gpio23_callback    // <--- Button pressed
 
     mov r2, #(1 << 24)      // GPIO 24
     ands r2, r1, r2
-    bleq led_ok_turn_on     // <--- Button pressed
+    bleq gpio24_callback    // <--- Button pressed
 
     pop {r0-r2}
+    pop {lr}
+    bx lr
+
+.globl gpio22_callback
+gpio22_callback:
+    push {lr}
+    bl led_ok_turn_on
+    pop {lr}
+    bx lr
+
+.globl gpio23_callback
+gpio23_callback:
+    push {lr}
+    bl led_ok_turn_on
+    pop {lr}
+    bx lr
+
+.globl gpio24_callback
+gpio24_callback:
+    push {lr}
+    bl led_ok_turn_on
     pop {lr}
     bx lr
