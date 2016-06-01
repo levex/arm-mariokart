@@ -31,6 +31,7 @@ test_pin:
     push {lr}
 
     check_pin:
+    bl led_ok_turn_off
     bl poll_gpio
     b check_pin
 
@@ -49,21 +50,17 @@ poll_gpio:
     ldr r1, [r0, #64]       // read event register
 
     mov r2, #(1 << 22)
-    ands r2, r1, r2         // check GPIO 22
-    blne led_ok_turn_on     // <--- Button pressed
-    bleq led_ok_turn_off
+    ands r2, r1             // check GPIO 22
+    bleq led_ok_turn_on     // <--- Button pressed
 
-/*
     mov r2, #(1 << 23)      // GPIO 23
-    ands r2, r1, r2
-    blne led_ok_turn_on     // <--- Button pressed
-    bleq led_ok_turn_off
+    ands r2, r1
+    bleq led_ok_turn_on     // <--- Button pressed
 
     mov r2, #(1 << 24)      // GPIO 24
     ands r2, r1, r2
-    blne                    // <--- Button pressed
-    bleq
-*/
+    bleq led_ok_turn_on     // <--- Button pressed
+
     pop {r0-r2}
     pop {lr}
     bx lr
