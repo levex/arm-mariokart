@@ -68,17 +68,22 @@
 .endm
 
 .macro render_everything
+  ldr r12, =back_buffer
   render_scene
+  bl copy_back_buffer
+  /* TODO, this should run every 5 frames or so */
+  ldr r12, =fb_addr
+  ldr r12, [r12]
   render_hud
 .endm
 
 .globl game_loop
 game_loop:  
+  bl fb_clear
   process_input
   process_logic
   render_everything
 
-  
   ldr r0, game_over
   cmp r0, #1         // while game_over == false
   bne game_loop

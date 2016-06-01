@@ -4,6 +4,7 @@
 // Framebuffer driver
 // Requests a framebuffer address using the mailbox
 
+.globl fb_addr
 .balign 16
 gpu_framebuffer_struct:
              .word 640  /* width */
@@ -37,7 +38,7 @@ fb_init:
     ldr r0, =framebuffer_acquired_str
     bl uart_send_string
 
-    ldr r12, fb_addr
+    ldr r12, =back_buffer
 
     pop {r0, lr}
     mov pc, lr
