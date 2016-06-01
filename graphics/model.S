@@ -21,7 +21,7 @@ model_display:
     mov r3, r0    // save r0 as r3
     add r3, r3, #4 // skip over header
     1:
-      add r0, r3, r4, LSL #6 // r0 = r1 + 4*r4
+      add r0, r3, r4, LSL #6 // r0 = r1 + 64 * r4
       add r1, r0, #16         // r1 = vertexes[r4_2]
       add r2, r0, #32         // r2 = vertexes[r4_3]
       bl triangle             // rasterize
