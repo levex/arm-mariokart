@@ -11,12 +11,10 @@
  * max3
  * returns maximum of three numbers
  * stored in r0, r1, r2
- * result is returned in r3
+ * result is returned in r10
  */
 .macro max3
-    cmp r0, r1
-    movlt r10, r1
-    movge r10, r0
+    max2
     cmp r2, r10
     movgt r10, r2
 .endm
@@ -28,9 +26,7 @@
  * result is returned in r3
  */
 .macro min3
-    cmp r0, r1
-    movlt r10, r0
-    movge r10, r1
+    min2
     cmp r2, r10
     movlt r10, r2
 .endm
