@@ -59,13 +59,11 @@ fb_copy_rect:
     mul r10, r1, r10 // r10 = y * pitch
     add r10, r0, lsl #2  // r10 = 4x + y * pitch
     add r10, r12, r10
-    mov r0, r10
     ldr r5, pitch
     sub r5, r3
     sub r5, r3
     sub r5, r3
     sub r5, r3
-    mov r1, r5
 
     mov r11, r3
 
