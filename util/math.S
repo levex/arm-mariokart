@@ -285,6 +285,51 @@ transform_vertex:
     
     pop {pc}
 
+// Multiply a mat4 with an mat4
+// r0 location of first matrix
+// r1 location of second matrix
+// r2 location of output matrix
+.globl mat4_mul_mat4
+mat4_mul_mat4:
+  push {r3, r4}
+
+  vldm.f32 r0, {s0-s15}
+
+  mov r4, #4
+1:
+  vldm.f32 r1!, {s16-s19}
+
+  vmul.f32 s20,  s0, s16
+  vmla.f32 s20,  s4, s17
+  vmla.f32 s20,  s8, s18
+  vmla.f32 s20, s12, s19
+
+  vmul.f32 s21,  s1, s16
+  vmla.f32 s21,  s5, s17
+  vmla.f32 s21,  s9, s18
+  vmla.f32 s21, s13, s19
+
+  vmul.f32 s22,  s2, s16
+  vmla.f32 s22,  s6, s17
+  vmla.f32 s22, s10, s18
+  vmla.f32 s22, s14, s19
+
+  vmul.f32 s23,  s3, s16
+  vmla.f32 s23,  s7, s17
+  vmla.f32 s23, s11, s18
+  vmla.f32 s23, s15, s19
+
+  vstm.f32 r2!, {s20-s23}
+
+  subs r4, #1
+  bne 1b
+
+  sub r1, #64
+  sub r2, #64
+
+  pop {r3, r4}
+  mov pc, lr
+
 /* Matrix multiplication
 *  r0 pointer to matrix A
 *  r1 pointer to matrix B
