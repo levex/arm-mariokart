@@ -218,72 +218,36 @@ get_scaling_matrix:
 /*
  * Transforms a vertex based on the matrix
  *
- * r1 - Pointer to Transformation matrix
- * r2 - Pointer to Vertex
+ * r0 - Pointer to Transformation matrix
+ * r1 - Pointer to Vertex
+ * r2 - Output vertex
  */
 .globl transform_vertex
 transform_vertex:
-    push {lr}
+mat4_mul_vec4:
+  vldm.f32  r0, {s0 - s15}
+  vldm.f32  r1, {s16 - s19}
 
-    vldr s3, [r1]  // r3 = a
-    vldr s4, [r2]  // r4 = x
-    vmul.f32 s0, s3, s4 // r0 = ax
+  vmul.f32  s20,  s0, s16
+  vmul.f32  s21,  s1, s16
+  vmul.f32  s22,  s2, s16
+  vmul.f32  s23,  s3, s16
+  vmla.f32  s20,  s4, s17
+  vmla.f32  s21,  s5, s17
+  vmla.f32  s22,  s6, s17
+  vmla.f32  s23,  s7, s17
+  vmla.f32  s20,  s8, s18
+  vmla.f32  s21,  s9, s18
+  vmla.f32  s22, s10, s18
+  vmla.f32  s23, s11, s18
+  vmla.f32  s20, s12, s19
+  vmla.f32  s21, s13, s19
+  vmla.f32  s22, s14, s19
+  vmla.f32  s23, s15, s19
 
-    vldr s3, [r1, #4] // r3 = b
-    vldr s4, [r2, #4] // r4 = y
-    vmla.f32 s0, s3, s4 // r0 = by + ax
+  vstm.f32  r2, {s20 - s23}
 
-    vldr s3, [r1, #8] // r3 = c
-    vldr s4, [r2, #8] // r4 = z
-    vmla.f32 s0, s3, s4 // r0 = by + ax + cz
-    
-    vldr s3, [r1, #12] // r3 = d
-    vadd.f32 s0, s0, s3    // r0 = d + by + ax + cz
-    vmov s5, s0        // r5 = v1
-
-    // second element now
-    vldr s3, [r1, #16] // r3 = e
-    vldr s4, [r2]      // r4 = x
-    vmul.f32 s0, s3, s4    // r0 = ex
-
-    vldr s3, [r1, #20] // r3 = f
-    vldr s4, [r2, #4] // r4 = y
-    vmla.f32 s0, s3, s4// r0 = fy + ex
-
-    vldr s3, [r1, #24] // r3 = g
-    vldr s4, [r2, #8] // r4 = z
-    vmla.f32 s0, s3, s4 // r0 = gz + fy + ex
-
-    vldr s3, [r1, #28] // r3 = h
-    vadd.f32 s0, s0, s3    // r0 = h + gz + fy + ex
-    vmov s6, s0     // r6 = v2
-
-    // third element
-    vldr s3, [r1, #32] // r3 = i
-    vldr s4, [r2]      // r4 = x
-    vmul.f32 s0, s3, s4    // r0 = ix
-
-    vldr s3, [r1, #36] // r3 = j
-    vldr s4, [r2, #4]  // r4 = y
-    vmla.f32 s0, s3, s4// r0 = jy + ix
-
-    vldr s3, [r1, #40] // r3 = k
-    vldr s4, [r2, #8]  // r4 = z
-    vmla.f32 s0, s3, s4// r0 = kz + jy + ix
-
-    vldr s3, [r1, #44] // r3 = l
-    vadd.f32 s0, s0, s3    // r0 = l + kz + jy + ix
-    vmov s7, s0        // r7 = v3
-
-    // forth element
-    mov r8, #1         // r8 = v4
-
-    vstr s5, [r2]
-    vstr s6, [r2, #4]
-    vstr s7, [r2, #8]
-    str r8, [r2, #12]
-    
-    pop {pc}
+  mov       pc, lr
 
 // Multiply a mat4 with an mat4
 // r0 location of first matrix

@@ -20,8 +20,11 @@
   add r2, r2, #8
   bl fb_copy_rect
 
+  /* render map */
+  /* TODO */
+
   /* render kart */
-  ldr r0, =pobj_test_data
+  ldr r0, =cube_data
   bl model_display
 .endm
 
@@ -79,7 +82,7 @@
 
 .globl game_loop
 game_loop:  
-  bl fb_clear
+  //bl fb_clear
   process_input
   process_logic
   render_everything
@@ -88,5 +91,132 @@ game_loop:
   cmp r0, #1         // while game_over == false
   bne game_loop
 
-.global game_over
+.globl game_over
 game_over: .byte 0
+
+.globl cube_data
+cube_data:
+.word 12
+.word 0x42c80000, 0x42c80000, 0x42c80000, 1  // A
+.word 0x42c80000, 0x43480000, 0x42c80000, 1  // B
+.word 0x43480000, 0x43480000, 0x42c80000, 1  // C
+.word          0,          0,          0, 0  // pad
+
+.word 0x42c80000, 0x42c80000, 0x42c80000, 1  // A
+.word 0x43480000, 0x43480000, 0x42c80000, 1  // C
+.word 0x43480000, 0x42c80000, 0x42c80000, 1  // D
+.word          0,          0,          0, 0  // pad
+
+
+.word 0x43480000, 0x43480000, 0x42c80000, 1  // C
+.word 0x43480000, 0x43480000, 0x43480000, 1  // G
+.word 0x43480000, 0x42c80000, 0x42c80000, 1  // D
+.word          0,          0,          0, 0  // pad
+
+.word 0x43480000, 0x42c80000, 0x42c80000, 1  // D
+.word 0x43480000, 0x43480000, 0x43480000, 1  // G
+.word 0x43480000, 0x42c80000, 0x43480000, 1  // H
+.word          0,          0,          0, 0  // pad
+
+.word 0x43480000, 0x42c80000, 0x43480000, 1  // H
+.word 0x43480000, 0x43480000, 0x43480000, 1  // G
+.word 0x42c80000, 0x43480000, 0x43480000, 1  // F
+.word          0,          0,          0, 0  // pad
+
+.word 0x43480000, 0x42c80000, 0x43480000, 1  // H
+.word 0x42c80000, 0x43480000, 0x43480000, 1  // F
+.word 0x42c80000, 0x42c80000, 0x43480000, 1  // E
+.word          0,          0,          0, 0  // pad
+
+.word 0x42c80000, 0x42c80000, 0x43480000, 1  // E
+.word 0x42c80000, 0x43480000, 0x43480000, 1  // F
+.word 0x42c80000, 0x43480000, 0x42c80000, 1  // B
+.word          0,          0,          0, 0  // pad
+
+.word 0x42c80000, 0x42c80000, 0x43480000, 1  // E
+.word 0x42c80000, 0x43480000, 0x42c80000, 1  // B
+.word 0x42c80000, 0x42c80000, 0x42c80000, 1  // A
+.word          0,          0,          0, 0  // pad
+
+.word 0x42c80000, 0x42c80000, 0x43480000, 1  // E
+.word 0x42c80000, 0x42c80000, 0x42c80000, 1  // A
+.word 0x43480000, 0x42c80000, 0x42c80000, 1  // D
+.word          0,          0,          0, 0  // pad
+
+.word 0x42c80000, 0x42c80000, 0x43480000, 1  // E
+.word 0x43480000, 0x42c80000, 0x42c80000, 1  // D
+.word 0x43480000, 0x42c80000, 0x43480000, 1  // H
+.word          0,          0,          0, 0  // pad
+
+.word 0x42c80000, 0x43480000, 0x42c80000, 1  // B
+.word 0x42c80000, 0x43480000, 0x43480000, 1  // F
+.word 0x43480000, 0x43480000, 0x43480000, 1  // G
+.word          0,          0,          0, 0  // pad
+
+.word 0x42c80000, 0x43480000, 0x42c80000, 1  // B
+.word 0x43480000, 0x43480000, 0x43480000, 1  // G
+.word 0x43480000, 0x43480000, 0x42c80000, 1  // C
+.word          0,          0,          0, 0  // pad
+
+.globl cube_data2
+cube_data2:
+.word 12
+.word 100, 100, 100, 1  // A
+.word 100, 200, 100, 1  // B
+.word 200, 200, 100, 1  // C
+.word 0x00FF0000,0,0, 0  // pad
+
+.word 100, 100, 100, 1  // A
+.word 200, 200, 100, 1  // C
+.word 200, 100, 100, 1  // D
+.word 0x00FF0000,0,0, 0  // pad
+
+.word 200, 200, 100, 1  // C
+.word 200, 200, 200, 1  // G
+.word 200, 100, 100, 1  // D
+.word 0x0000FF00,0,0, 0  // pad
+
+.word 200, 100, 100, 1  // D
+.word 200, 200, 200, 1  // G
+.word 200, 100, 200, 1  // H
+.word 0x0000FF00,0,0, 0  // pad
+
+.word 200, 100, 200, 1  // H
+.word 200, 200, 200, 1  // G
+.word 100, 200, 200, 1  // F
+.word 0x000000FF,0,0, 0  // pad
+
+.word 200, 100, 200, 1  // H
+.word 100, 200, 200, 1  // F
+.word 100, 100, 200, 1  // E
+.word 0x000000FF,0,0, 0  // pad
+
+.word 100, 100, 200, 1  // E
+.word 100, 200, 200, 1  // F
+.word 100, 200, 100, 1  // B
+.word 0x0000FFFF,0,0, 0  // pad
+
+.word 100, 100, 200, 1  // E
+.word 100, 200, 100, 1  // B
+.word 100, 100, 100, 1  // A
+.word 0x0000FFFF,0,0, 0  // pad
+
+.word 100, 100, 200, 1  // E
+.word 100, 100, 100, 1  // A
+.word 200, 100, 100, 1  // D
+.word 0x00FFFF00,0,0, 0  // pad
+
+.word 100, 100, 200, 1  // E
+.word 200, 100, 100, 1  // D
+.word 200, 100, 200, 1  // H
+.word 0x00FFFF00,0,0, 0  // pad
+
+.word 100, 200, 100, 1  // B
+.word 100, 200, 200, 1  // F
+.word 200, 200, 200, 1  // G
+.word 0x00FFFFFF,0,0, 0  // pad
+
+.word 100, 200, 100, 1  // B
+.word 200, 200, 200, 1  // G
+.word 200, 200, 100, 1  // C
+.word 0x00FFFFFF,0,0, 0  // pad

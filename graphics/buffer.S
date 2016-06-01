@@ -1,5 +1,4 @@
-.section ".data"
-
+.section ".text"
 .globl copy_back_buffer
 copy_back_buffer:
     push {lr}
@@ -13,6 +12,8 @@ copy_back_buffer:
     bl fb_copy_rect
     ldr r12, =back_buffer
     pop {pc}
+
+.section ".data"
 
 .globl back_buffer
 back_buffer: .skip 640*480*4
