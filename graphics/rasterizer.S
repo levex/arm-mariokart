@@ -23,26 +23,26 @@
 .endm
 
 .macro sort_vertices
-    cmp r4, r5
-    movgt r10, r5
-    movgt r5, r4
-    movgt r4, r10
+    cmp r3, r4
+    movgt r10, r4
+    movgt r4, r3
+    movgt r3, r10
     movgt r10, r1
     movgt r1, r0
     movgt r0, r10
 
-    cmp r4, r6
-    movgt r10, r6
-    movgt r6, r4
-    movgt r4, r10
+    cmp r3, r5
+    movgt r10, r5
+    movgt r5, r3
+    movgt r3, r10
     movgt r10, r2
     movgt r2, r0
     movgt r0, r10
 
-    cmp r5, r6
-    movgt r10, r6
-    movgt r6, r5
-    movgt r5, r10
+    cmp r4, r5
+    movgt r10, r5
+    movgt r5, r4
+    movgt r4, r10
     movgt r10, r2
     movgt r2, r1
     movgt r1, r10
@@ -72,13 +72,21 @@
         vstr s16, [r10]
         add r10, #1
         cmp r10, r11
-        ble 12b
+        blt 12b
 .endm
 
 draw_flat_triangle:
     push {r0-r9}
 
     mov r9, #0
+
+    cmp r0, r1
+    movgt r10, r1
+    movgt r1, r0
+    movgt r0, r10
+    movgt r10, r4
+    movgt r4, r3
+    movgt r3, r10
 
     subs r6, r0, r2  // dx1
     neglt r6, r6
@@ -147,17 +155,18 @@ draw_flat_triangle:
         b 3b
 
       4:
-      push {r10-r11}
-      draw_line
-      pop {r10-r11}
-
       tst r9, #(1 << 0)
       addeq r2, #1
       subne r2, #1
 
+      push {r10-r11}
+      draw_line
+      pop {r10-r11}
+
       b 1b
 
     5:
+    draw_line
     pop {r0-r9}
     mov pc, lr
 
@@ -219,10 +228,18 @@ triangle:
 
     load_3x
 
-//    sort_vertices
+    sort_vertices
 
     cmp r4, r5
     bne 1f
+    mov r10, r4
+    mov r4, r5
+    mov r5, r3
+    mov r3, r10
+    mov r10, r1
+    mov r1, r2
+    mov r2, r0
+    mov r0, r10
     bl draw_flat_triangle
     b 3f
 
@@ -233,8 +250,8 @@ triangle:
     b 3f
 
     2:
-    sub r10, r5, r4       // v2.y - v1.y
-    sub r11, r6, r4       // v3.y - v1.y
+    sub r10, r4, r3       // v2.y - v1.y
+    sub r11, r5, r3       // v3.y - v1.y
     vmov s0, s1, r10, r11
     vcvt.f32.s32 s0, s0
     vcvt.f32.s32 s1, s1
@@ -245,18 +262,24 @@ triangle:
     vmul.f32 s4, s2, s3   // ((v2.y - v1.y) / (v3.y - v1.y)) * (v3.x - v1.x)
     vcvt.s32.f32 s4, s4   // convert line length to int
     vmov r10, s4
-    add r6, r1, r10       // x_mid = v1.x + (length of line); y_mid = r5
+    add r6, r0, r10       // x_mid = v1.x +- (length of line); y_mid = r5
     mov r7, r2            // save v3.x
     mov r8, r5            // save v3.y
-    mov r2, r6            // v3.x = v_mid.x
-    mov r5, r4            // v3.y = v_mid.y = v2.y
+    mov r2, r0
+    mov r5, r3
+    mov r0, r6
+    mov r3, r4
+    cmp r10, #0
+    subge r0, #1
+    addlt r0, #1
     bl draw_flat_triangle
 
     mov r2, r7  // restore v3.x
     mov r5, r8  // restore v3.y
-    mov r0, r1  // v1.x = v2.x
-    mov r3, r4  // v1.y = v2.y
-    mov r1, r6  // v2.x = v_mid.x
+    vmov r10, s4
+    cmp r10, #0
+    addge r0, #1
+    sublt r0, #1
     bl draw_flat_triangle
 
     3:
@@ -296,13 +319,13 @@ edge_f:
 //Triangle vertices - x, y, z, w coord
 .balign 16
 vertA:
-    .word 70, 100, 0, 1
+    .word 100, 100, 0, 1
 
 vertB:
-    .word 140, 100, 0, 1
+    .word 140, 150, 0, 1
 
 vertC:
-    .word 100, 200, 0, 1
+    .word 70, 200, 0, 1
 
 vertP:
     .word 0, 0, 0, 1
