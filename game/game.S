@@ -11,6 +11,18 @@
 .endm
 
 .macro render_scene
+  /* render skybox */
+  mov r0, #0
+  mov r1, #0
+  mov r3, #640
+  mov r4, #380
+  ldr r2, =sky_pbmp
+  add r2, r2, #8
+  bl fb_copy_rect
+
+  /* render kart */
+  ldr r0, =pobj_test_data
+  bl model_display
 .endm
 
 
