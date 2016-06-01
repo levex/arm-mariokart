@@ -16,3 +16,6 @@ copy_back_buffer:
     bl fb_copy_rect
     ldr r12, =back_buffer
     pop {pc}
+
+.globl depth_buffer
+depth_buffer: .skip 640*480*4
