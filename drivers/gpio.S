@@ -26,19 +26,6 @@ controller_init:
     pop {lr}
     bx lr
 
-.globl test_pin
-test_pin:
-    push {lr}
-
-    check_pin:
-    bl led_ok_turn_off
-    bl poll_gpio
-    b check_pin
-
-    pop {lr}
-    bx lr
-
-
 .globl poll_gpio
 poll_gpio:
     push {lr}

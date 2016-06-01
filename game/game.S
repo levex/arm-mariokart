@@ -2,7 +2,8 @@
 .include "graphics/colors.S"
 
 .macro process_input
-
+  bl led_ok_turn_off
+  bl poll_gpio
 .endm
 
 .macro process_logic
@@ -65,10 +66,10 @@ game_loop:
   process_logic
   render_everything
 
-  /*
+  
   ldr r0, game_over
   cmp r0, #1         // while game_over == false
-  bne game_loop*/
+  bne game_loop
 
 .global game_over
 game_over: .byte 0
