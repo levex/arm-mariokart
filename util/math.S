@@ -19,6 +19,22 @@ cos:
     ldr r0, [r10, r0, LSL #2]
     mov pc, lr
 
+// Determines the dot product of two vectors
+// r0 -> first vector
+// r1 -> second vector
+// s0 <- dot product
+// clobbers: s0 - s6
+.globl vec_dot
+vec4_dot:
+  vldm.f32 r0, {s1-s3}
+  vldm.f32 r1, {s4-s6}
+
+  vmul.f32 s0, s1, s4
+  vmla.f32 s0, s2, s5
+  vmla.f32 s0, s3, s6
+
+  mov pc, lr
+
 /* Returns a rotation around Z matrix. Arguments:
 *  r0 - rotation amount in Z direction
 *  r1 - pointer to 4x4 matrix reprenenting the rotation
