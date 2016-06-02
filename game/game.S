@@ -24,8 +24,8 @@
   /* TODO */
 
   /* render kart */
-  ldr r0, =cube_data2
-  bl model_display
+  //ldr r0, =cube_data2
+  //bl model_display
 .endm
 
 
