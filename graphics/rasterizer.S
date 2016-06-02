@@ -51,8 +51,11 @@
 .macro draw_line
     mov r10, #2560 // r10 = pitch
     mul r10, r2, r10 // r10 = y * pitch
-    add r11, r10, r1, lsl #2
-    add r10, r0, lsl #2  // r10 = 4x + y * pitch
+    cmp r1, #640
+    addle r11, r10, r1, lsl #2
+    addgt r11, r10, #640
+    cmp r0, #0
+    addge r10, r0, lsl #2  // r10 = 4x + y * pitch
     add r10, r12
     add r11, r12
 
