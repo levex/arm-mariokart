@@ -24,8 +24,8 @@
   /* TODO */
 
   /* render kart */
-  //ldr r0, =cube_data2
-  //bl model_display
+  ldr r0, =cube_data
+  bl model_display
 .endm
 
 
@@ -98,66 +98,71 @@ game_over: .byte 0
 .balign 16
 cube_data:
 .word 12
-.float 100, 100, 100, 1  // A
-.float 100, 200, 100, 1  // B
-.float 200, 200, 100, 1  // C
-.float 0, 0, 0, 0  // pad
+// Front Face
+.float 3, 3, 15, 1  // A
+.float 3, 6, 15, 1  // B
+.float 6, 6, 15, 1  // C
+.word  0x00FF0000, 0, 0, 0  // pad
 
-.float 100, 100, 100, 1  // A
-.float 200, 200, 100, 1  // C
-.float 200, 100, 100, 1  // D
-.float 0, 0, 0, 0  // pad
+.float 3, 3, 15, 1  // A
+.float 6, 6, 15, 1  // C
+.float 6, 3, 15, 1  // D
+.word  0x00FF0000, 0, 0, 0  // pad
 
+// Right Face
+.float 6, 6, 15, 1  // C
+.float 6, 6, 25, 1  // G
+.float 6, 3, 15, 1  // D
+.word  0x0000FF00,0,0, 0  // pad
 
-.float 200, 200, 100, 1  // C
-.float 200, 200, 200, 1  // G
-.float 200, 100, 100, 1  // D
-.float 0, 0, 0, 0  // pad
+.float 6, 3, 15, 1  // D
+.float 6, 6, 25, 1  // G
+.float 6, 3, 25, 1  // H
+.word  0x0000FF00,0,0, 0  // pad
 
-.float 200, 100, 100, 1  // D
-.float 200, 200, 200, 1  // G
-.float 200, 100, 200, 1  // H
-.float 0, 0, 0, 0  // pad
+// Back Face
+.float 6, 3, 25, 1  // H
+.float 6, 6, 25, 1  // G
+.float 3, 6, 25, 1  // F
+.word  0x000000FF,0,0, 0  // pad
 
-.float 200, 100, 200, 1  // H
-.float 200, 200, 200, 1  // G
-.float 100, 200, 200, 1  // F
-.float 0, 0, 0, 0  // pad
+.float 6, 3, 25, 1  // H
+.float 3, 6, 25, 1  // F
+.float 3, 3, 25, 1  // E
+.word  0x000000FF,0,0, 0  // pad
 
-.float 200, 100, 200, 1  // H
-.float 100, 200, 200, 1  // F
-.float 100, 100, 200, 1  // E
-.float 0, 0, 0, 0  // pad
+// Left Face
+.float 3, 3, 25, 1  // E
+.float 3, 6, 25, 1  // F
+.float 3, 6, 15, 1  // B
+.word  0x0000FFFF,0,0, 0  // pad
 
-.float 100, 100, 200, 1  // E
-.float 100, 200, 200, 1  // F
-.float 100, 200, 100, 1  // B
-.float 0, 0, 0, 0  // pad
+.float 3, 3, 25, 1  // E
+.float 3, 6, 15, 1  // B
+.float 3, 3, 15, 1  // A
+.word  0x0000FFFF,0,0, 0  // pad
 
-.float 100, 100, 200, 1  // E
-.float 100, 200, 100, 1  // B
-.float 100, 100, 100, 1  // A
-.float 0, 0, 0, 0  // pad
+// Top Face
+.float 3, 3, 25, 1  // E
+.float 3, 3, 15, 1  // A
+.float 6, 3, 15, 1  // D
+.word  0x00FFFF00,0,0, 0  // pad
 
-.float 100, 100, 200, 1  // E
-.float 100, 100, 100, 1  // A
-.float 200, 100, 100, 1  // D
-.float 0, 0, 0, 0  // pad
+.float 3, 3, 25, 1  // E
+.float 6, 3, 15, 1  // D
+.float 6, 3, 25, 1  // H
+.word  0x00FFFF00,0,0, 0  // pad
 
-.float 100, 100, 200, 1  // E
-.float 200, 100, 100, 1  // D
-.float 200, 100, 200, 1  // H
-.float 0, 0, 0, 0  // pad
+// Bottom Face
+.float 3, 6, 15, 1  // B
+.float 3, 6, 25, 1  // F
+.float 6, 6, 25, 1  // G
+.word  0x00FFFFFF,0,0, 0  // pad
 
-.float 100, 200, 100, 1  // B
-.float 100, 200, 200, 1  // F
-.float 200, 200, 200, 1  // G
-.float 0, 0, 0, 0  // pad
-
-.float 100, 200, 100, 1  // B
-.float 200, 200, 200, 1  // G
-.float 200, 200, 100, 1  // C
-.float 0, 0, 0, 0  // pad
+.float 3, 6, 15, 1  // B
+.float 6, 6, 25, 1  // G
+.float 6, 6, 15, 1  // C
+.word  0x00FFFFFF,0,0, 0  // pad
 
 .globl cube_data2
 cube_data2:

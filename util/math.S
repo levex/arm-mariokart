@@ -149,10 +149,10 @@ get_rotation_x_matrix:
 /* writes the perspective matrix to location r0 */
 .globl projection_matrix
 projection_matrix:
-  .word 0x3f800000,          0,          0,          0
-  .word          0, 0x3f800000,          0,          0
-  .word          0,          0, 0xbf800000, 0xc1a00000
-  .word          0,          0, 0xbf800000,          0
+  .float    0.59375,           0,          0,          0
+  .float          0,           1,          0,          0
+  .float          0,           0, 1.06896552, 20.6896552
+  .float          0,           0,          1,          0
 
 /* Returns a translation matrix. Arguments:
 *  r0 - translation amount in X direction
@@ -181,7 +181,7 @@ get_translation_matrix:
     str r4, [r3, #36]  // 0
     str r5, [r3, #40]  // 1
     str r2, [r3, #44]  // Z
-    
+
     str r4, [r3, #48]  // 0
     str r4, [r3, #52]  // 0
     str r4, [r3, #56]  // 0
@@ -222,40 +222,71 @@ get_scaling_matrix:
  * r1 - Pointer to Vertex
  * r2 - Output vertex
  */
-.globl transform_vertex
-transform_vertex:
+.globl transform_triangle
+transform_triangle:
   vldm.f32  r0, {s0 - s15}
-  vldm.f32  r1, {s16 - s19}
 
-  vmul.f32  s20,  s0, s16
-  vmul.f32  s21,  s1, s16
-  vmul.f32  s22,  s2, s16
-  vmul.f32  s23,  s3, s16
-  vmla.f32  s20,  s4, s17
-  vmla.f32  s21,  s5, s17
-  vmla.f32  s22,  s6, s17
-  vmla.f32  s23,  s7, s17
-  vmla.f32  s20,  s8, s18
-  vmla.f32  s21,  s9, s18
-  vmla.f32  s22, s10, s18
-  vmla.f32  s23, s11, s18
-  vmla.f32  s20, s12, s19
-  vmla.f32  s21, s13, s19
-  vmla.f32  s22, s14, s19
-  vmla.f32  s23, s15, s19
+  mov r10, #1
+  vmov.f32 s24, r10
+  vcvt.f32.s32 s24, s24
 
-  /* normalize by w */
-  vdiv.f32 s20, s20, s23 // x = x / w
-  vdiv.f32 s21, s21, s23 // y = y / w
-  vdiv.f32 s22, s22, s23 // z = z / w
-  vdiv.f32 s23, s23, s23 // w = w / w
+  mov r10, #320
+  vmov.f32 s25, r10
+  vcvt.f32.s32 s25, s25
 
-  vdiv.f32 s20, s20, s22 // x = x / z
-  vdiv.f32 s21, s21, s22 // y = x / z
+  mov r10, #190
+  vmov.f32 s26, r10
+  vcvt.f32.s32 s26, s26
 
-  /* convert to unsigned integer */
+  mov r10, #3
 
-  vstm.f32  r2, {s20 - s23}
+  1:
+    vldm.f32  r1!, {s16 - s19}
+
+    vmul.f32  s20,  s0, s16
+    vmul.f32  s21,  s1, s16
+    vmul.f32  s22,  s2, s16
+    vmul.f32  s23,  s3, s16
+
+    vmla.f32  s20,  s4, s17
+    vmla.f32  s21,  s5, s17
+    vmla.f32  s22,  s6, s17
+    vmla.f32  s23,  s7, s17
+
+    vmla.f32  s20,  s8, s18
+    vmla.f32  s21,  s9, s18
+    vmla.f32  s22, s10, s18
+    vmla.f32  s23, s11, s18
+
+    vmla.f32  s20, s12, s19
+    vmla.f32  s21, s13, s19
+    vmla.f32  s22, s14, s19
+    vmla.f32  s23, s15, s19
+
+    /* normalize by w */
+    vdiv.f32 s20, s20, s23 // x = x / w
+    vdiv.f32 s21, s21, s23 // y = y / w
+    vdiv.f32 s22, s22, s23 // z = z / w
+    vdiv.f32 s23, s23, s23 // w = w / w
+
+    vdiv.f32 s20, s20, s22 // x = x / z
+    vdiv.f32 s21, s21, s22 // y = x / z
+
+    vadd.f32 s20, s20, s24
+    vadd.f32 s21, s21, s24
+    vmul.f32 s20, s20, s25
+    vmul.f32 s21, s21, s26
+
+    /* convert to unsigned integer */
+    vcvt.s32.f32 s20, s20
+    vcvt.s32.f32 s21, s21
+    vcvt.s32.f32 s22, s22
+    vcvt.s32.f32 s23, s23
+
+    vstm.f32  r2!, {s20 - s23}
+
+    subs r10, #1
+    bne 1b
 
   mov       pc, lr
 
