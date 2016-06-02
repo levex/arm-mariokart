@@ -68,6 +68,13 @@
   mov r2, #color_red
   ldr r3, =score_str
   bl render_string
+
+  /* Score */
+  mov r0, #400
+  ldr r1, =440
+  mov r2, #color_red
+  ldr r3, =powerups_str
+  bl render_string
 .endm
 
 .macro render_everything
