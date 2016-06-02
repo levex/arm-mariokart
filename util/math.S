@@ -224,7 +224,6 @@ get_scaling_matrix:
  */
 .globl transform_vertex
 transform_vertex:
-mat4_mul_vec4:
   vldm.f32  r0, {s0 - s15}
   vldm.f32  r1, {s16 - s19}
 
@@ -244,6 +243,17 @@ mat4_mul_vec4:
   vmla.f32  s21, s13, s19
   vmla.f32  s22, s14, s19
   vmla.f32  s23, s15, s19
+
+  /* normalize by w */
+  vdiv.f32 s20, s20, s23 // x = x / w
+  vdiv.f32 s21, s21, s23 // y = y / w
+  vdiv.f32 s22, s22, s23 // z = z / w
+  vdiv.f32 s23, s23, s23 // w = w / w
+
+  vdiv.f32 s20, s20, s22 // x = x / z
+  vdiv.f32 s21, s21, s22 // y = x / z
+
+  /* convert to unsigned integer */
 
   vstm.f32  r2, {s20 - s23}
 
