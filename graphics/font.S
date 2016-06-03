@@ -1,6 +1,58 @@
 .section ".text"
 .include "util/macros.S"
 
+
+/* Draws a given integer to the screen. Arguments:
+*  r0 - x
+*  r1 - y
+*  r2 - font color
+*  r3 - pointer to string
+*/
+.globl render_int
+render_int:
+  push {r0-r7, lr}
+
+  mov r4, #10 // base
+
+  mov r7, #0
+  mov r5, r3
+  cmp r5, #0
+  bge 1f
+  mov r3, #0x2D       // ascii code of '-'
+  bl render_char
+  neg r5, r5
+  add r0, r0, #6
+
+  1:
+      mov r3, r5
+      bl udiv
+      mov r6, r3
+      mul r3, r4, r6
+      sub r3, r5, r3
+      push {r3}
+      add r7, #1
+      cmp r6, #0
+      beq 2f
+      mov r5, r6
+      b 1b
+
+  2:
+      pop {r3}
+      cmp r3, #10
+      addlt r3, #0x30  // if r3 < 10, add it to ascii code of '0' to get char
+      subge r3, #10    // else remove 10
+      addge r3, #0x41  // and add ascii code of 'A' to get hex value
+      bl render_char
+      add r0, r0, #6
+      sub r7, #1
+      cmp r7, #0
+      bne 2b
+
+  mov r0, #0    // Append null character
+  str r0, [r5]
+
+  pop {r0-r7, pc}
+
 /* Draws a given string to the screen. Arguments:
 *  r0 - x
 *  r1 - y
