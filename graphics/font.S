@@ -6,7 +6,7 @@
 *  r0 - x
 *  r1 - y
 *  r2 - font color
-*  r3 - pointer to string
+*  r3 - integer
 */
 .globl render_int
 render_int:
