@@ -106,22 +106,26 @@ game_over: .byte 0
 cube_data:
 .word 12
 // Front Face
+// CCW
 .float 3, 3, 15, 1  // A
 .float 3, 6, 15, 1  // B
 .float 6, 6, 15, 1  // C
 .word  0x00FF0000, 0, 0, 0  // pad
 
+// CCW
+.float 6, 3, 15, 1  // D
 .float 3, 3, 15, 1  // A
 .float 6, 6, 15, 1  // C
-.float 6, 3, 15, 1  // D
 .word  0x00FF0000, 0, 0, 0  // pad
 
 // Right Face
+// CCW
 .float 6, 6, 15, 1  // C
 .float 6, 6, 25, 1  // G
 .float 6, 3, 15, 1  // D
 .word  0x0000FF00,0,0, 0  // pad
 
+// CCW
 .float 6, 3, 15, 1  // D
 .float 6, 6, 25, 1  // G
 .float 6, 3, 25, 1  // H
@@ -144,9 +148,9 @@ cube_data:
 .float 3, 6, 15, 1  // B
 .word  0x0000FFFF,0,0, 0  // pad
 
+.float 3, 3, 15, 1  // A
 .float 3, 3, 25, 1  // E
 .float 3, 6, 15, 1  // B
-.float 3, 3, 15, 1  // A
 .word  0x0000FFFF,0,0, 0  // pad
 
 // Top Face
@@ -155,9 +159,9 @@ cube_data:
 .float 6, 3, 15, 1  // D
 .word  0x00FFFF00,0,0, 0  // pad
 
+.float 6, 3, 25, 1  // H
 .float 3, 3, 25, 1  // E
 .float 6, 3, 15, 1  // D
-.float 6, 3, 25, 1  // H
 .word  0x00FFFF00,0,0, 0  // pad
 
 // Bottom Face
@@ -167,8 +171,8 @@ cube_data:
 .word  0x00FFFFFF,0,0, 0  // pad
 
 .float 3, 6, 15, 1  // B
-.float 6, 6, 25, 1  // G
 .float 6, 6, 15, 1  // C
+.float 6, 6, 25, 1  // G
 .word  0x00FFFFFF,0,0, 0  // pad
 
 .globl cube_data2

@@ -52,7 +52,7 @@ get_rotation_z_matrix:
     mov r3, r2
     eor r3, r3, #0x80000000 // r3 = -sin(zrot)
 
-    mov r4, #1
+    mov r4, #0x3f800000
     mov r5, #0
 
     str r0, [r1]       // cos(zrot)
@@ -94,7 +94,7 @@ get_rotation_y_matrix:
     mov r3, r2
     eor r3, r3, #0x80000000 // r3 = -sin(yrot)
 
-    mov r4, #1
+    mov r4, #0x3f800000
     mov r5, #0
 
     str r0, [r1]       // cos(yrot)
@@ -134,9 +134,9 @@ get_rotation_x_matrix:
     bl cos            // r0 = cos(xrot)
 
     mov r3, r2
-    eor r3, r3, #0x80000000 // r3 = -sin(xrot)
+    eor r3, r3, #(1 << 31) // r3 = -sin(xrot)
 
-    mov r4, #1
+    mov r4, #0x3f800000
     mov r5, #0
 
     str r4, [r1]       // 1
@@ -168,7 +168,7 @@ projection_matrix:
   .float    0.59375,           0,          0,          0
   .float          0,           1,          0,          0
   .float          0,           0, 1.06896552, 20.6896552
-  .float          0,           0,          1,          0
+  .float          0,           0,          -1,          0
 
 /* Returns a translation matrix. Arguments:
 *  r0 - translation amount in X direction
@@ -243,19 +243,19 @@ transform_triangle:
   vldm.f32  r0, {s0 - s15}
 
   mov r10, #1
-  vmov.f32 s24, r10
+  vmov.s32 s24, r10
   vcvt.f32.s32 s24, s24
 
   mov r10, #320
-  vmov.f32 s25, r10
+  vmov.s32 s25, r10
   vcvt.f32.s32 s25, s25
 
   mov r10, #190
-  vmov.f32 s26, r10
+  vmov.s32 s26, r10
   vcvt.f32.s32 s26, s26
 
   mov r10, #3
-
+  ldr r11, =dummy_vertex_p
   1:
     vldm.f32  r1!, {s16 - s19}
 
@@ -288,6 +288,9 @@ transform_triangle:
     vdiv.f32 s20, s20, s22 // x = x / z
     vdiv.f32 s21, s21, s22 // y = x / z
 
+    /* store x & y temporarily */
+    vstm.f32 r11!, {s20, s21}
+
     vadd.f32 s20, s20, s24
     vadd.f32 s21, s21, s24
     vmul.f32 s20, s20, s25
@@ -299,12 +302,31 @@ transform_triangle:
     vcvt.s32.f32 s22, s22
     vcvt.s32.f32 s23, s23
 
-    vstm.f32  r2!, {s20 - s23}
+    vstm.s32  r2!, {s20 - s23}
 
     subs r10, #1
     bne 1b
 
+  /* do backface culling */
+  vldr.f32 s20, [r11, #-24]  // s20 = x0
+  vldr.f32 s21, [r11, #-20]  // s21 = y0
+  vldr.f32 s22, [r11, #-16]  // s22 = x1
+  vldr.f32 s23, [r11, #-12]  // s23 = y1
+  vldr.f32 s24, [r11, #-8]   // s24 = x2
+  vldr.f32 s25, [r11, #-4]   // s25 = y2
+
+  vmul.f32 s0, s20, s23 //   x0 * y1
+  vmla.f32 s0, s24, s21 // + x2 * y0
+  vmla.f32 s0, s22, s23 // + x1 * y1
+  vmls.f32 s0, s20, s25 // - x0 * y2
+  vmls.f32 s0, s22, s21 // - x1 * y0
+  vmls.f32 s0, s24, s23 // - x2 * y1
+  vmov.f32 r1, s0
+
   mov       pc, lr
+
+.balign 4
+dummy_vertex_p: .word 0, 0, 0, 0, 0, 0
 
 // Multiply a mat4 with an mat4
 // r0 location of first matrix
@@ -312,9 +334,15 @@ transform_triangle:
 // r2 location of output matrix
 .globl mat4_mul_mat4
 mat4_mul_mat4:
-  push {r3, r4}
+  push {r3, r4, pc}
 
   vldm.f32 r0, {s0-s15}
+
+    push {r0-r12}
+      mov r0, #'A'
+      bl uart_send_byte
+      bl uart_send_newline
+    pop {r0-r12}
 
   mov r4, #4
 1:
@@ -325,22 +353,52 @@ mat4_mul_mat4:
   vmla.f32 s20,  s8, s18
   vmla.f32 s20, s12, s19
 
+    push {r0-r12}
+      mov r0, #'B'
+      bl uart_send_byte
+      bl uart_send_newline
+    pop {r0-r12}
+
   vmul.f32 s21,  s1, s16
   vmla.f32 s21,  s5, s17
   vmla.f32 s21,  s9, s18
   vmla.f32 s21, s13, s19
+
+    push {r0-r12}
+      mov r0, #'C'
+      bl uart_send_byte
+      bl uart_send_newline
+    pop {r0-r12}
 
   vmul.f32 s22,  s2, s16
   vmla.f32 s22,  s6, s17
   vmla.f32 s22, s10, s18
   vmla.f32 s22, s14, s19
 
+    push {r0-r12}
+      mov r0, #'C'
+      bl uart_send_byte
+      bl uart_send_newline
+    pop {r0-r12}
+
   vmul.f32 s23,  s3, s16
   vmla.f32 s23,  s7, s17
   vmla.f32 s23, s11, s18
   vmla.f32 s23, s15, s19
 
+    push {r0-r12}
+      mov r0, #'D'
+      bl uart_send_byte
+      bl uart_send_newline
+    pop {r0-r12}
+    
   vstm.f32 r2!, {s20-s23}
+
+    push {r0-r12}
+      mov r0, #'E'
+      bl uart_send_byte
+      bl uart_send_newline
+    pop {r0-r12}
 
   subs r4, #1
   bne 1b
@@ -348,7 +406,7 @@ mat4_mul_mat4:
   sub r1, #64
   sub r2, #64
 
-  pop {r3, r4}
+  pop {r3, r4, pc}
   mov pc, lr
 
 /* Matrix multiplication
