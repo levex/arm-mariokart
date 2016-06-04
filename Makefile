@@ -28,6 +28,9 @@ MODELS_OBJS = $(subst .stl,.pstl,$(MODELS))
 SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
 
+MAPS = $(wildcard maps/*.map)
+MAPS_OBJS = $(subst .map,.pstl,$(MAPS))
+
 all: $(RAW)
 
 clean:
@@ -35,6 +38,7 @@ clean:
 	-@rm -f precalculate
 	-@rm -f gen/*
 	-@rm -f obj_converter
+	-@rm -f map_loader
 	-@rm -f $(MODELS_OBJS)
 	-@rm -f tools/lookup_tables.S
 	-@rm -f $(RAW)
@@ -77,7 +81,15 @@ obj_converter: tools/obj_converter.c
 	@echo "  PSTLCONV      $@"
 	@./obj_converter $< $@
 
-$(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS)
+map_loader: tools/map_loader.c
+	@echo "  HOSTCC        $@"
+	@$(HOSTCC) $(HOSTCCFLAGS) tools/map_loader.c -o map_loader
+
+%.pstl: %.map map_loader
+	@echo "  MAPLDR      $@"
+	@./map_loader $< $@
+
+$(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS) $(MAPS_OBJS)
 	@echo "  LD            $@"
 	@$(LD) $(OBJS) -o $(IMAGE) -T $(LINKERSCRIPT)
 
