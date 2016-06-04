@@ -37,16 +37,35 @@
   ldr r3, =health_str
   bl render_string
 
-  /* Health hearts */
+  /* Speed */
+  mov r0, #10
+  ldr r1, =420
+  ldr r3, =speed_str
+  bl render_string
+
   mov r0, #55
+  ldr r3, =player_speed
+  ldr r3, [r3]
+  bl render_int
+
+  /* Score */
+  mov r0, #10
+  ldr r1, =440
+  ldr r3, =score_str
+  bl render_string
+
+  mov r0, #55
+  ldr r3, =player_score
+  ldr r3, [r3]
+  bl render_int
+
+  /* Health hearts */
   ldr r1, =400
-  mov r2, #color_red
   mov r3, #2              // Heart character
 
   ldr r5, =player_health  // Load player health
   ldr r5, [r5]
 
-  // TODO: Maybe generate a heart string instead
   mov r4, #0              // counter
   hearts:
   add r0, r0, #6          // x += 6
@@ -55,24 +74,9 @@
   cmp r4, r5              // while (counter < health)
   blt hearts
 
-  /* Speed */
-  mov r0, #10
-  ldr r1, =420
-  mov r2, #color_red
-  ldr r3, =speed_str
-  bl render_string
-
-  /* Score */
-  mov r0, #10
-  ldr r1, =440
-  mov r2, #color_red
-  ldr r3, =score_str
-  bl render_string
-
-  /* Score */
+  /* Powerups */
   mov r0, #400
   ldr r1, =440
-  mov r2, #color_red
   ldr r3, =powerups_str
   bl render_string
 .endm
