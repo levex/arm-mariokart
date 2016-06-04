@@ -14,21 +14,26 @@ render_int:
 
   mov r4, #10 // base
 
-  mov r7, #0
-  mov r5, r3
-  cmp r5, #0
-  bge 1f
-  mov r3, #0x2D       // ascii code of '-'
-  bl render_char
-  neg r5, r5
-  add r0, r0, #6
+  mov r7, #0          // r7 = 0
+  mov r5, r3          // save integer in r5
+  cmp r5, #0          
+  bge 1f              // if (r5 < 0) {
+  mov r3, #'-'        //   r3 = '-'
+  bl render_char      //   Render '-'
+  neg r5, r5          //   r5 = -r5
+  add r0, r0, #6      //   x += 6 
+                      // }
 
   1:
-      mov r3, r5
-      bl udiv
-      mov r6, r3
-      mul r3, r4, r6
-      sub r3, r5, r3
+      push {r0-r1}
+      mov r0, r5      // move integer into r0
+      mov r1, r4      // move base into r1
+      bl udiv         // r0 = integer / base
+      mov r6, r0      // save this in r6
+      pop {r0-r1}
+
+      mul r3, r4, r6  // r3 = base * (integer / base)
+      sub r3, r5, r3  // r3 = integer - ^
       push {r3}
       add r7, #1
       cmp r6, #0
@@ -47,9 +52,6 @@ render_int:
       sub r7, #1
       cmp r7, #0
       bne 2b
-
-  mov r0, #0    // Append null character
-  str r0, [r5]
 
   pop {r0-r7, pc}
 
