@@ -1,9 +1,9 @@
-/* The map of the world as a big array of chunks (road components + possibly other stuff like bushes etc.) 
+/* The map of the world as a big array of chunks (road elements + possibly other stuff like bushes etc.) 
 
 /*
  * Each chunk is A x B in size (TBA)
  * The whole map is C x D (TBA) which is (C*D)/(A*B) chunks
- * Each byte is a number which corresponds to one of the following map chunks:
+ * Each byte is a number which corresponds to one of the following map components:
  *
  * 0:    nothing (concrete ground)
  *
@@ -33,12 +33,15 @@
  * 9992: tree
  *
  * Any other number is treated as 0
+ * 
+ * The actual map file is a text file (.map) with the following format:
+ * Line 1: map width
+ * Line 2: map height
+ * Line 3: chunk width
+ * Line 4: chunk height
+ * Line 5: [chunk 1] [chunk 2] [chunk 3]
+ * Line 6: [chunk 4] [chunk 5] [chunk 6]
+ * Line 7: [chunk 7] [chunk 8] [chunk 9]
+ * ... etc - chunks are stored row major, where each line is the next row (so the above map is 3 chunks wide)
+ * Chunks are seperated by any amount of whitespace
  */
-
-/* Currently this map is a simple round loop track with a tree in the middle */
-
-.align
-map_array:
-  .byte 901, 3   , 902
-  .byte 1  , 9992, 1
-  .byte 904, 3   , 903
