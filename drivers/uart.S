@@ -195,10 +195,10 @@ uart_send_int:
     neg r2, r2
 
     1:
-        mov r0, r2
-        bl udiv
-        mov r3, r0
-        mul r0, r1, r3
+        mov r0, r2      // move integer into r0
+        bl udiv         // r0 = integer / base
+        mov r3, r0      // save this in r3
+        mul r0, r1, r3  
         sub r0, r2, r0
         push {r0}
         add r4, #1
