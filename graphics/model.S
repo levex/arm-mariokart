@@ -26,10 +26,10 @@ tmp_matrix: .float 0, 0, 0, 0
             .float 0, 0, 0, 0
 
 .balign 16
-view_matrix: .float 1, 0, 0, 0
+view_matrix: .float 1, 0, 0, 4
             .float 0, 1, 0, 0
             .float 0, 0, 1, -15
-            .float 0, 0, 0, 0
+            .float 0, 0, 0, 1
 
 .balign 16
 id_matrix: .float  1, 0, 0, 0
@@ -38,7 +38,7 @@ id_matrix: .float  1, 0, 0, 0
             .float 0, 0, 0, 1
 
 .balign 16
-eye: .float 0, 0, 15
+eye: .float 0, 0, -15
 at:  .float 0, 0, 0
 up:  .float 0, 1, 0
 
@@ -49,32 +49,37 @@ model_display:
     mov r4, r0
     ldr r5, [r4], #4
 
-    push {r0-r12}
-    bl uart_send_newline
+//    push {r0-r12}
+//    bl uart_send_newline
 
-//    ldr r0, =eye
-//    ldr r1, =at
-//    ldr r2, =up
-//    ldr r3, =view_matrix
-//    bl view_matrix_gen
+    ldr r0, =eye
+    ldr r1, =at
+    ldr r2, =up
+    ldr r3, =view_matrix
+    bl view_matrix_gen
 
-//    ldr r0, =0x42C80000
-//    mov r1, #0
-//    mov r2, #0
-//    ldr r3, =tmp_matrix
-//    bl get_translation_matrix
+    push {r0-r11}
+        ldr r0, =view_matrix
+        bl print_matrix
+    pop {r0-r11}
+
+    ldr r0, =0xc0a00000
+    mov r1, #0
+    mov r2, #0
+    ldr r3, =tmp_matrix
+    bl get_translation_matrix
 //
-//    ldr r1, =projection_matrix
-//    ldr r0, =view_matrix
-//    ldr r2, =vp_matrix
-//    bl mat4_mul_mat4   // p x v ==> vp
+    ldr r1, =projection_matrix
+    ldr r0, =view_matrix
+    ldr r2, =vp_matrix
+    bl mat4_mul_mat4   // p x v ==> vp
 //
-//    ldr r1, =vp_matrix
-//    ldr r0, =tmp_matrix
-//    ldr r2, =mvp_matrix
-//    bl mat4_mul_mat4
+    ldr r1, =vp_matrix
+    ldr r0, =tmp_matrix
+    ldr r2, =mvp_matrix
+    bl mat4_mul_mat4
 
-    pop {r0-r12}
+//    pop {r0-r12}
 
     1:
       ldr r0, =mvp_matrix
