@@ -187,9 +187,9 @@ projection_matrix:
 view_matrix_gen:
   push {r4}
 
-  vldm.f32 r0, {s0-s3}   // eye{s0, s1, s2}
-  vldm.f32 r1, {s3-s6}   // at{s3, s4, s5}
-  vldm.f32 r2, {s6-s9}   // up{s6, s7, s8}
+  vldm.f32 r0, {s0-s2}   // eye{s0, s1, s2}
+  vldm.f32 r1, {s3-s5}   // at{s3, s4, s5}
+  vldm.f32 r2, {s6-s8}   // up{s6, s7, s8}
 
   // z{s9, s10, s11} = norm(eye - at)
   vsub.f32 s9, s0, s3
@@ -231,35 +231,38 @@ view_matrix_gen:
 
   // First column
   vmov.f32 s12, s3
-  vmov.f32 s13, s6
-  vmov.f32 s14, s9
+  vmov.f32 s13, s4
+  vmov.f32 s14, s5
+  vmls.f32 s15, s0, s3
+  vmls.f32 s15, s1, s4
+  vmls.f32 s15, s2, s5
   vstm.f32 r3!, {s12-s15}
 
   // Second column
-  vmov.f32 s12, s4
+  vmov.f32 s15, r4
+  vmov.f32 s12, s6
   vmov.f32 s13, s7
-  vmov.f32 s14, s10
+  vmov.f32 s14, s8
+  vmls.f32 s15, s0, s6
+  vmls.f32 s15, s1, s7
+  vmls.f32 s15, s2, s8
   vstm.f32 r3!, {s12-s15}
 
   // Third column
-  vmov.f32 s12, s5
-  vmov.f32 s13, s8
+  vmov.f32 s15, r4
+  vmov.f32 s12, s9
+  vmov.f32 s13, s10
   vmov.f32 s14, s11
+  vmls.f32 s15, s0, s9
+  vmls.f32 s15, s1, s10
+  vmls.f32 s15, s2, s11
   vstm.f32 r3!, {s12-s15}
 
   // Fourth column
+  vmov.f32 s15, r4
   vmov.f32 s12, s15
-  vmls.f32 s12, s0, s3
-  vmls.f32 s12, s1, s4
-  vmls.f32 s12, s2, s5
   vmov.f32 s13, s15
-  vmls.f32 s13, s0, s6
-  vmls.f32 s13, s1, s7
-  vmls.f32 s13, s2, s8
   vmov.f32 s14, s15
-  vmls.f32 s14, s0, s9
-  vmls.f32 s14, s1, s10
-  vmls.f32 s14, s2, s11
   mov r4, #0x3f800000
   vmov.f32 s15, r4
 
