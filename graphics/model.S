@@ -13,10 +13,11 @@ vp_matrix: .float 0, 0, 0, 0
            .float 0, 0, 0, 0
 
 .balign 16
-mvp_matrix: .float 0, 0, 0, 0
-            .float 0, 0, 0, 0
-            .float 0, 0, 0, 0
-            .float 0, 0, 0, 0
+mvp_matrix:
+.float 1.433439,        0,         0,  5.733757
+.float        0, 2.414213,         0,         0
+.float        0,        0, -1.068966, -4.655172
+.float        0,        0,        -1,        15
 
 .balign 16
 tmp_matrix: .float 0, 0, 0, 0
@@ -25,9 +26,9 @@ tmp_matrix: .float 0, 0, 0, 0
             .float 0, 0, 0, 0
 
 .balign 16
-view_matrix: .float 0, 0, 0, 0
-            .float 0, 0, 0, 0
-            .float 0, 0, 0, 0
+view_matrix: .float 1, 0, 0, 0
+            .float 0, 1, 0, 0
+            .float 0, 0, 1, -15
             .float 0, 0, 0, 0
 
 .balign 16
@@ -37,7 +38,7 @@ id_matrix: .float  1, 0, 0, 0
             .float 0, 0, 0, 1
 
 .balign 16
-eye: .float 0, 0, 1
+eye: .float 0, 0, 15
 at:  .float 0, 0, 0
 up:  .float 0, 1, 0
 
@@ -51,27 +52,27 @@ model_display:
     push {r0-r12}
     bl uart_send_newline
 
-    ldr r0, =eye
-    ldr r1, =at
-    ldr r2, =up
-    ldr r3, =view_matrix
-    bl view_matrix_gen
+//    ldr r0, =eye
+//    ldr r1, =at
+//    ldr r2, =up
+//    ldr r3, =view_matrix
+//    bl view_matrix_gen
 
-    ldr r0, =0x42C80000
-    mov r1, #0
-    mov r2, #0
-    ldr r3, =tmp_matrix
-    bl get_translation_matrix
-
-    ldr r1, =projection_matrix
-    ldr r0, =view_matrix
-    ldr r2, =vp_matrix
-    bl mat4_mul_mat4   // p x v ==> vp
-
-    ldr r1, =vp_matrix
-    ldr r0, =tmp_matrix
-    ldr r2, =mvp_matrix
-    bl mat4_mul_mat4
+//    ldr r0, =0x42C80000
+//    mov r1, #0
+//    mov r2, #0
+//    ldr r3, =tmp_matrix
+//    bl get_translation_matrix
+//
+//    ldr r1, =projection_matrix
+//    ldr r0, =view_matrix
+//    ldr r2, =vp_matrix
+//    bl mat4_mul_mat4   // p x v ==> vp
+//
+//    ldr r1, =vp_matrix
+//    ldr r0, =tmp_matrix
+//    ldr r2, =mvp_matrix
+//    bl mat4_mul_mat4
 
     pop {r0-r12}
 
@@ -80,9 +81,9 @@ model_display:
       mov r1, r4   // current vertex
       ldr r2, =dummy_triangle
       bl transform_triangle
-      tst r1, r1 // should we render?
-      beq 2f       // is zero?
-      bpl 2f       // positive?
+      //cmp r1, #0 // should we render?
+      //beq 2f       // is zero?
+      //blt 2f       // positive?
 
       //push {r0-r12}
       //    sub r0, r2, #48

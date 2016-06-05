@@ -285,7 +285,7 @@ get_translation_matrix:
     str r5, [r3]       // 1
     str r4, [r3, #4]   // 0
     str r4, [r3, #8]   // 0
-    str r4, [r3, #12]  // 0
+    str r0, [r3, #12]  // X
 
     str r4, [r3, #16]  // 0
     str r5, [r3, #20]  // 1
@@ -297,7 +297,7 @@ get_translation_matrix:
     str r5, [r3, #40]  // 1
     str r2, [r3, #44]  // Z
 
-    str r0, [r3, #48]  // TX
+    str r4, [r3, #48]  // 0
     str r4, [r3, #52]  // 0
     str r4, [r3, #56]  // 0
     str r5, [r3, #60]  // 1
@@ -383,9 +383,6 @@ transform_triangle:
     vdiv.f32 s21, s21, s23 // y = y / w
     vdiv.f32 s22, s22, s23 // z = z / w
     vdiv.f32 s23, s23, s23 // w = w / w
-
-    //vdiv.f32 s20, s20, s22 // x = x / z
-    //vdiv.f32 s21, s21, s22 // y = x / z
 
     /* store x & y temporarily */
     vstm.f32 r11!, {s20, s21}
