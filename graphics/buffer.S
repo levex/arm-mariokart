@@ -1,7 +1,7 @@
 .section ".text"
 .globl copy_back_buffer
 copy_back_buffer:
-    push {lr}
+    push {r0-r4, lr}
     mov r0, #0
     mov r1, #0
     ldr r2, =back_buffer
@@ -11,7 +11,7 @@ copy_back_buffer:
     ldr r12, [r12]
     bl fb_copy_rect
     ldr r12, =back_buffer
-    pop {pc}
+    pop {r0-r4, pc}
 
 .section ".data"
 

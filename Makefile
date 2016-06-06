@@ -33,6 +33,7 @@ MAPS_OBJS = $(subst .map,.pstl,$(MAPS))
 
 all: $(RAW)
 
+clena: clean
 clean:
 	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv lookup_generator
 	-@rm -f precalculate

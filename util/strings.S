@@ -47,4 +47,4 @@ speed_str: .asciz "Speed:"
 
 .align
 .globl powerups_str
-powerups_str: .asciz "Powerups:"
+powerups_str: .asciz "Bitches:"

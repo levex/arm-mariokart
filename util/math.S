@@ -134,7 +134,7 @@ get_rotation_x_matrix:
     bl cos            // r0 = cos(xrot)
 
     mov r3, r2
-    eor r3, r3, #(1 << 31) // r3 = -sin(xrot)
+    eor r3, r3, #(1 << 31)
 
     mov r4, #0x3f800000
     mov r5, #0
@@ -164,11 +164,113 @@ get_rotation_x_matrix:
 
 /* writes the perspective matrix to location r0 */
 .globl projection_matrix
+.balign 16
 projection_matrix:
-  .float    0.59375,           0,          0,          0
-  .float          0,           1,          0,          0
-  .float          0,           0, 1.06896552, 20.6896552
-  .float          0,           0,          -1,          0
+  .float   1.433439,           0,          0,          0
+  .float          0,    2.414213,          0,          0
+  .float          0,           0,  -1.068966,  -20.689655
+  .float          0,           0,         -1,           0
+
+//.globl view_matrix 
+//.balign 16
+//view_matrix:
+//  .float  1,  0,  0,   0
+//  .float  0,  1,  0,   0
+//  .float  0,  0,  1, -15
+//  .float  0,  0,  0,   1
+
+// r0 -> eye
+// r1 -> at
+// r2 -> up
+// r3 -> dest
+.globl view_matrix_gen 
+view_matrix_gen:
+  push {r4}
+
+  vldm.f32 r0, {s0-s2}   // eye{s0, s1, s2}
+  vldm.f32 r1, {s3-s5}   // at{s3, s4, s5}
+  vldm.f32 r2, {s6-s8}   // up{s6, s7, s8}
+
+  // z{s9, s10, s11} = norm(eye - at)
+  vsub.f32 s9, s0, s3
+  vsub.f32 s10, s1, s4
+  vsub.f32 s11, s2, s5
+  vmul.f32 s12, s9, s9
+  vmla.f32 s12, s10, s10
+  vmla.f32 s12, s11, s11
+  vsqrt.f32 s12, s12
+  vdiv.f32 s9, s9, s12
+  vdiv.f32 s10, s10, s12
+  vdiv.f32 s11, s11, s12
+
+  // x{s3, s4, s5} = norm(cross(up, z))
+  vmul.f32 s3, s7, s11
+  vmls.f32 s3, s8, s10
+  vmul.f32 s4, s8, s9
+  vmls.f32 s4, s6, s11
+  vmul.f32 s5, s6, s10
+  vmls.f32 s5, s7, s9
+  vmul.f32 s12, s3, s3
+  vmla.f32 s12, s4, s4
+  vmla.f32 s12, s5, s5
+  vsqrt.f32 s12, s12
+  vdiv.f32 s3, s3, s12
+  vdiv.f32 s4, s4, s12
+  vdiv.f32 s5, s5, s12
+
+  // y{s6, s7, s8} = cross(z, x)
+  vmul.f32 s6, s10, s5
+  vmls.f32 s6, s11, s4
+  vmul.f32 s7, s11, s3
+  vmls.f32 s7, s9, s5
+  vmul.f32 s8, s9, s4
+  vmls.f32 s8, s10, s3
+
+  mov r4, #0
+  vmov.f32 s15, r4
+
+  // First column
+  vmov.f32 s12, s3
+  vmov.f32 s13, s4
+  vmov.f32 s14, s5
+  vmls.f32 s15, s0, s3
+  vmls.f32 s15, s1, s4
+  vmls.f32 s15, s2, s5
+  vstm.f32 r3!, {s12-s15}
+
+  // Second column
+  vmov.f32 s15, r4
+  vmov.f32 s12, s6
+  vmov.f32 s13, s7
+  vmov.f32 s14, s8
+  vmls.f32 s15, s0, s6
+  vmls.f32 s15, s1, s7
+  vmls.f32 s15, s2, s8
+  vstm.f32 r3!, {s12-s15}
+
+  // Third column
+  vmov.f32 s15, r4
+  vmov.f32 s12, s9
+  vmov.f32 s13, s10
+  vmov.f32 s14, s11
+  vmls.f32 s15, s0, s9
+  vmls.f32 s15, s1, s10
+  vmls.f32 s15, s2, s11
+  vstm.f32 r3!, {s12-s15}
+
+  // Fourth column
+  vmov.f32 s15, r4
+  vmov.f32 s12, s15
+  vmov.f32 s13, s15
+  vmov.f32 s14, s15
+  mov r4, #0x3f800000
+  vmov.f32 s15, r4
+
+  vstm.f32 r3, {s12-s15}
+
+  sub r3, r3, #48
+  pop {r4}
+  mov pc, lr
 
 /* Returns a translation matrix. Arguments:
 *  r0 - translation amount in X direction
@@ -181,7 +283,7 @@ get_translation_matrix:
     push {r4-r5}
 
     mov r4, #0
-    mov r5, #1
+    mov r5, #0x3f800000
 
     str r5, [r3]       // 1
     str r4, [r3, #4]   // 0
@@ -254,30 +356,36 @@ transform_triangle:
   vmov.s32 s26, r10
   vcvt.f32.s32 s26, s26
 
+  /* flip y */
+  mov r10, #380
+  vmov.s32 s27, r10
+  vcvt.f32.s32 s27, s27
+
   mov r10, #3
   ldr r11, =dummy_vertex_p
   1:
     vldm.f32  r1!, {s16 - s19}
 
     vmul.f32  s20,  s0, s16
-    vmul.f32  s21,  s1, s16
-    vmul.f32  s22,  s2, s16
-    vmul.f32  s23,  s3, s16
+    vmul.f32  s21,  s4, s16
+    vmul.f32  s22,  s8, s16
+    vmul.f32  s23,  s12, s16
 
-    vmla.f32  s20,  s4, s17
+    vmla.f32  s20,  s1, s17
     vmla.f32  s21,  s5, s17
-    vmla.f32  s22,  s6, s17
-    vmla.f32  s23,  s7, s17
+    vmla.f32  s22,  s9, s17
+    vmla.f32  s23,  s13, s17
 
-    vmla.f32  s20,  s8, s18
-    vmla.f32  s21,  s9, s18
+    vmla.f32  s20,  s2, s18
+    vmla.f32  s21,  s6, s18
     vmla.f32  s22, s10, s18
-    vmla.f32  s23, s11, s18
+    vmla.f32  s23, s14, s18
 
-    vmla.f32  s20, s12, s19
-    vmla.f32  s21, s13, s19
-    vmla.f32  s22, s14, s19
+    vmla.f32  s20, s3, s19
+    vmla.f32  s21, s7, s19
+    vmla.f32  s22, s11, s19
     vmla.f32  s23, s15, s19
+
 
     /* normalize by w */
     vdiv.f32 s20, s20, s23 // x = x / w
@@ -285,18 +393,17 @@ transform_triangle:
     vdiv.f32 s22, s22, s23 // z = z / w
     vdiv.f32 s23, s23, s23 // w = w / w
 
-    vdiv.f32 s20, s20, s22 // x = x / z
-    vdiv.f32 s21, s21, s22 // y = x / z
+    vadd.f32 s20, s20, s24 // x += 1
+    vadd.f32 s21, s21, s24 // y += 1
+    vmul.f32 s20, s20, s25 // x *= 320
+    vmul.f32 s21, s21, s26 // y *= 190
+    
+    vsub.f32 s21, s27, s21  // flip y
 
     /* store x & y temporarily */
     vstm.f32 r11!, {s20, s21}
 
-    vadd.f32 s20, s20, s24
-    vadd.f32 s21, s21, s24
-    vmul.f32 s20, s20, s25
-    vmul.f32 s21, s21, s26
-
-    /* convert to unsigned integer */
+    /* convert to signed integer */
     vcvt.s32.f32 s20, s20
     vcvt.s32.f32 s21, s21
     vcvt.s32.f32 s22, s22
@@ -308,6 +415,7 @@ transform_triangle:
     bne 1b
 
   /* do backface culling */
+
   vldr.f32 s20, [r11, #-24]  // s20 = x0
   vldr.f32 s21, [r11, #-20]  // s21 = y0
   vldr.f32 s22, [r11, #-16]  // s22 = x1
@@ -317,7 +425,7 @@ transform_triangle:
 
   vmul.f32 s0, s20, s23 //   x0 * y1
   vmla.f32 s0, s24, s21 // + x2 * y0
-  vmla.f32 s0, s22, s23 // + x1 * y1
+  vmla.f32 s0, s22, s25 // + x1 * y2
   vmls.f32 s0, s20, s25 // - x0 * y2
   vmls.f32 s0, s22, s21 // - x1 * y0
   vmls.f32 s0, s24, s23 // - x2 * y1
@@ -334,77 +442,44 @@ dummy_vertex_p: .word 0, 0, 0, 0, 0, 0
 // r2 location of output matrix
 .globl mat4_mul_mat4
 mat4_mul_mat4:
-  push {r3, r4, pc}
+  push {r3, r4, lr}
 
   vldm.f32 r0, {s0-s15}
-
-    push {r0-r12}
-      mov r0, #'A'
-      bl uart_send_byte
-      bl uart_send_newline
-    pop {r0-r12}
-
+  // s0  s1  s2  s3
+  // s4  s5  s6  s7
+  // s8  s9  s10 s11
+  // s12 s13 s14 s15
   mov r4, #4
 1:
-  vldm.f32 r1!, {s16-s19}
+  vldm.f32 r1!, {s16-s19}   // {s16, s17, s18, s19}
 
   vmul.f32 s20,  s0, s16
   vmla.f32 s20,  s4, s17
   vmla.f32 s20,  s8, s18
   vmla.f32 s20, s12, s19
 
-    push {r0-r12}
-      mov r0, #'B'
-      bl uart_send_byte
-      bl uart_send_newline
-    pop {r0-r12}
-
   vmul.f32 s21,  s1, s16
   vmla.f32 s21,  s5, s17
   vmla.f32 s21,  s9, s18
   vmla.f32 s21, s13, s19
-
-    push {r0-r12}
-      mov r0, #'C'
-      bl uart_send_byte
-      bl uart_send_newline
-    pop {r0-r12}
 
   vmul.f32 s22,  s2, s16
   vmla.f32 s22,  s6, s17
   vmla.f32 s22, s10, s18
   vmla.f32 s22, s14, s19
 
-    push {r0-r12}
-      mov r0, #'C'
-      bl uart_send_byte
-      bl uart_send_newline
-    pop {r0-r12}
-
   vmul.f32 s23,  s3, s16
   vmla.f32 s23,  s7, s17
   vmla.f32 s23, s11, s18
   vmla.f32 s23, s15, s19
 
-    push {r0-r12}
-      mov r0, #'D'
-      bl uart_send_byte
-      bl uart_send_newline
-    pop {r0-r12}
-    
   vstm.f32 r2!, {s20-s23}
 
-    push {r0-r12}
-      mov r0, #'E'
-      bl uart_send_byte
-      bl uart_send_newline
-    pop {r0-r12}
-
-  subs r4, #1
+  subs r4, r4, #1
   bne 1b
 
-  sub r1, #64
-  sub r2, #64
+  sub r1, r1, #64
+  sub r2, r2, #64
 
   pop {r3, r4, pc}
   mov pc, lr
