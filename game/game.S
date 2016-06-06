@@ -24,8 +24,9 @@
   /* TODO */
 
   /* render kart */
-  ldr r0, =cube_data
-  bl model_display
+  //ldr r0, =cube_data
+  //bl model_display
+  bl rotating_cube_demo
 .endm
 
 
@@ -105,7 +106,7 @@ game_over: .byte 0
 .balign 16
 cube_data:
 .word 12
-// Front Face
+// Front Face: red
 // CCW
 .float -1, 1, 1, 1  // A
 .float -1, -1, 1, 1  // B
@@ -118,7 +119,7 @@ cube_data:
 .float 1, 1, 1, 1  // D
 .word  0x00FF0000, 0, 0, 0  // pad
 
-// Right Face
+// Right Face: green
 // CCW
 .float 1, -1, 1, 1  // C
 .float 1, -1, -1, 1  // G

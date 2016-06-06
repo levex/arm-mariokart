@@ -26,7 +26,19 @@ tmp_matrix: .float 0, 0, 0, 0
             .float 0, 0, 0, 0
 
 .balign 16
-view_matrix: .float 1, 0, 0, 4
+tmp2_matrix: .float 0, 0, 0, 0
+            .float 0, 0, 0, 0
+            .float 0, 0, 0, 0
+            .float 0, 0, 0, 0
+
+.balign 16
+model_matrix: .float 0, 0, 0, 0
+            .float 0, 0, 0, 0
+            .float 0, 0, 0, 0
+            .float 0, 0, 0, 0
+
+.balign 16
+view_matrix: .float 1, 0, 0, 0
             .float 0, 1, 0, 0
             .float 0, 0, 1, -15
             .float 0, 0, 0, 1
@@ -42,6 +54,36 @@ eye: .float 0, 0, -15
 at:  .float 0, 0, 0
 up:  .float 0, 1, 0
 
+.globl rotating_cube_demo
+rotating_cube_demo:
+    push {r0-r12}
+    mov r3, #0
+    1:
+      bl fb_clear
+
+      ldr r1, =projection_matrix
+      ldr r0, =view_matrix
+      ldr r2, =vp_matrix
+      bl mat4_mul_mat4   // p x v ==> vp
+      
+      mov r0, r3
+      ldr r1, =model_matrix
+      bl get_rotation_y_matrix
+
+      ldr r0, =cube_data
+      bl model_display
+
+      add r3, r3, #1
+      cmp r3, #360
+      movge r3, #0
+
+      bl copy_back_buffer
+
+      ldr r0, =1000
+      bl delay
+      b 1b
+    pop {r0-r12}
+
 // Displays the r0 model
 .globl model_display
 model_display:
@@ -49,46 +91,31 @@ model_display:
     mov r4, r0
     ldr r5, [r4], #4
 
-//    push {r0-r12}
-//    bl uart_send_newline
+    //ldr r0, =0xc0a00000
+    //mov r1, #0
+    //mov r2, #0
+    //ldr r3, =tmp2_matrix
+    //bl get_translation_matrix
 
-    ldr r0, =eye
-    ldr r1, =at
-    ldr r2, =up
-    ldr r3, =view_matrix
-    bl view_matrix_gen
 
-    push {r0-r11}
-        ldr r0, =view_matrix
-        bl print_matrix
-    pop {r0-r11}
+    //ldr r0, =tmp_matrix
+    //ldr r1, =tmp2_matrix
+    //ldr r2, =model_matrix
+    //bl mat4_mul_mat4
 
-    ldr r0, =0xc0a00000
-    mov r1, #0
-    mov r2, #0
-    ldr r3, =tmp_matrix
-    bl get_translation_matrix
-//
-    ldr r1, =projection_matrix
-    ldr r0, =view_matrix
-    ldr r2, =vp_matrix
-    bl mat4_mul_mat4   // p x v ==> vp
-//
     ldr r1, =vp_matrix
-    ldr r0, =tmp_matrix
+    ldr r0, =model_matrix
     ldr r2, =mvp_matrix
     bl mat4_mul_mat4
-
-//    pop {r0-r12}
 
     1:
       ldr r0, =mvp_matrix
       mov r1, r4   // current vertex
       ldr r2, =dummy_triangle
       bl transform_triangle
-      //cmp r1, #0 // should we render?
-      //beq 2f       // is zero?
-      //blt 2f       // positive?
+      tst r1, r1// should we render?
+      beq 2f       // is zero?
+      bpl 2f       // positive?
 
       //push {r0-r12}
       //    sub r0, r2, #48

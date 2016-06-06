@@ -356,6 +356,11 @@ transform_triangle:
   vmov.s32 s26, r10
   vcvt.f32.s32 s26, s26
 
+  /* flip y */
+  mov r10, #380
+  vmov.s32 s27, r10
+  vcvt.f32.s32 s27, s27
+
   mov r10, #3
   ldr r11, =dummy_vertex_p
   1:
@@ -381,19 +386,22 @@ transform_triangle:
     vmla.f32  s22, s11, s19
     vmla.f32  s23, s15, s19
 
+
     /* normalize by w */
     vdiv.f32 s20, s20, s23 // x = x / w
     vdiv.f32 s21, s21, s23 // y = y / w
     vdiv.f32 s22, s22, s23 // z = z / w
     vdiv.f32 s23, s23, s23 // w = w / w
 
-    /* store x & y temporarily */
-    vstm.f32 r11!, {s20, s21}
-
     vadd.f32 s20, s20, s24 // x += 1
     vadd.f32 s21, s21, s24 // y += 1
     vmul.f32 s20, s20, s25 // x *= 320
     vmul.f32 s21, s21, s26 // y *= 190
+    
+    vsub.f32 s21, s27, s21  // flip y
+
+    /* store x & y temporarily */
+    vstm.f32 r11!, {s20, s21}
 
     /* convert to signed integer */
     vcvt.s32.f32 s20, s20
@@ -407,6 +415,7 @@ transform_triangle:
     bne 1b
 
   /* do backface culling */
+
   vldr.f32 s20, [r11, #-24]  // s20 = x0
   vldr.f32 s21, [r11, #-20]  // s21 = y0
   vldr.f32 s22, [r11, #-16]  // s22 = x1
@@ -416,7 +425,7 @@ transform_triangle:
 
   vmul.f32 s0, s20, s23 //   x0 * y1
   vmla.f32 s0, s24, s21 // + x2 * y0
-  vmla.f32 s0, s22, s23 // + x1 * y1
+  vmla.f32 s0, s22, s25 // + x1 * y2
   vmls.f32 s0, s20, s25 // - x0 * y2
   vmls.f32 s0, s22, s21 // - x1 * y0
   vmls.f32 s0, s24, s23 // - x2 * y1

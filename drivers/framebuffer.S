@@ -92,7 +92,8 @@ fb_clear:
     ldr r0, pitch
     mul r1, r0, r1
 
-    ldr r0, fb_addr
+    //ldr r0, fb_addr
+    mov r0, r12
 
     add r1, r1, r0
 
