@@ -90,7 +90,7 @@ map_loader: tools/map_loader.c
 	@echo "  MAPLDR      $@"
 	@./map_loader $< $@
 
-$(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS) $(MAPS_OBJS)
+$(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS)
 	@echo "  LD            $@"
 	@$(LD) $(OBJS) -o $(IMAGE) -T $(LINKERSCRIPT)
 
