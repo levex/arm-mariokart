@@ -49,13 +49,24 @@
 .endm
 
 .macro draw_line
+    cmp r0, r1
+    bge 13f
+
+    cmp r2, #0
+    blt 13f
+
+    cmp r2, #380
+    bgt 13f
+
     mov r10, #2560 // r10 = pitch
     mul r10, r2, r10 // r10 = y * pitch
+
     cmp r1, #640
-    addle r11, r10, r1, lsl #2
-    addgt r11, r10, #640
+    addlt r11, r10, r1, lsl #2
+    addge r11, r10, #2560
     cmp r0, #0
     addge r10, r0, lsl #2  // r10 = 4x + y * pitch
+
     add r10, r12
     add r11, r12
 
@@ -76,6 +87,9 @@
         add r10, #1
         cmp r10, r11
         blt 12b
+
+    13:
+    // nop
 .endm
 
 draw_flat_triangle:
