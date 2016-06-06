@@ -17,9 +17,9 @@
 .endm
 
 .macro load_3y
-    ldr r0, [r0, #4]
-    ldr r1, [r1, #4]
-    ldr r2, [r2, #4]
+    ldr r3, [r0, #4]
+    ldr r4, [r1, #4]
+    ldr r5, [r2, #4]
 .endm
 
 .macro sort_vertices
@@ -137,48 +137,38 @@ draw_flat_triangle:
         cmp r0, r3
         beq 3f
 
-        6:
         cmp r10, #0
-        blt 7f
+        addlt r10, r6
+        blt 3f
         sub r10, r8
         tst r9, #(1 << 2)
         addeq r0, #1
         subne r0, #1
-        b 6b
-
-        7:
-        addlt r10, r6
-        blt 3f
-
         b 2b
 
       3:
         cmp r1, r4
         beq 4f
 
-        8:
         cmp r11, #0
-        blt 9f
+        addlt r11, r7
+        blt 4f
         sub r11, r8
         tst r9, #(1 << 1)
         addeq r1, #1
         subne r1, #1
-        b 8b
-
-        9:
-        addlt r11, r7
-        blt 4f
-
         b 3b
 
       4:
       tst r9, #(1 << 0)
       addeq r2, #1
-      subne r2, #1
 
       push {r10-r11}
       draw_line
       pop {r10-r11}
+
+      tst r9, #(1 << 0)
+      subne r2, #1
 
       b 1b
 
@@ -236,13 +226,7 @@ triangle:
     fcpyd d14, d8
     fcpyd d15, d8
 
-    push {r0-r2}
-        load_3y
-        mov r3, r0
-        mov r4, r1
-        mov r5, r2
-    pop {r0-r2}
-
+    load_3y
     load_3x
 
     sort_vertices
@@ -302,36 +286,6 @@ triangle:
     3:
     pop {r0-r9, pc}
 
-/*
- * edge_f
- * takes pointers to three points
- * in r0 r1 r2 and pointer to matrix
- * in r3 and returns determinant
- * of given matrix in r3
- */
-
-.globl edge_f
-edge_f:
-    push {r4-r11}
-
-    ldmia r0, {r4,r5}
-    ldmia r1, {r6,r7}
-    ldmia r2, {r8,r9}
-
-    sub r10, r7, r9
-    mul r10, r10, r4
-    sub r11, r8, r6
-    mul r11, r11, r5
-    add r10, r10, r11
-    mul r6, r6, r9
-    mul r7, r7, r8
-    add r10, r10, r6
-    sub r10, r10, r7
-
-    mov r3, r10
-
-    pop {r4-r11}
-    bx lr
 
 //Triangle vertices - x, y, z, w coord
 .balign 16
