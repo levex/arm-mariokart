@@ -168,7 +168,8 @@ get_rotation_x_matrix:
 projection_matrix:
   .float   1.433439,           0,          0,          0
   .float          0,    2.414213,          0,          0
-  .float          0,           0,  -1.068966,  -20.689655
+  .float          0,           0,   1.222222, -22.222222  // zfar=100
+  //.float          0,           0,  -1.068966,  -20.689655  // zfar=300
   .float          0,           0,         -1,           0
 
 //.globl view_matrix 
