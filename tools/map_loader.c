@@ -30,40 +30,39 @@ struct triangle {
   float padding[4];
 } __attribute__ ((packed));
 
-struct model {
+typedef struct model {
   uint32_t num_triangles;
   struct triangle **triangles;
-} __attribute__ ((packed));
+} __attribute__ ((packed)) model_t;
 
-struct model **component_data;
+model_t **component_data;
 
-void print_model(struct model *component_model) {
-  PRINT_FLOAT(component_model->triangles[0]->vertex1[0]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex1[1]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex1[2]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex1[3]);
-
-  PRINT_FLOAT(component_model->triangles[0]->vertex2[0]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex2[1]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex2[2]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex2[3]);
-
-  PRINT_FLOAT(component_model->triangles[0]->vertex3[0]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex3[1]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex3[2]);
-  PRINT_FLOAT(component_model->triangles[0]->vertex3[3]);
-
-  PRINT_FLOAT(component_model->triangles[0]->padding[0]);
-  PRINT_FLOAT(component_model->triangles[0]->padding[1]);
-  PRINT_FLOAT(component_model->triangles[0]->padding[2]);
-  PRINT_FLOAT(component_model->triangles[0]->padding[3]);
+void print_model(model_t *component_model) {
+  for (int i = 0; i < 4; i++) {
+    PRINT_FLOAT(component_model->triangles[0]->vertex1[i]);
+    PRINT_FLOAT(component_model->triangles[0]->vertex2[i]);
+    PRINT_FLOAT(component_model->triangles[0]->vertex3[i]);
+    PRINT_FLOAT(component_model->triangles[0]->padding[i]);
+  }
 }
 
-struct model *rotate(struct model *model) {
-  return model; // TODO: Implement 90-degree rotation
+/* Rotates a model 90 degrees clockwise */
+model_t *rotate(model_t *model) {
+  model_t *new_model = malloc(sizeof(model_t));
+  memcpy(new_model, model, sizeof(model_t));
+
+  for (int i = 0; i < model->num_triangles; i++) {
+    // x' = z
+    new_model->triangles[i]->vertex1[0] = model->triangles[i]->vertex1[2];
+
+    // z' = -x
+    new_model->triangles[i]->vertex1[2] = model->triangles[i]->vertex1[0];
+  }
+
+  return new_model;
 }
 
-struct model *load_component_data(char *component) {
+model_t *load_component_data(char *component) {
   int file;  
   uint32_t *buffer;
   struct stat st;
@@ -85,7 +84,7 @@ struct model *load_component_data(char *component) {
 
   /* Return as a structure */
 
-  struct model *component_model = malloc(sizeof(struct model));
+  model_t *component_model = malloc(sizeof(model_t));
   component_model->num_triangles = buffer[0];
   component_model->triangles = calloc(component_model->num_triangles, sizeof(struct triangle));
 
@@ -99,7 +98,7 @@ struct model *load_component_data(char *component) {
   return component_model;
 }
 
-struct model *get_component_data(component_t component) {
+model_t *get_component_data(component_t component) {
   switch (component) {
     case ROAD_STRAIGHT_1: return component_data[0];
     case ROAD_STRAIGHT_2: return component_data[1];
@@ -116,7 +115,7 @@ struct model *get_component_data(component_t component) {
 }
 
 void load_all_component_data() {
-  component_data = calloc(8, sizeof(struct model));
+  component_data = calloc(8, sizeof(model_t));
 
   component_data[0] = load_component_data("road_straight_1");
   component_data[1] = rotate(component_data[0]);
@@ -130,8 +129,8 @@ void load_all_component_data() {
 
 }
 
-struct model *translate_chunk(component_t component, int x, int z) {
-  struct model *component_model = get_component_data(component);
+model_t *translate_chunk(component_t component, int x, int z) {
+  model_t *component_model = get_component_data(component);
 
   //printf("Translating model %d: \n", component);
 
@@ -181,7 +180,7 @@ int main (int argc, char *argv[]) {
 
   int num_total_triangles = 0;
 
-  uint32_t file_size = num_chunks * sizeof(struct model) * 100;
+  uint32_t file_size = num_chunks * sizeof(model_t) * 100;
   uint32_t *out = malloc(file_size);
 
 
@@ -200,7 +199,7 @@ int main (int argc, char *argv[]) {
       component_t component = atoi(component_str);
 
       /* Position the component by translating it accordingly */
-      struct model *translated_chunk = translate_chunk(component, x * chunk_width, y * chunk_height);
+      model_t *translated_chunk = translate_chunk(component, x * chunk_width, y * chunk_height);
 
       //print_model(translated_chunk);
 
