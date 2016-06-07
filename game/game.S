@@ -1,6 +1,6 @@
 .section ".text"
 .include "graphics/colors.S"
-.include "player.S"
+.include "game/player.S"
 
 .macro process_input
   bl led_ok_turn_off

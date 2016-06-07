@@ -1,32 +1,20 @@
 .section ".text"
 
-.globl player_health
+.EQU ACCELERATION_LIMIT, 10
+
 player_health: .word 10
-
-.globl player_speed
 player_speed: .word 6
-
-.globl player_score
 player_score: .word 999
 
-.globl player_x
 player_x: .word 0
-.globl player_y
 player_y: .word 0
-.globl player_z
 player_z: .word 0
 
-.globl player_direction_x
 player_direction_x: .word 0
-.globl player_direction_y
 player_direction_y: .word 0
-.globl player_direction_z
 player_direction_z: .word 0
 
-.globl player_acceleration
 player_acceleration: .word 0
-
-.EQU ACCELERATION_LIMIT 10
 
 .macro player_move
   ldr r0, =player_direction_x
@@ -58,9 +46,9 @@ player_acceleration: .word 0
   add r4, r4, r1 // y += vel_y
   add r5, r5, r2 // z += vel_z
 
-  str r3, =player_x
-  str r4, =player_y
-  str r5, =player_z
+  str r3, player_x
+  str r4, player_y
+  str r5, player_z
 .endm
 
 .macro player_accelerate
