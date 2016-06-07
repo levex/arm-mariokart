@@ -5,7 +5,7 @@ OBJCOPY=arm-none-eabi-objcopy
 
 ASFLAGS=-fPIC -march=armv6zk -mcpu=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard
 
-HOSTCCFLAGS=
+HOSTCCFLAGS=-g
 HOSTCC=gcc
 
 IMAGE=kart.img
@@ -41,6 +41,7 @@ clean:
 	-@rm -f obj_converter
 	-@rm -f map_loader
 	-@rm -f $(MODELS_OBJS)
+	-@rm -f $(MAPS_OBJS)
 	-@rm -f tools/lookup_tables.S
 	-@rm -f $(RAW)
 
@@ -90,7 +91,7 @@ map_loader: tools/map_loader.c
 	@echo "  MAPLDR      $@"
 	@./map_loader $< $@
 
-$(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS)
+$(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS) $(MAPS_OBJS)
 	@echo "  LD            $@"
 	@$(LD) $(OBJS) -o $(IMAGE) -T $(LINKERSCRIPT)
 
