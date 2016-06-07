@@ -1,13 +1,29 @@
 .section ".text"
 .include "graphics/colors.S"
+.include "player.S"
 
 .macro process_input
   bl led_ok_turn_off
   bl poll_gpio
+
+  //On accelerate button pressed
+  //player_accelerate
+
+  //On de-accelerate button pressed
+  //player_deaccelerate
+
+  //On right button pressed
+  //player_turn_right
+
+  //On left button pressed
+  //player_turn_left
+
+  //On action button pressed
+  //player_use_powerup
 .endm
 
 .macro process_logic
-
+  player_move
 .endm
 
 .macro render_scene
