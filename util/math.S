@@ -342,6 +342,7 @@ get_scaling_matrix:
  */
 .globl transform_triangle
 transform_triangle:
+  push {r3}
   vldm.f32  r0, {s0 - s15}
 
   mov r10, #1
@@ -361,7 +362,11 @@ transform_triangle:
   vmov.s32 s27, r10
   vcvt.f32.s32 s27, s27
 
+  mov r10, #0
+  vmov.f32 s29, r10
+
   mov r10, #3
+  mov r3, #0
   ldr r11, =dummy_vertex_p
   1:
     vldm.f32  r1!, {s16 - s19}
@@ -386,13 +391,31 @@ transform_triangle:
     vmla.f32  s22, s11, s19
     vmla.f32  s23, s15, s19
 
-
     /* normalize by w */
     vdiv.f32 s20, s20, s23 // x = x / w
     vdiv.f32 s21, s21, s23 // y = y / w
     vdiv.f32 s22, s22, s23 // z = z / w
     vdiv.f32 s23, s23, s23 // w = w / w
 
+    /* do frustum culling */
+    vabs.f32 s30, s20  // check x
+    vcmp.f32 s30, s24 // check abs(x) < 1
+    fmstat
+    addle r3, r3, #1 // add to avoid culling
+
+    //vsub.f32 s30, s24, s21 // flip y
+    //vabs.f32 s30, s30 // check y
+    vabs.f32 s30, s21
+    vcmp.f32 s30, s24  // check abs(y) < 1
+    fmstat
+    addle r3, r3, #1 // add to avoid culling
+
+    vabs.f32 s30, s22 // check z
+    vcmp.f32 s30, s24  // check abs(z) < 1
+    fmstat
+    addle r3, r3, #1 // add to avoid culling
+
+    /* convert to screen coordinates */
     vadd.f32 s20, s20, s24 // x += 1
     vadd.f32 s21, s21, s24 // y += 1
     vmul.f32 s20, s20, s25 // x *= 320
@@ -414,8 +437,13 @@ transform_triangle:
     subs r10, #1
     bne 1b
 
-  /* do backface culling */
+  /* finish frustum culling */
+  cmp r3, #0
+    movle r1, #-1
+    pople {r3}
+    movle pc, lr
 
+  /* do backface culling */
   vldr.f32 s20, [r11, #-24]  // s20 = x0
   vldr.f32 s21, [r11, #-20]  // s21 = y0
   vldr.f32 s22, [r11, #-16]  // s22 = x1
@@ -431,6 +459,7 @@ transform_triangle:
   vmls.f32 s0, s24, s23 // - x2 * y1
   vmov.f32 r1, s0
 
+  pop {r3}
   mov       pc, lr
 
 .balign 4

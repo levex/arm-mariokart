@@ -113,18 +113,8 @@ model_display:
       mov r1, r4   // current vertex
       ldr r2, =dummy_triangle
       bl transform_triangle
-      tst r1, r1// should we render?
-      beq 2f       // is zero?
-      bpl 2f       // positive?
-
-      //push {r0-r12}
-      //    sub r0, r2, #48
-      //    bl print_vertex
-      //    sub r0, r2, #32
-      //    bl print_vertex
-      //    sub r0, r2, #16
-      //    bl print_vertex
-      //pop {r0-r12}
+      cmp r1, #0 // should we render?
+      bge 2f       // is zero?
 
       sub r0, r2, #48
       sub r1, r2, #32
