@@ -12,8 +12,7 @@
  */
 .globl uart_init
 uart_init:
-	push {lr}
-	push {r0-r3}
+	push {r0-r3, lr}
 	
 	uart0_base .req r0
 	gpio_base .req r2
@@ -66,17 +65,14 @@ uart_init:
 	ldr r3, =0x301	
 	str r3, [uart0_base, #0x30]        // UART0_CR
 
-	pop {r0-r3}
-	pop {lr}
-	bx lr
+	pop {r0-r3, pc}
 
 /*
  * uart_wait_ready_send - waits until you can send a byte
  */
 .globl uart_wait_ready_send
 uart_wait_ready_send:
-	push {lr}
-	push {r0-r1}
+	push {r0-r1, lr}
 
 	uart0_base .req r0
 	ldr uart0_base, =0x20201000
@@ -87,17 +83,14 @@ uart_wait_ready_send:
 		ands r1, r1, #(1 << 5)
 		bne 1b // check if ands returned zero
 
-	pop {r0-r1}
-	pop {lr}
-	bx lr
+	pop {r0-r1, pc}
 
 /*
  * uart_wait_ready_receive - waits until you can read a byte
  */
 .globl uart_wait_ready_receive
 uart_wait_ready_receive:
-	push {lr}
-	push {r0-r1}
+	push {r0-r1, lr}
 
 	uart0_base .req r0
 	ldr uart0_base, =0x20201000
@@ -108,9 +101,7 @@ uart_wait_ready_receive:
 		ands r1, r1, #(1 << 4)
 		bne 1b // check if ands returned zero
 
-	pop {r0-r1}
-	pop {lr}
-	bx lr
+	pop {r0-r1, pc}
 
 /*
  * uart_get_byte - gets a byte from the UART, this one will wait until there
@@ -118,17 +109,14 @@ uart_wait_ready_receive:
  */
 .globl uart_get_byte
 uart_get_byte:
-	push {lr}
-	push {r1}
+	push {r1, lr}
 
 	// busy wait
 	bl uart_wait_ready_receive
 	ldr r1, =0x20201000 // UART0_BASE
 	ldr r0, [r1, #0] // UART0_DR
 
-	pop {r1}
-	pop {lr}
-	bx lr
+	pop {r1, pc}
 
 /*
  * uart_send_byte - Sends a byte on the UART, will wait until space is avail
@@ -138,17 +126,15 @@ uart_get_byte:
  */
 .globl uart_send_byte
 uart_send_byte:
-	push {lr}
-	push {r1}
+	push {r1, lr}
+
 	// busy wait
 	bl uart_wait_ready_send
 	ldr r1, =0x20201000 // UART0_BASE
 
 	str r0, [r1, #0]
 
-	pop {r1}
-	pop {lr}
-	bx lr
+	pop {r1, pc}
 
 /*
  * uart_send_string - send an ASCIZ over UART
@@ -158,8 +144,7 @@ uart_send_byte:
  */
 .globl uart_send_string
 uart_send_string:
-	push {lr}
-	push {r1}
+	push {r1, lr}
 
 	mov r1, r0   // r1 = r0
 	1:
@@ -170,9 +155,7 @@ uart_send_string:
 		b 1b // goto 1
 
 	2:
-	pop {r1}
-	pop {lr}
-	bx lr
+	pop {r1, pc}
 
 /*
  * uart_send_int - sends an int stored in r0 over UART
@@ -183,8 +166,7 @@ uart_send_string:
  */
 .globl uart_send_int
 uart_send_int:
-    push {lr}
-    push {r2-r4}
+    push {r2-r4, lr}
 
     mov r4, #0
     mov r2, r0
@@ -218,33 +200,25 @@ uart_send_int:
         cmp r4, #0
         bne 2b
 
-    pop {r2-r4}
-    pop {lr}
-    bx lr
+    pop {r2-r4, pc}
 
 .globl uart_send_int_bin
 uart_send_int_bin:
-    push {lr}
-    push {r1}
+    push {r1, lr}
 
     mov r1, #2
     bl uart_send_int
 
-    pop {r1}
-    pop {lr}
-    bx lr
+    pop {r1, pc}
 
 .globl uart_send_int_dec
 uart_send_int_dec:
-    push {lr}
-    push {r1}
+    push {r1, lr}
 
     mov r1, #10
     bl uart_send_int
 
-    pop {r1}
-    pop {lr}
-    bx lr
+    pop {r1, pc}
 
 .globl uart_send_int_hex
 uart_send_int_hex:
