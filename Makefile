@@ -17,19 +17,20 @@ SRCS += $(subst util/macros.S,, $(wildcard util/*.S))
 SRCS += $(wildcard drivers/*.S)
 SRCS += $(wildcard graphics/*.S)
 SRCS += $(wildcard sprites/*.S)
+SRCS += $(wildcard maps/*.S)
 SRCS += $(wildcard game/*.S)
 OBJS = $(subst tools/lookup_tables.o,, $(SRCS:.S=.o))
 OBJS += tools/lookup_tables.o
 OBJS += gen/precalc.o
 
-MODELS = $(wildcard models/*.stl)
-MODELS_OBJS = $(subst .stl,.pstl,$(MODELS))
+MODELS = $(wildcard models/*.ply)
+MODELS_OBJS = $(subst .ply,.pply,$(MODELS))
 
 SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
 
 MAPS = $(wildcard maps/*.map)
-MAPS_OBJS = $(subst .map,.pstl,$(MAPS))
+MAPS_OBJS = $(subst .map,.pmap,$(MAPS))
 
 all: $(RAW)
 
@@ -38,14 +39,15 @@ clean:
 	-@rm -f $(OBJS) $(IMAGE) $(SPRITES_OBJS) bmpconv lookup_generator
 	-@rm -f precalculate
 	-@rm -f gen/*
-	-@rm -f obj_converter
 	-@rm -f map_loader
+	-@rm -f ply_converter
 	-@rm -f $(MODELS_OBJS)
 	-@rm -f $(MAPS_OBJS)
 	-@rm -f tools/lookup_tables.S
 	-@rm -f $(RAW)
 
 sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
+maps/maps.o: $(MODELS_OBJS) $(MAPS_OBJS) maps/maps.S
 
 %.o: %.S
 	@echo "  AS            $@"
@@ -75,20 +77,20 @@ tools/lookup_tables.S: lookup_generator
 	@echo "  BMPCONV       $@"
 	@./bmpconv $< $@
 
-obj_converter: tools/obj_converter.c
+ply_converter: tools/ply_converter.c
 	@echo "  HOSTCC        $@"
-	@$(HOSTCC) $(HOSTCCFLAGS) tools/obj_converter.c -o obj_converter
+	@$(HOSTCC) $(HOSTCCFLAGS) tools/ply_converter.c -o ply_converter
 
-%.pstl: %.stl obj_converter
-	@echo "  PSTLCONV      $@"
-	@./obj_converter $< $@
+%.pply: %.ply ply_converter
+	@echo "  PLYCONV       $@"
+	@./ply_converter $< $@
 
-map_loader: tools/map_loader.c
+map_loader: tools/map_loader.c tools/obj_converter.c
 	@echo "  HOSTCC        $@"
 	@$(HOSTCC) $(HOSTCCFLAGS) tools/map_loader.c -o map_loader
 
-%.pstl: %.map map_loader
-	@echo "  MAPLDR      $@"
+%.pmap: %.map map_loader
+	@echo "  MAPLDR        $@"
 	@./map_loader $< $@
 
 $(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS) $(MAPS_OBJS)
