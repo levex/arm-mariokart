@@ -1,29 +1,26 @@
 .section ".text"
 .include "graphics/colors.S"
-.include "game/player.S"
 
 .macro process_input
   bl led_ok_turn_off
-  bl poll_gpio
+  bl poll_gpio          // r0 == button state
 
-  //On accelerate button pressed
-  //player_accelerate
+  tst r0, #4               // if (break button pressed)
+  blne player_deaccelerate //   de-accelerate
+  bleq player_accelerate   // else accelerate
 
-  //On de-accelerate button pressed
-  //player_deaccelerate
+  tst r0, #2               // if (turn right button pressed)
+  blne player_turn_right   //   turn right
 
-  //On right button pressed
-  //player_turn_right
-
-  //On left button pressed
-  //player_turn_left
+  tst r0, #1               // if (turn left button pressed)
+  blne player_turn_left    //   turn left
 
   //On action button pressed
   //player_use_powerup
 .endm
 
 .macro process_logic
-  player_move
+  b player_move
 .endm
 
 .macro render_scene
