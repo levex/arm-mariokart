@@ -42,7 +42,7 @@ void print_model(model_t *component_model) {
         PRINT_FLOAT(component_model->triangles[0]->vertex1[i]);
         PRINT_FLOAT(component_model->triangles[0]->vertex2[i]);
         PRINT_FLOAT(component_model->triangles[0]->vertex3[i]);
-        PRINT_FLOAT(component_model->triangles[0]->padding[i]);
+        PRINT_INT(component_model->triangles[0]->padding[i]);
     }
 }
 
@@ -167,11 +167,6 @@ int main (int argc, char *argv[]) {
   buffer = malloc(st.st_size);
 
   if (read(file, buffer, st.st_size) != st.st_size) {
-      printf("Error opening map file");
-      return 1;
-  }
-
-  if (read(file, buffer, st.st_size) != st.st_size) {
     printf("Error opening map file\n");
     return 1;
   }
@@ -200,8 +195,6 @@ int main (int argc, char *argv[]) {
   PRINT_INT(num_chunks);
   */
 
-  uint32_t num_total_triangles = 0;
-
   model_t *chunks[num_chunks];
 
   int i = 0;
@@ -221,7 +214,7 @@ int main (int argc, char *argv[]) {
       */
 
       /* Position the component by translating it accordingly */
-      model_t *translated_chunk = translate_chunk(component, x * chunk_width, y * chunk_height);
+      model_t *translated_chunk = translate_chunk(atoi(component_str), x * chunk_width, y * chunk_height);
 
       //print_model(translated_chunk);
 
