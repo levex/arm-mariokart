@@ -8,7 +8,6 @@
 
 .globl controller_init
 controller_init:
-    push {lr}
     push {r0-r2}
 
     ldr r0, =0x20200000
@@ -23,13 +22,11 @@ controller_init:
     str r1, [r0, #100]
 
     pop {r0-r2}
-    pop {lr}
-    bx lr
+    mov pc, lr
 
 .globl poll_gpio
 poll_gpio:
-    push {lr}
-    push {r0-r2}
+    push {r0-r2, lr}
 
     ldr r0, =0x20200000
     ldr r1, =0xFFFFFFFF
@@ -48,27 +45,16 @@ poll_gpio:
     ands r2, r1, r2
     bleq gpio24_callback    // <--- Button pressed
 
-    pop {r0-r2}
-    pop {lr}
-    bx lr
+    pop {r0-r2, pc}
 
 .globl gpio22_callback
 gpio22_callback:
-    push {lr}
-    bl led_ok_turn_on
-    pop {lr}
-    bx lr
+    b led_ok_turn_on
 
 .globl gpio23_callback
 gpio23_callback:
-    push {lr}
-    bl led_ok_turn_on
-    pop {lr}
-    bx lr
+    b led_ok_turn_on
 
 .globl gpio24_callback
 gpio24_callback:
-    push {lr}
-    bl led_ok_turn_on
-    pop {lr}
-    bx lr
+    b led_ok_turn_on
