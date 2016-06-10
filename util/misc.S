@@ -20,7 +20,7 @@ delay:
 		cmp r1, r0
 		ble delay_loop
 	pop {r1}
-	bx lr
+	mov pc, lr
 
 /* Execute a memory barrier */
 .globl memory_barrier
