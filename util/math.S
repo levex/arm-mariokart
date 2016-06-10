@@ -512,7 +512,6 @@ mat4_mul_mat4:
   sub r2, r2, #64
 
   pop {r3, r4, pc}
-  mov pc, lr
 
 /* Matrix multiplication
 *  r0 pointer to matrix A
@@ -522,8 +521,7 @@ mat4_mul_mat4:
 
 .globl mat_mult
 mat_mult:
-    push {lr}
-    push {r3-r8}
+    push {r3-r8, lr}
 
     mov r3, #0  //A row counter
     mmult_a_row:
@@ -577,9 +575,7 @@ mat_mult:
         b mmult_a_row
 
     mmult_end:
-    pop {r3-r8}
-    pop {lr}
-    bx lr
+    pop {r3-r8, pc}
 
 
 /* Matrix addition
@@ -590,8 +586,7 @@ mat_mult:
 
 .globl mat_add
 mat_add:
-    push {lr}
-    push {r3-r7}
+    push {r3-r7, lr}
 
     mov r3, #0
     add_row_loop:
@@ -623,9 +618,7 @@ mat_add:
         b add_row_loop
 
     add_end:
-    pop {r3-r7}
-    pop {lr}
-    bx lr
+    pop {r3-r7, pc}
 
 /*
  * udiv - does unsigned division of r0 / r1
@@ -661,7 +654,7 @@ udiv:
 
     3:
     pop {r1-r3}
-    bx lr
+    mov pc, lr
 
 matA:
     .word 3, 3
