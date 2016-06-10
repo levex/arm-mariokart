@@ -24,9 +24,12 @@ controller_init:
     pop {r0-r2}
     mov pc, lr
 
+// Polls GPIO controller. Returns a 3-bit integer in r0, where each bit corresponds to state of each button
 .globl poll_gpio
 poll_gpio:
-    push {r0-r2, lr}
+    push {r1-r3, lr}
+
+    mov r3, #0              // return value (3-bits, one for each button, 1 = on, 0 = off)
 
     ldr r0, =0x20200000
     ldr r1, =0xFFFFFFFF
@@ -35,26 +38,16 @@ poll_gpio:
 
     mov r2, #(1 << 22)
     ands r2, r1             // check GPIO 22
-    bleq gpio22_callback     // <--- Button pressed
+    andeq r3, r3, #4        // set first bit if button pressed
 
     mov r2, #(1 << 23)      // GPIO 23
     ands r2, r1
-    bleq gpio23_callback    // <--- Button pressed
+    andeq r3, r3, #2        // set second bit if button pressed
 
     mov r2, #(1 << 24)      // GPIO 24
     ands r2, r1, r2
-    bleq gpio24_callback    // <--- Button pressed
+    andeq r3, r3, #1        // set third bit if button pressed
 
-    pop {r0-r2, pc}
+    mov r0, r3              // return
 
-.globl gpio22_callback
-gpio22_callback:
-    b led_ok_turn_on
-
-.globl gpio23_callback
-gpio23_callback:
-    b led_ok_turn_on
-
-.globl gpio24_callback
-gpio24_callback:
-    b led_ok_turn_on
+    pop {r1-r3, pc}
