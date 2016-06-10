@@ -5,18 +5,19 @@
 // Requests a framebuffer address using the mailbox
 
 .globl fb_addr
+.globl y_offset
 .balign 16
 gpu_framebuffer_struct:
-             .word 640  /* width */
-             .word 480  /* height */
-             .word 640  /* virtual (???) width */
-             .word 480  /* virtual (???) height */
-    pitch:   .word 000  /* pitch, not entirely sure what this is */
-             .word  32  /* depth */
-             .word 000  /* x_offset */
-             .word 000  /* y_offset */
-    fb_addr: .word 000  /* pointer to framebuffer, set by GPU */
-             .word 000  /* size of framebuffer, set by GPU */
+              .word 640  /* width */
+              .word 480  /* height */
+              .word 640  /* virtual (???) width */
+              .word 960  /* virtual (???) height */
+    pitch:    .word 000  /* pitch, not entirely sure what this is */
+              .word  32  /* depth */
+              .word 000  /* x_offset */
+    y_offset: .word 000  /* y_offset */
+    fb_addr:  .word 000  /* pointer to framebuffer, set by GPU */
+              .word 000  /* size of framebuffer, set by GPU */
 
 /*
  * fb_init - initalize a framebuffer for use
@@ -38,7 +39,8 @@ fb_init:
     ldr r0, =framebuffer_acquired_str
     bl uart_send_string
 
-    ldr r12, =back_buffer
+    ldr r12, fb_addr
+    add r12, r12, #1228800 // load r12 with backbuffer
 
     pop {r0, lr}
     mov pc, lr

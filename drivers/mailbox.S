@@ -88,3 +88,65 @@ mail_read_mailbox:
 
     pop {r1, lr}
     mov pc, lr
+
+/*
+ * mailbox_send_tag
+ */
+
+.equ MBP_SET_VIRTUAL_OFFSET_TAG, 0x00048009
+
+/* mbp_set_request - set tag to request mode */
+.globl mbp_set_request
+mbp_set_request:
+  ldr r0, =mbtb_rcde
+  mov r1, #0
+  str r1, [r0]
+  mov pc, lr
+
+/* mbp_set_tag_id - sets the tag id to r1 */
+.globl mbp_set_tag_id
+mbp_set_tag_id:
+  ldr r0, =mbtb_t_id
+  str r1, [r0]
+  mov pc, lr
+
+/* sets the y_offset to r0 */
+.globl mbp_set_virtual_offset_y
+mbp_set_virtual_offset_y:
+  ldr r1, =mailbox_tag_buffer
+  str r0, [r1, #24] /* store y_offset */
+
+  mov r0, #8*4
+  str r0, [r1, #0] /* store size */
+
+  mov r0, #0
+  str r0, [r1, #4] /* store request code */
+  str r0, [r1, #20] /* store X */
+  str r0, [r1, #28] /* store end */
+
+  ldr r0, =MBP_SET_VIRTUAL_OFFSET_TAG
+  str r0, [r1, #8] /* store tag id */
+
+  mov r0, #8
+  str r0, [r1, #12] /* store value size */
+  str r0, [r1, #16] /* store value length */
+
+  mov pc, lr
+
+/* sends the buffer to the mailbox */
+.globl mbp_send_buffer
+mbp_send_buffer:
+  ldr r1, =mailbox_tag_buffer
+  b mail_write_mailbox
+  /* lr is not modified, hence no need to save it */
+
+.balign 32
+mailbox_tag_buffer:
+  /* 0 */  mbtb_size: .word 8*4
+  /* 4 */  mbtb_rcde: .word 0 /* 0x00 */
+  /* 8 */  mbtb_t_id: .word 0
+  /* 12 */ mbtb_t_vs: .word 0 /* value size */
+  /* 16 */  mbtb_t_vl: .word 0 /* value length */
+  /* 20 */  mbtb_t_vx: .word 0 /* X */
+  /* 24 */  mbtb_t_vy: .word 0 /* Y */
+  /* 28 */  mbtb_t_en: .word 0 /* end tag */
