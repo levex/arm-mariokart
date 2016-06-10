@@ -18,7 +18,6 @@ pbmp_draw:
 
     bl fb_copy_rect
 
-    pop {r2-r4, lr}
-    mov pc, lr
+    pop {r2-r4, pc}
 
 // @ vim:ft=armv5
