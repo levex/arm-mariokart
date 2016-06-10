@@ -42,8 +42,7 @@ fb_init:
     ldr r12, fb_addr
     add r12, r12, #1228800 // load r12 with backbuffer
 
-    pop {r0, lr}
-    mov pc, lr
+    pop {r0, pc}
 
 /*
  * Copies a rectangle of data onto the framebuffer
@@ -148,6 +147,5 @@ fb_draw_line:
       b 1b
 
    2:
-   pop {r3-r7, lr}
-   mov pc, lr
+   pop {r3-r7, pc}
 
