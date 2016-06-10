@@ -26,7 +26,7 @@ procrastination3: .asciz "Then take a look at this\n"
 
 .align
 .globl procrastination4
-procrastination4: .asciz "MOTHERFUCKING RAINBOW\n"
+procrastination4: .asciz "BEAUTIFUL RAINBOW\n"
 
 .align
 .globl procrastination5
@@ -47,4 +47,4 @@ speed_str: .asciz "Speed:"
 
 .align
 .globl powerups_str
-powerups_str: .asciz "Bitches:"
+powerups_str: .asciz "Powerups:"
