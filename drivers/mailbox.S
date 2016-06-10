@@ -27,8 +27,7 @@ mail_read_status:
     ldr r1, =MAIL0_ADDR
     ldr r0, [r1, #MAIL0_STATUS]
 
-    pop {r1, lr}
-    mov pc, lr
+    pop {r1, pc}
 
 .globl mail_wait_till_ready_send
 mail_wait_till_ready_send:
@@ -38,8 +37,7 @@ mail_wait_till_ready_send:
        tst r0, #MAIL_STATUS_FULL
        bne 1b
 
-    pop {r0, lr}
-    mov pc, lr
+    pop {r0, pc}
 
 /*
  * mail_write_mailbox - Writes r1 to the mailbox
@@ -52,8 +50,7 @@ mail_wait_till_ready_send:
     ldr r0, =MAIL0_ADDR
     str r1, [r0, #MAIL0_WRITE]
 
-    pop {r0, lr}
-    mov pc, lr
+    pop {r0, pc}
 
 .globl mail_wait_till_ready_receive
 mail_wait_till_ready_receive:
@@ -63,8 +60,7 @@ mail_wait_till_ready_receive:
        tst r0, #MAIL_STATUS_EMPTY
        bne 1b
 
-    pop {r0, lr}
-    mov pc, lr
+    pop {r0, pc}
 
 /*
  * mail_read_mailbox - Reads the pointer into r0
@@ -86,8 +82,7 @@ mail_read_mailbox:
     /* otherwise, we got our reply, LSR 4 to get full data */
     lsr r0, r0, #4
 
-    pop {r1, lr}
-    mov pc, lr
+    pop {r1, pc}
 
 /*
  * mailbox_send_tag
