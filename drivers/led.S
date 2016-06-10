@@ -5,7 +5,6 @@
 
 .globl led_ok_turn_off
 led_ok_turn_off:
-    push {lr}
     push {r0-r2}
 
     ldr r0, =0x20200000
@@ -21,12 +20,10 @@ led_ok_turn_off:
     str r2, [r0, #28]
 
     pop {r0-r2}
-    pop {lr}
-    bx lr
+    mov pc, lr
 
 .globl led_ok_turn_on
 led_ok_turn_on:
-    push {lr}
     push {r0-r2}
 
     ldr r0, =0x20200000
@@ -42,8 +39,7 @@ led_ok_turn_on:
     str r2, [r0, #40]
 
     pop {r0-r2}
-    pop {lr}
-    bx lr
+    mov pc, lr
 
 .globl led_blinker
 led_blinker:
