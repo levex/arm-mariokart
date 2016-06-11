@@ -126,12 +126,13 @@ mbp_set_virtual_offset_y:
   str r0, [r1, #12] /* store value size */
   str r0, [r1, #16] /* store value length */
 
-  mov pc, lr
+  b mail_write_mailbox
 
 /* sends the buffer to the mailbox */
 .globl mbp_send_buffer
 mbp_send_buffer:
   ldr r1, =mailbox_tag_buffer
+  //add r1, r1, #8
   b mail_write_mailbox
   /* lr is not modified, hence no need to save it */
 
