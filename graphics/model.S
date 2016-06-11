@@ -73,14 +73,15 @@ rotating_cube_demo:
       ldr r0, =cube_data
       bl model_display
 
-      add r3, r3, #1
+      bl poll_gpio
+      tst r0, #(1 << 0)
+      addne r3, r3, #1
+
       cmp r3, #360
       movge r3, #0
 
       bl copy_back_buffer
 
-      ldr r0, =1000
-      bl delay
       b 1b
     pop {r0-r12}
 

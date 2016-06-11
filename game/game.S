@@ -107,6 +107,7 @@
 
 .globl game_loop
 game_loop:  
+  b rotating_cube_demo
   //bl fb_clear
   process_input
   process_logic
