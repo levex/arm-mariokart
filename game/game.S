@@ -20,7 +20,7 @@
 .endm
 
 .macro process_logic
-  b player_move
+    bl player_move
 .endm
 
 .macro render_scene
@@ -37,8 +37,8 @@
   /* TODO */
 
   /* render kart */
-  //ldr r0, =cube_data
-  //bl model_display
+//  ldr r0, =cube_data
+//  bl model_display
   bl rotating_cube_demo
 .endm
 
