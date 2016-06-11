@@ -43,17 +43,14 @@ poll_gpio:
     str r1, [r0, #64]       // clear event detect register
     ldr r1, [r0, #64]       // read event register
 
-    mov r2, #(1 << 22)
-    ands r2, r1             // check GPIO 22
-    andeq r3, r3, #4        // set first bit if button pressed
+    tst r1, #(1 << 22)      // GPIO 22
+    orreq r3, r3, #4        // set second bit if button pressed
 
-    mov r2, #(1 << 23)      // GPIO 23
-    ands r2, r1
-    andeq r3, r3, #2        // set second bit if button pressed
+    tst r1, #(1 << 23)      // GPIO 23
+    orreq r3, r3, #2        // set second bit if button pressed
 
-    mov r2, #(1 << 24)      // GPIO 24
-    ands r2, r1, r2
-    andeq r3, r3, #1        // set third bit if button pressed
+    tst r1, #(1 << 24)      // GPIO 24
+    orreq r3, r3, #1        // set second bit if button pressed
 
     mov r0, r3              // return
 
