@@ -2,6 +2,13 @@
 *   gpio.S
 *
 *   GPIO driver for handling controls
+*
+*   Red -> 3.3V power
+*   Black -> Ground
+*   Brown -> GPIO 22
+*   Green1 -> GPIO 23
+*   Green2 -> GPIO 24
+*
 */
 
 .section ".text"
