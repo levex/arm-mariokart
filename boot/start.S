@@ -17,6 +17,9 @@ _start:
     // Test rasterizer
     //bl triangle_test
 
+    // Init controller
+    bl controller_init
+
     b game_loop
 
     //b procrastination
