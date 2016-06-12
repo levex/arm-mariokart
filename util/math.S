@@ -186,8 +186,6 @@ projection_matrix:
 // r3 -> dest
 .globl view_matrix_gen 
 view_matrix_gen:
-  push {r4}
-
   vldm.f32 r0, {s0-s2}   // eye{s0(x), s1(y), s2(z)}
   vldm.f32 r1, {s3-s5}   // at{s3(x), s4(y), s5(z)}
   vldm.f32 r2, {s6-s8}   // up{s6(x), s7(y), s8(z)}
@@ -242,16 +240,16 @@ view_matrix_gen:
   // eye{s0(x), s1(y), s2(z)}
 
   // invert eye
-  mov r4, #0
-  vmov.f32 s15, r4
+  mov r10, #0
+  vmov.f32 s15, r10
   vmls.f32 s15, s0, s3
   vmls.f32 s15, s1, s4
   vmls.f32 s15, s2, s5
-  vmov.f32 s16, r4
+  vmov.f32 s16, r10
   vmls.f32 s16, s0, s6
   vmls.f32 s16, s1, s7
   vmls.f32 s16, s2, s8
-  vmov.f32 s17, r4
+  vmov.f32 s17, r10
   vmls.f32 s17, s0, s9
   vmls.f32 s17, s1, s10
   vmls.f32 s17, s2, s11
@@ -277,16 +275,15 @@ view_matrix_gen:
   vmov.f32 s15, s2
   vstm.f32 r3!, {s12-s15}
 
-  vmov.f32 s12, r4
+  vmov.f32 s12, r10
   vmov.f32 s13, s12
   vmov.f32 s14, s12
-  mov r4, #0x3f800000
-  vmov.f32 s15, r4
+  mov r10, #0x3f800000
+  vmov.f32 s15, r10
   vstm.f32 r3!, {s12-s15}
 
   sub r3, r3, #64
 
-  pop {r4}
   mov pc, lr
 
 /* Returns a translation matrix. Arguments:
