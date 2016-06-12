@@ -57,17 +57,14 @@ up:  .float 0, 1, 0
 .globl rotating_cube_demo
 rotating_cube_demo:
     push {r0-r12}
+    ldr r0, =eye
+    ldr r1, =at
+    ldr r2, =up
+    ldr r3, =view_matrix
+    bl view_matrix_gen
     mov r3, #0
     1:
       bl fb_clear
-
-      push {r3}
-      ldr r0, =eye
-      ldr r1, =at
-      ldr r2, =up
-      ldr r3, =view_matrix
-      bl view_matrix_gen
-      pop {r3}
 
       ldr r1, =projection_matrix
       ldr r0, =view_matrix
