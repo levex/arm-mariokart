@@ -9,8 +9,10 @@
 // Gets the current timestamp into r0:r1
 .globl time_stamp_get
 time_stamp_get:
+    push {r10}
     ldr r10, =TIMER_BASE
     ldrd r0, r1, [r10, #4]
+    pop {r10}
     mov pc, lr
 
 
