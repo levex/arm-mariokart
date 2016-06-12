@@ -59,6 +59,9 @@ rotating_cube_demo:
     push {r0-r12}
     mov r3, #0
     1:
+      bl time_stamp_get
+      mov r7, r0
+
       bl fb_clear
 
       ldr r1, =projection_matrix
@@ -81,6 +84,13 @@ rotating_cube_demo:
       movge r3, #0
 
       bl copy_back_buffer
+
+      bl time_stamp_get
+      mov r8, r0
+
+      sub r0, r8, r7
+      ldr r0, =10000
+      bl wait_realtime
 
       b 1b
     pop {r0-r12}
