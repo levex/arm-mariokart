@@ -8,107 +8,108 @@ player_score:  .word 999
 
 /* Position and movement */
 
-.EQU SPEED_LIMIT,    10
-.EQU ACCELERATION,   1
-.EQU TURNING_ANGLE,  1
+const_speed_limit: .float 10
+const_acceleration: .float 1
+const_turning_angle: .float 1
+const_max_angle: .float 360
 
 .globl player_x, player_y, player_z, player_speed, player_angle
-player_x:      .word 0
-player_y:      .word 0
-player_z:      .word 0
-player_speed:  .word 0
-player_angle:  .word 0
+player_x:      .float 0
+player_y:      .float 0
+player_z:      .float 0
+player_speed:  .float 0
+player_angle:  .float 0
 
 .globl player_move
 player_move:
-  push {r0-r5, lr}
+  push {r0-r1, lr}
 
-  ldr r3, =player_x
-  ldr r3, [r3]
+  vldr.f32 s3, player_x
+  vldr.f32 s4, player_z
+  vldr.f32 s5, player_speed
 
-  ldr r4, =player_z
-  ldr r4, [r4]
-
-  ldr r5, =player_speed
-  ldr r5, [r5]
-
-  ldr r0, =player_angle
-  ldr r0, [r0]              // r0 = angle
-  mov r2, r0                // r2 = angle
-
+  ldr r0, player_angle      // r0 = angle
+  mov r1, r0                // r1 = angle
   bl cos                    // r0 = cos(angle)
-  mov r1, r0                // r1 = cos(angle)
-  mov r0, r2                // r0 = angle
+  vmov.f32 s0, r0           // s0 = cos(angle)
+
+  mov r0, r1                // r0 = angle
   bl sin                    // r0 = sin(angle)
+  vmov.f32 s1, r0           // s1 = sin(angle)
 
-  mul r0, r0, r5            // r0 = speed * sin(angle) = speed_x
-  mul r1, r1, r5            // r1 = speed * cos(angle) = speed_z
+  vmul.f32 s1, s5, s1       // s1 = speed * sin(angle) = speed_x
+  vmul.f32 s0, s5, s0       // s0 = speed * cos(angle) = speed_z
 
-  add r3, r3, r0            // x += speed_x
-  add r4, r4, r1            // z += speed_z
+  vadd.f32 s3, s3, s1            // x += speed_x
+  vadd.f32 s4, s4, s0            // z += speed_z
 
-  str r3, player_x
-  str r4, player_z
+  vstr.f32 s3, player_x
+  vstr.f32 s4, player_z
 
-  pop {r0-r5, pc}
+  pop {r0-r1, pc}
 
 .globl player_accelerate
 player_accelerate:
-  push {r0-r1, lr}
+  vldr.f32 s0, player_speed // s0 = player_speed
+  vldr.f32 s1, const_speed_limit  // s1 = speed_limit
+  vldr.f32 s2, const_acceleration // s2 = acc
 
-  ldr r0, =player_speed
-  ldr r0, [r0]
-
-  mov r1, #SPEED_LIMIT
-  cmp r0, r1                      // if (speed <= SPEED_LIMIT)
-  addle r0, r0, #ACCELERATION     //   speed += ACCELERATION
-  strle r0, player_speed
-
-  pop {r0-r1, pc}
+  vcmp.f32 s0, s1                      // if (speed <= SPEED_LIMIT)
+  vaddle.f32 s0, s0, s2  //   speed += ACCELERATION
+  vstrle.f32 s0, player_speed // store new value
+  mov pc, lr
 
 .globl player_deaccelerate
 player_deaccelerate:
-  push {r0-r1, lr}
+  push {r1}
   
-  ldr r0, =player_speed
-  ldr r0, [r0]
-
+  vldr.f32 s0, player_speed  // s0 = speed
   mov r1, #0
-  cmp r0, r1                      // if (speed > 0)
-  subgt r0, r0, #ACCELERATION     //   speed -= ACCELERATION
-  strgt r0, player_speed
+  vmov.f32 s1, r1  // s1 = 0
+  vldr.f32 s2, const_acceleration   // s2 = acc
 
-  pop {r0-r1, pc}
+  vcmp.f32 s0, s1                      // if (speed > 0)
+  vsubgt.f32 s0, s0, s2      //   speed -= ACCELERATION
+  vstrgt.f32 s0, player_speed  // store new value
+
+  pop {r1}
+  mov pc, lr
 
 .globl player_turn_right
 player_turn_right:
-  push {r3-r4, lr}
+  push {r0}
 
-  ldr r3, =player_angle
-  ldr r3, [r3]
+  vldr.f32 s0, player_angle // s0 = angle
+  vldr.f32 s1, const_max_angle // s1 = max_angle
+  vldr.f32 s2, const_turning_angle // s2 = turning_angle
+  mov r0, #0
+  vmov.f32 s3, r0   // s3 = 0
 
-  ldr r4, =359          
-  cmp r3, r4                      // if (angle < 359)
-  addlt r3, r3, #TURNING_ANGLE    //   angle += TURNING_ANGLE
-  movge r3, #0                    // else angle = 0
+  vcmp.f32 s0, s1     // if (angle < 360)
+  vaddlt.f32 s0, s0, s2 //   angle += TURNING_ANGLE
+  vmovge.f32 s0, s3                    // else angle = 0
 
-  str r3, player_angle
+  vstr.f32 s0, player_angle
 
-  pop {r3-r4, pc}
+  pop {r0}
+  mov pc, lr
 
 
 .globl player_turn_left
 player_turn_left:
-  push {r3-r4, lr}
+  push {r0}
 
-  ldr r3, =player_angle
-  ldr r3, [r3]
+  vldr.f32 s0, player_angle // s0 = angle
+  vldr.f32 s1, const_max_angle // s1 = max_angle
+  vldr.f32 s2, const_turning_angle // s2 = turning_angle
+  mov r0, #0
+  vmov.f32 s3, r0   // s3 = 0
 
-  mov r4, #0          
-  cmp r3, r4                      // if (angle > 0)
-  subgt r3, r3, #TURNING_ANGLE    //   angle -= TURNING_ANGLE
-  ldrle r3, =359                  // else angle = 359
+  vcmp.f32 s0, s3     // if (angle > 0)
+  vsubgt.f32 s0, s0, s2 //   angle -= TURNING_ANGLE
+  vmovle.f32 s0, s1                    // else angle = 0
 
-  str r3, player_angle
+  vstr.f32 s0, player_angle
 
-  pop {r3-r4, pc}
+  pop {r0}
+  mov pc, lr
