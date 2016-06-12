@@ -10,3 +10,9 @@ gen/*.S
 .DS_Store
 precalculate
 load.sh
+*.patch
+map_loader
+*.pmap
+*.pply
+obj_converter
+ply_converter
