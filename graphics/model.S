@@ -50,7 +50,7 @@ id_matrix: .float  1, 0, 0, 0
             .float 0, 0, 0, 1
 
 .balign 16
-eye: .float 0, 0, -15
+eye: .float 0, 0, 15
 at:  .float 0, 0, 0
 up:  .float 0, 1, 0
 
@@ -63,6 +63,14 @@ rotating_cube_demo:
       mov r7, r0
 
       bl fb_clear
+
+      push {r3}
+      ldr r0, =eye
+      ldr r1, =at
+      ldr r2, =up
+      ldr r3, =view_matrix
+      bl view_matrix_gen
+      pop {r3}
 
       ldr r1, =projection_matrix
       ldr r0, =view_matrix
