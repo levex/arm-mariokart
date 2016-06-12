@@ -55,6 +55,7 @@ player_accelerate:
   vldr.f32 s2, const_acceleration // s2 = acc
 
   vcmp.f32 s0, s1                      // if (speed <= SPEED_LIMIT)
+  fmstat
   vaddle.f32 s0, s0, s2  //   speed += ACCELERATION
   vstrle.f32 s0, player_speed // store new value
   mov pc, lr
@@ -69,6 +70,7 @@ player_deaccelerate:
   vldr.f32 s2, const_acceleration   // s2 = acc
 
   vcmp.f32 s0, s1                      // if (speed > 0)
+  fmstat
   vsubgt.f32 s0, s0, s2      //   speed -= ACCELERATION
   vstrgt.f32 s0, player_speed  // store new value
 
@@ -86,6 +88,7 @@ player_turn_right:
   vmov.f32 s3, r0   // s3 = 0
 
   vcmp.f32 s0, s1     // if (angle < 360)
+  fmstat
   vaddlt.f32 s0, s0, s2 //   angle += TURNING_ANGLE
   vmovge.f32 s0, s3                    // else angle = 0
 
@@ -106,6 +109,7 @@ player_turn_left:
   vmov.f32 s3, r0   // s3 = 0
 
   vcmp.f32 s0, s3     // if (angle > 0)
+  fmstat
   vsubgt.f32 s0, s0, s2 //   angle -= TURNING_ANGLE
   vmovle.f32 s0, s1                    // else angle = 0
 
