@@ -5,14 +5,14 @@
   bl led_ok_turn_off
   bl poll_gpio          // r0 == button state
 
-  tst r0, #4               // if (break button pressed)
+  tst r0, #(1 << 2)        // if (break button pressed)
   blne player_deaccelerate //   de-accelerate
   bleq player_accelerate   // else accelerate
 
-  tst r0, #2               // if (turn right button pressed)
+  tst r0, #(1 << 1)        // if (turn right button pressed)
   blne player_turn_right   //   turn right
 
-  tst r0, #1               // if (turn left button pressed)
+  tst r0, #(1 << 0)        // if (turn left button pressed)
   blne player_turn_left    //   turn left
 
   //On action button pressed
