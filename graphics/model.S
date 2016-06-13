@@ -154,7 +154,6 @@ rotating_cube_demo:
       movge r5, #0
 
       bl render_frame
-      bl copy_back_buffer
 
       b 1b
     pop {r0-r12}
