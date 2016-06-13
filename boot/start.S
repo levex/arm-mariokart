@@ -1,5 +1,17 @@
 .section ".text.boot"
 
+.macro splash_screen
+  mov r0, #0
+  mov r1, #0
+  ldr r2, =splash_pbmp
+  bl pbmp_draw
+
+  bl copy_back_buffer
+ 
+  ldr r0, =5000000  
+  bl wait_realtime  // Wait 5 seconds
+.endm
+
 .globl _start
 _start:
     // Setup stack
@@ -16,6 +28,9 @@ _start:
 
     // Init controller
     bl controller_init
+
+    // Splash screen
+    splash_screen
 
     // Start game
     b game_loop
