@@ -634,8 +634,6 @@ clip_polygon_axis:
  * r1 - Pointer to Vertex
  * r2 - Pointer to output vertex
  * r3 - Pointer to triangle counter
- *
- * Clobbers: r0
  */
 .globl transform_triangle
 transform_triangle:

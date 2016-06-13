@@ -66,6 +66,15 @@
   ldr r2, =vp_matrix
   bl mat4_mul_mat4   // p x v ==> vp
 
+  mov r0, #0
+  ldr r1, =0xc0400000
+  ldr r2, =0xbf800000
+  ldr r3, =model_matrix
+  bl get_translation_matrix
+
+  ldr r0, =road_data
+  bl model_display
+
   /* calculate model matrix for the kart */
   ldr r0, =player_angle
   vldr.f32 s0, [r0]
@@ -77,6 +86,8 @@
   /* render kart */
   ldr r0, =cube_data
   bl model_display
+
+  bl render_frame
 .endm
 
 
@@ -144,7 +155,7 @@
 .endm
 
 .globl game_loop
-game_loop:  
+game_loop:
   process_input
   process_logic
   render_everything
