@@ -12,7 +12,8 @@ player_powerup_time:  .word 0
 
 const_default_speed_limit:    .float 10
 const_powerup_speed_limit:    .float 20
-const_powerup_effective_time: .word  15000 // 15 Seconds
+const_powerup_effective_time: .word  15000 // 15 seconds
+const_powerup_pickup_radius:  .float 3     // 3 pixels
 
 speed_limit:   .float 10
 acceleration:  .float 1
@@ -125,7 +126,6 @@ player_turn_left:
   mov pc, lr
 
 /* Activates the speed powerup */
-.globl player_powerup_pickup
 player_powerup_pickup:
   mov r0, #1
   str r0, player_powerup                  // Set powerup flag
@@ -157,6 +157,30 @@ player_powerup_check_expiry:
   1:
   mov pc, lr
 
+.globl player_powerup_check_proximity
+player_powerup_check_proximity:
+  ldr r0, =example_powerups_num
+  ldr r0, [r0]
+
+  ldr r2, =example_powerups                // address counter
+  vldr.f32 s5, const_powerup_pickup_radius // pickup radius
+
+  mov r1, #0
+  1:
+    cmp r1, r0                     // for (int i=0; i < powerups_num; i++) {
+    bge 2f                         // 
+    vldm.f32 r0, {s0-s1}           //   s0 = powerup_x, s1 = powerup_z
+    vldr.f32 s2, player_x          //   s2 = player_x
+    vldr.f32 s3, player_z          //   s3 = player_z
+    bl distance_2d                 //   s4 = distance between player and powerup
+    vcmp.f32 s4, s5                //   if (distance <= PICKUP_RADIUS) {
+    fmstat                         //     player.pickupPowerup(); 
+    blle player_powerup_pickup     //   }
+    add r2, #8                     //   increment address to check next powerup
+    b 1b                           // }
+
+  2:
+  mov pc, lr
 
 
 
