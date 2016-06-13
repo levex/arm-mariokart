@@ -97,7 +97,9 @@
 
   mov r0, #55
   ldr r3, =player_speed
-  ldr r3, [r3]
+  vldr.f32 s0, [r3]
+  vcvt.s32.f32 s0, s0
+  vmov.s32 r3, s0
   bl render_int
 
   /* Score */
