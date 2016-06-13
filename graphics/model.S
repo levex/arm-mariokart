@@ -161,7 +161,7 @@ rotating_cube_demo:
 // Displays the r0 model
 .globl model_display
 model_display:
-    push {r0-r5, lr}
+    push {r0-r11, lr}
     mov r4, r0
     ldr r5, [r4], #4
 
@@ -171,10 +171,13 @@ model_display:
     bl mat4_mul_mat4
 
     ldr r2, =vertex_buffer_object
+    mov r6, #0
+    str r6, [r2]
     mov r10, r2
     ldr r3, [r2], #4
     add r2, r2, r3, lsl #6
     mov r3, r10
+
     1:
       ldr r0, =mvp_matrix
       mov r1, r4   // current vertex
@@ -184,5 +187,6 @@ model_display:
       add r4, #64
       subs r5, #1
       bne 1b           //   get out
-    pop {r0-r5, pc}
+
+    pop {r0-r11, pc}
 
