@@ -175,8 +175,10 @@ game_loop:
   cmp r0, #1         // while game_over == false
   bne game_loop
 
+  1: b 1b
+
 .globl game_over
-game_over: .byte 0
+game_over: .word 0
 
 .globl road_data
 .balign 16
