@@ -2,16 +2,22 @@
 
 /* Gameplay */
 
-.globl player_health, player_score
-player_health: .word 10
-player_score:  .word 999
+.globl player_health, player_score, player_powerup
+player_health:        .word 10
+player_score:         .word 999
+player_powerup:       .word 0
+player_powerup_time:  .word 0
 
 /* Position and movement */
 
-const_speed_limit: .float 10
-const_acceleration: .float 1
-const_turning_angle: .float 1
-const_max_angle: .float 360
+const_default_speed_limit:    .float 10
+const_powerup_speed_limit:    .float 20
+const_powerup_effective_time: .word  15000 // 15 Seconds
+
+speed_limit:   .float 10
+acceleration:  .float 1
+turning_angle: .float 1
+max_angle:     .float 360
 
 .globl player_x, player_y, player_z, player_speed, player_angle
 player_x:      .float 0
@@ -40,8 +46,8 @@ player_move:
   vmul.f32 s1, s5, s1       // s1 = speed * sin(angle) = speed_x
   vmul.f32 s0, s5, s0       // s0 = speed * cos(angle) = speed_z
 
-  vadd.f32 s3, s3, s1            // x += speed_x
-  vadd.f32 s4, s4, s0            // z += speed_z
+  vadd.f32 s3, s3, s1       // x += speed_x
+  vadd.f32 s4, s4, s0       // z += speed_z
 
   vstr.f32 s3, player_x
   vstr.f32 s4, player_z
@@ -50,29 +56,29 @@ player_move:
 
 .globl player_accelerate
 player_accelerate:
-  vldr.f32 s0, player_speed // s0 = player_speed
-  vldr.f32 s1, const_speed_limit  // s1 = speed_limit
-  vldr.f32 s2, const_acceleration // s2 = acc
+  vldr.f32 s0, player_speed         // s0 = player_speed
+  vldr.f32 s1, speed_limit          // s1 = speed_limit
+  vldr.f32 s2, acceleration         // s2 = acc
 
-  vcmp.f32 s0, s1                      // if (speed <= SPEED_LIMIT)
+  vcmp.f32 s0, s1                   // if (speed <= SPEED_LIMIT)
   fmstat
-  vaddle.f32 s0, s0, s2  //   speed += ACCELERATION
-  vstrle.f32 s0, player_speed // store new value
+  vaddle.f32 s0, s0, s2             //   speed += ACCELERATION
+  vstrle.f32 s0, player_speed       // store new value
   mov pc, lr
 
 .globl player_deaccelerate
 player_deaccelerate:
   push {r1}
   
-  vldr.f32 s0, player_speed  // s0 = speed
+  vldr.f32 s0, player_speed         // s0 = speed
   mov r1, #0
-  vmov.f32 s1, r1  // s1 = 0
-  vldr.f32 s2, const_acceleration   // s2 = acc
+  vmov.f32 s1, r1                   // s1 = 0
+  vldr.f32 s2, acceleration         // s2 = acc
 
-  vcmp.f32 s0, s1                      // if (speed > 0)
+  vcmp.f32 s0, s1                   // if (speed > 0)
   fmstat
-  vsubgt.f32 s0, s0, s2      //   speed -= ACCELERATION
-  vstrgt.f32 s0, player_speed  // store new value
+  vsubgt.f32 s0, s0, s2             //   speed -= ACCELERATION
+  vstrgt.f32 s0, player_speed       // store new value
 
   pop {r1}
   mov pc, lr
@@ -81,16 +87,16 @@ player_deaccelerate:
 player_turn_right:
   push {r0}
 
-  vldr.f32 s0, player_angle // s0 = angle
-  vldr.f32 s1, const_max_angle // s1 = max_angle
-  vldr.f32 s2, const_turning_angle // s2 = turning_angle
+  vldr.f32 s0, player_angle         // s0 = angle
+  vldr.f32 s1, max_angle            // s1 = max_angle
+  vldr.f32 s2, turning_angle        // s2 = turning_angle
   mov r0, #0
-  vmov.f32 s3, r0   // s3 = 0
+  vmov.f32 s3, r0                   // s3 = 0
 
-  vcmp.f32 s0, s1     // if (angle < 360)
+  vcmp.f32 s0, s1                   // if (angle < 360)
   fmstat
-  vaddlt.f32 s0, s0, s2 //   angle += TURNING_ANGLE
-  vmovge.f32 s0, s3                    // else angle = 0
+  vaddlt.f32 s0, s0, s2             //   angle += TURNING_ANGLE
+  vmovge.f32 s0, s3                 // else angle = 0
 
   vstr.f32 s0, player_angle
 
@@ -102,18 +108,60 @@ player_turn_right:
 player_turn_left:
   push {r0}
 
-  vldr.f32 s0, player_angle // s0 = angle
-  vldr.f32 s1, const_max_angle // s1 = max_angle
-  vldr.f32 s2, const_turning_angle // s2 = turning_angle
+  vldr.f32 s0, player_angle         // s0 = angle
+  vldr.f32 s1, max_angle            // s1 = max_angle
+  vldr.f32 s2, turning_angle        // s2 = turning_angle
   mov r0, #0
-  vmov.f32 s3, r0   // s3 = 0
+  vmov.f32 s3, r0                   // s3 = 0
 
-  vcmp.f32 s0, s3     // if (angle > 0)
+  vcmp.f32 s0, s3                   // if (angle > 0)
   fmstat
-  vsubgt.f32 s0, s0, s2 //   angle -= TURNING_ANGLE
-  vmovle.f32 s0, s1                    // else angle = 0
+  vsubgt.f32 s0, s0, s2             //   angle -= TURNING_ANGLE
+  vmovle.f32 s0, s1                 // else angle = 0
 
   vstr.f32 s0, player_angle
 
   pop {r0}
   mov pc, lr
+
+/* Activates the speed powerup */
+.globl player_powerup_pickup
+player_powerup_pickup:
+  mov r0, #1
+  str r0, player_powerup                  // Set powerup flag
+
+  vldr.f32 s0, const_powerup_speed_limit  // Increase speed limit
+  vstr.f32 s0, speed_limit
+
+  bl time_stamp_get
+  str r0, player_powerup_time             // Store pick-up time
+
+  mov pc, lr
+
+/* Checks for expiry of the speed powerup */
+.globl player_powerup_check_expiry
+player_powerup_check_expiry:
+  ldr r2, player_powerup_time
+  ldr r3, const_powerup_effective_time
+  bl time_stamp_get                       // r0:r1 = current timestamp
+  sub r2, r0, r2                          // r2 = time since powerup pickup
+  cmp r2, r3                              // if (time since pickup < effective)
+  blt 1f                                  //   return
+                                          // else {
+  mov r0, #0
+  str r0, player_powerup                  // Clear powerup flag
+
+  vldr.f32 s0, const_default_speed_limit  // Decrease speed limit
+  vstr.f32 s0, speed_limit
+
+  1:
+  mov pc, lr
+
+
+
+
+
+
+
+
+
