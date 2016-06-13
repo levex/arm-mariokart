@@ -16,7 +16,7 @@
 .endm
 
 .macro process_logic
-    bl player_move
+    //bl player_move
 .endm
 
 .macro render_scene
