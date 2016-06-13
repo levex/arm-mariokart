@@ -7,6 +7,7 @@
 // This file loads models
 
 .balign 16
+.globl vp_matrix
 vp_matrix: .float 0, 0, 0, 0
            .float 0, 0, 0, 0
            .float 0, 0, 0, 0
@@ -32,12 +33,14 @@ tmp2_matrix: .float 0, 0, 0, 0
             .float 0, 0, 0, 0
 
 .balign 16
+.globl model_matrix
 model_matrix: .float 0, 0, 0, 0
             .float 0, 0, 0, 0
             .float 0, 0, 0, 0
             .float 0, 0, 0, 0
 
 .balign 16
+.globl view_matrix
 view_matrix: .float 1, 0, 0, 0
             .float 0, 1, 0, 0
             .float 0, 0, 1, -15
@@ -49,6 +52,7 @@ id_matrix: .float  1, 0, 0, 0
             .float 0, 0, 1, 0
             .float 0, 0, 0, 1
 
+.globl eye, at, up
 .balign 16
 eye: .float 0, 0, 15
 at:  .float 0, 0, 0
