@@ -19,6 +19,7 @@ SRCS += $(wildcard graphics/*.S)
 SRCS += $(wildcard sprites/*.S)
 SRCS += $(wildcard maps/*.S)
 SRCS += $(wildcard game/*.S)
+SRCS += $(wildcard models/*.S)
 OBJS = $(subst tools/lookup_tables.o,, $(SRCS:.S=.o))
 OBJS += tools/lookup_tables.o
 OBJS += gen/precalc.o
