@@ -39,7 +39,8 @@ fb_init:
     ldr r0, =framebuffer_acquired_str
     bl uart_send_string
 
-    ldr r12, fb_addr
+    //ldr r12, fb_addr
+    ldr r12, =back_buffer
     //add r12, r12, #1228800 // load r12 with backbuffer
 
     pop {r0, pc}
