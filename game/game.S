@@ -144,6 +144,17 @@
   ldr r1, =440
   ldr r3, =powerups_str
   bl render_string
+ 
+  ldr r3, =player_powerup
+  ldr r3, [r3]
+  mov r0, #1
+  cmp r3, r0
+  bne 1f                 // if (player_powerup) {
+  ldr r0, =440
+  mov r2, #color_blue
+  mov r3, #1             //   render blue block character
+  bl render_char         // }
+  1:
 .endm
 
 .macro render_everything
