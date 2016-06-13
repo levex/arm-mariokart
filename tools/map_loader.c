@@ -20,7 +20,9 @@ typedef enum component {
     ROAD_CURVED_902 = 902,
     ROAD_CURVED_903 = 903,
     ROAD_CURVED_904 = 904,
-    ROAD_CURVED_9992 = 9992,
+    
+    POWERUP = 999,
+    NO_POWERUP = 998,
 } component_t;
 
 struct triangle {
@@ -35,7 +37,7 @@ typedef struct model {
     struct triangle **triangles;
 } __attribute__ ((packed)) model_t;
 
-model_t *component_data[8];
+model_t *component_data[9];
 
 void print_model(model_t *component_model) {
     for (int i = 0; i < 4; i++) {
@@ -122,7 +124,12 @@ model_t *get_component_data(component_t component) {
     case ROAD_CURVED_903: return component_data[6];
     case ROAD_CURVED_904: return component_data[7];
 
-    case ROAD_CURVED_9992: return component_data[7];
+    case POWERUP:         return component_data[8];
+    case NO_POWERUP: {
+      model_t *model = malloc(sizeof(model_t));
+      model->num_triangles = 0;
+      return model;
+    }
   }
 }
 
@@ -136,6 +143,8 @@ void load_all_component_data() {
   component_data[5] = rotate(component_data[4]);
   component_data[6] = rotate(component_data[5]);
   component_data[7] = rotate(component_data[6]);
+
+  component_data[8] = load_component_data("powerup");
 }
 
 model_t *translate_chunk(component_t component, int x, int z) {
@@ -185,17 +194,10 @@ int main (int argc, char *argv[]) {
 
   int num_total_triangles = 0;
 
-  /*
-  PRINT_INT(map_width);
-  PRINT_INT(map_height);
-  PRINT_INT(chunk_width);
-  PRINT_INT(chunk_height);
-  PRINT_INT(chunk_rows);
-  PRINT_INT(chunk_columns);
-  PRINT_INT(num_chunks);
-  */
-
   model_t *chunks[num_chunks];
+  model_t *powerups[num_chunks];
+
+  /* Process road */
 
   int i = 0;
   for (int y = 0; y < chunk_columns; y++) {
@@ -207,19 +209,10 @@ int main (int argc, char *argv[]) {
         component_str = strtok(NULL, " \n");
       } while (component_str == NULL);
 
-      /*
-      PRINT_INT(x);
-      PRINT_INT(y);
-      PRINT_STRING(component_str);
-      */
-
       /* Position the component by translating it accordingly */
       model_t *translated_chunk = translate_chunk(atoi(component_str), x * chunk_width, y * chunk_height);
 
-      //print_model(translated_chunk);
-
       chunks[i] = translated_chunk;
-      //print_model(translated_chunk);
      
       /* Update number of triangles */
       num_total_triangles += translated_chunk->num_triangles;
@@ -227,26 +220,107 @@ int main (int argc, char *argv[]) {
     }
   }
 
+  /* Process powerups */
+  i = 0;
+  int num_powerups = 0;
+  for (int y = 0; y < chunk_columns; y++) {
+    for (int x = 0; x < chunk_rows; x++) {
+      char *component_str;
+
+      /* Skip all whitespace */
+      do {
+        component_str = strtok(NULL, " \n");
+      } while (component_str == NULL);
+
+      model_t *translated_chunk;
+      if (strcmp(component_str, "1")) {
+        translated_chunk = translate_chunk(POWERUP, x * chunk_width, y * chunk_height);
+        num_powerups++;
+      } else {
+        translated_chunk = translate_chunk(NO_POWERUP, x * chunk_width, y * chunk_height);
+      }
+
+      powerups[i] = translated_chunk;
+     
+      /* Update number of triangles */
+      num_total_triangles += translated_chunk->num_triangles;
+      i++;
+    }
+  }
+  char *num_powerups_str = calloc(10, 1);
+  sprintf(num_powerups_str, "%d", num_powerups);
+
   uint32_t file_size = sizeof(uint32_t) + num_total_triangles * sizeof(struct triangle);
   uint32_t *out = malloc(file_size);
   out[0] = num_total_triangles;
 
+  uint32_t *location;
   /* Place the chunks in the output world file */
   for (int i = 0; i < num_chunks; i++) {
     for (int j = 0; j < chunks[i]->num_triangles; j++) {
-
-      //PRINT_FLOAT(chunks[i]->triangles[j]->vertex1[0]);
-      memcpy(out + 1 + (i + j) * (sizeof(struct triangle) / 4),
+      location = out + 1 + (i + j) * (sizeof(struct triangle) / 4);
+      memcpy(location,
              chunks[i]->triangles[j],
              sizeof(struct triangle));
     }
   }
 
-  /* Output file */
+  /* Place the powerups */
+  for (int i = 0; i < num_chunks; i++) {
+    for (int j = 0; j < powerups[i]->num_triangles; j++) {
+
+      //PRINT_FLOAT(chunks[i]->triangles[j]->vertex1[0]);
+      memcpy(location + 1 + (i + j) * (sizeof(struct triangle) / 4),
+             powerups[i]->triangles[j],
+             sizeof(struct triangle));
+    }
+  }
+
   int fdout;
 
-  fdout = open(argv[2], O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+  /* Output map file */
+
+  char *map_file = argv[2];
+
+  fdout = open(map_file, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
   write(fdout, out, file_size);
+
+  /* Output powerup file */
+
+  map_file[strlen(map_file) - 5] = '\0';
+  char *powerup_file = calloc(strlen(argv[2]) + 11 + 1, 1);
+  powerup_file = strcat(powerup_file, map_file);
+  powerup_file = strcat(powerup_file, "_powerups.S");
+
+  fdout = open(powerup_file, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+  powerup_file[strlen(powerup_file) - 2] = '\0';
+  powerup_file += 5;
+
+  char *powerups_header = calloc(10000, 1);
+  powerups_header = strcat(powerups_header, ".section \".data\"\n\n");
+  powerups_header = strcat(powerups_header, ".globl ");
+  powerups_header = strcat(powerups_header, powerup_file);
+  powerups_header = strcat(powerups_header, ", ");
+  powerups_header = strcat(powerups_header, powerup_file);
+  powerups_header = strcat(powerups_header, "_num");
+  powerups_header = strcat(powerups_header, "\n");
+  powerups_header = strcat(powerups_header, powerup_file);
+  powerups_header = strcat(powerups_header, "_num: .word ");
+  powerups_header = strcat(powerups_header, num_powerups_str);
+  powerups_header = strcat(powerups_header, "\n");
+  powerups_header = strcat(powerups_header, powerup_file);
+  powerups_header = strcat(powerups_header, ":\n");
+
+  write(fdout, powerups_header, strlen(powerups_header));
+
+  for (int i = 0; i < num_chunks; i++) {
+    model_t *powerup = powerups[i];
+    if (powerup->num_triangles != 0) {
+      dprintf(fdout, ".float %f, %f\n", powerup->triangles[0]->vertex1[0], powerup->triangles[0]->vertex1[2]);
+    }
+  }
+
+  /* Free */
 
   free(buffer);
   free(out);
