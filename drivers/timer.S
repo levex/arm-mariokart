@@ -28,3 +28,16 @@ wait_realtime:
        cmp r0, r11
        blt 1b
     pop {pc}
+
+__last_time: .word 0
+
+.globl time_delta
+time_delta:
+    push {r1, lr}
+    bl time_stamp_get
+    ldr r10, =__last_time // r10 = &__last_time
+    ldr r1, [r10, #0]   // r1 = *r10
+    bl time_stamp_get   // r0:r1 = new_time
+    str r0, [r10, #0]   // *__last_time = r0
+    sub r0, r0, r1   // r0 = timedelta
+    pop {r1, pc}
