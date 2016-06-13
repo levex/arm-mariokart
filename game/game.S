@@ -32,10 +32,43 @@
   /* render map */
   /* TODO */
 
+  /* our camera is where the kart is */
+  //ldr r0, =player_x
+  //ldr r0, [r0]
+  //ldr r1, =player_y
+  //ldr r1, [r1]
+  //sub r1, r1, #5
+  //ldr r2, =player_z
+  //ldr r2, [r2]
+  //ldr r3, =eye
+  //str r0, [r3, #0]
+  //str r1, [r3, #4]
+  //str r2, [r3, #8]
+
+  /* calculate view matrix */
+  ldr r0, =eye
+  ldr r1, =at
+  ldr r2, =up
+  ldr r3, =view_matrix
+  bl view_matrix_gen
+
+  /* calculate VP matrix */
+  ldr r1, =projection_matrix
+  ldr r0, =view_matrix
+  ldr r2, =vp_matrix
+  bl mat4_mul_mat4   // p x v ==> vp
+
+  /* calculate model matrix for the kart */
+  ldr r0, =player_angle
+  vldr.f32 s0, [r0]
+  vcvt.s32.f32 s0, s0
+  vmov.s32 r0, s0
+  ldr r1, =model_matrix
+  bl get_rotation_y_matrix
+
   /* render kart */
-//  ldr r0, =cube_data
-//  bl model_display
-  bl rotating_cube_demo
+  ldr r0, =cube_data
+  bl model_display
 .endm
 
 
@@ -92,19 +125,15 @@
 .endm
 
 .macro render_everything
-  ldr r12, =back_buffer
   render_scene
-  bl copy_back_buffer
   /* TODO, this should run every 5 frames or so */
-  ldr r12, =fb_addr
-  ldr r12, [r12]
   render_hud
+
+  bl copy_back_buffer
 .endm
 
 .globl game_loop
 game_loop:  
-  b rotating_cube_demo
-  //bl fb_clear
   process_input
   process_logic
   render_everything
