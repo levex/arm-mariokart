@@ -18,4 +18,5 @@ obj_converter
 ply_converter
 blender
 daniel.sh
+*.dSYM
 
