@@ -40,7 +40,7 @@ fb_init:
     bl uart_send_string
 
     ldr r12, fb_addr
-    add r12, r12, #1228800 // load r12 with backbuffer
+    //add r12, r12, #1228800 // load r12 with backbuffer
 
     pop {r0, pc}
 
