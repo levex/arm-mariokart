@@ -31,7 +31,7 @@ SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
 
 MAPS = $(wildcard maps/*.map)
-MAPS_OBJS = $(subst .map,.pmap,$(MAPS)) $(subst .map,_powerups.o,$(MAPS))
+MAPS_OBJS = $(subst .map,.pmap,$(MAPS))
 
 all: $(RAW)
 
@@ -47,7 +47,6 @@ clean:
 	-@rm -f $(MAPS_OBJS)
 	-@rm -f tools/lookup_tables.S
 	-@rm -f $(RAW)
-	-@rm -f maps/*_powerups.*
 	-@rm -rf *.dSYM
 
 %.o: %.S
@@ -55,7 +54,6 @@ clean:
 	@$(AS) $(ASFLAGS) -c $< -o $@
 
 sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
-game/player.o: $(MAPS_OBJS)
 maps/maps.o: $(MODELS_OBJS) $(MAPS_OBJS) maps/maps.S
 
 bmpconv: tools/bmp_converter.c
