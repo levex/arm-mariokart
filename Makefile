@@ -31,7 +31,7 @@ SPRITES = $(wildcard sprites/*.bmp)
 SPRITES_OBJS = $(subst .bmp,.pbmp,$(SPRITES))
 
 MAPS = $(wildcard maps/*.map)
-MAPS_OBJS = $(subst .map,.pmap,$(MAPS))
+MAPS_OBJS = $(subst .map,.pmap,$(MAPS)) $(subst .map,_powerups.o,$(MAPS))
 
 all: $(RAW)
 
@@ -47,13 +47,16 @@ clean:
 	-@rm -f $(MAPS_OBJS)
 	-@rm -f tools/lookup_tables.S
 	-@rm -f $(RAW)
-
-sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
-maps/maps.o: $(MODELS_OBJS) $(MAPS_OBJS) maps/maps.S
+	-@rm -f maps/*_powerups.*
+	-@rm -rf *.dSYM
 
 %.o: %.S
 	@echo "  AS            $@"
 	@$(AS) $(ASFLAGS) -c $< -o $@
+
+sprites/sprites.o: $(SPRITES_OBJS) sprites/sprites.S
+game/player.o: $(MAPS_OBJS)
+maps/maps.o: $(MODELS_OBJS) $(MAPS_OBJS) maps/maps.S
 
 bmpconv: tools/bmp_converter.c
 	@echo "  HOSTCC        $@"
@@ -94,6 +97,9 @@ map_loader: tools/map_loader.c tools/obj_converter.c
 %.pmap: %.map map_loader
 	@echo "  MAPLDR        $@"
 	@./map_loader $< $@
+
+%_powerups.S: %.pmap
+%_powerups.o: %_powerups.S
 
 $(IMAGE): $(OBJS) $(SPRITES_OBJS) $(MODELS_OBJS) $(MAPS_OBJS)
 	@echo "  LD            $@"
