@@ -16,7 +16,7 @@ const_max_angle: .float 360
 .globl player_x, player_y, player_z, player_speed, player_angle
 player_x:      .float 0
 player_y:      .float 0
-player_z:      .float 0
+player_z:      .float -15
 player_speed:  .float 0
 player_angle:  .float 0
 

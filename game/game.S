@@ -33,17 +33,25 @@
   /* TODO */
 
   /* our camera is where the kart is */
-  //ldr r0, =player_x
-  //ldr r0, [r0]
-  //ldr r1, =player_y
-  //ldr r1, [r1]
-  //sub r1, r1, #5
-  //ldr r2, =player_z
-  //ldr r2, [r2]
-  //ldr r3, =eye
-  //str r0, [r3, #0]
-  //str r1, [r3, #4]
-  //str r2, [r3, #8]
+  ldr r0, =player_x
+  ldr r0, [r0]
+
+  ldr r1, =player_y
+  ldr r1, [r1]
+  vmov.f32 s0, r1 // s0 = y
+  ldr r3, =0x40a00000 // 5.0 in IEEE 754 SP float
+  vmov.f32 s1, r3 // s1 = 5.0
+  vadd.f32 s0, s0, s1    /* make sure the camera is a bit up */
+  vmov.f32 r1, s0
+
+  ldr r2, =player_z
+  ldr r2, [r2]
+
+  ldr r3, =eye
+
+  str r0, [r3, #0]
+  str r1, [r3, #4]
+  str r2, [r3, #8]
 
   /* calculate view matrix */
   ldr r0, =eye
