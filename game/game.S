@@ -17,8 +17,8 @@
 
 .macro process_logic
   //bl player_move
-  bl player_powerup_check_proximity
-  bl player_powerup_check_expiry
+  //bl player_powerup_check_proximity
+  //bl player_powerup_check_expiry
 .endm
 
 .macro render_scene
@@ -74,7 +74,7 @@
   ldr r3, =model_matrix
   bl get_translation_matrix
 
-  ldr r0, =example_map
+  ldr r0, =road_data
   bl model_display
 
   /* calculate model matrix for the kart */
