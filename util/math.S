@@ -19,6 +19,27 @@ cos:
     ldr r0, [r10, r0, LSL #2]
     mov pc, lr
 
+// Determines the distance between two 2D points
+// r0 -> x1
+// r1 -> y1
+// r2 -> x2
+// r3 -> y2
+// s0 <- distance
+// clobbers: r4 - r5
+.globl distance_2d
+distance_2d:
+  sub r4, r0, r2      // r4 = x1 - x2
+  sub r5, r1, r3      // r5 = y1 - y2
+
+  mul r4, r4, r4      // r4 = (x1 - x2) ^ 2
+  mul r5, r5, r5      // r5 = (y1 - y2) ^ 2
+
+  add r4, r4, r5      // r4 = (x1 - x2) ^ 2 + (y1 - y2) ^ 2
+  vmov.f32 s0, r4     
+  vsqrt.f32 s0, s0    // s0 = sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
+
+  mov pc, lr
+
 // Determines the dot product of two vectors
 // r0 -> first vector
 // r1 -> second vector
