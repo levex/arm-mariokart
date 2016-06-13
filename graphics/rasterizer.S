@@ -10,18 +10,6 @@
  * into r0 r1 r2
  */
 
-.macro load_3x
-    ldr r0, [r0]
-    ldr r1, [r1]
-    ldr r2, [r2]
-.endm
-
-.macro load_3y
-    ldr r3, [r0, #4]
-    ldr r4, [r1, #4]
-    ldr r5, [r2, #4]
-.endm
-
 .macro sort_vertices
     cmp r3, r4
     movgt r10, r4
@@ -177,32 +165,6 @@ draw_flat_triangle:
     pop {r0-r9}
     mov pc, lr
 
-.globl triangle_test
-triangle_test:
-    push {r0-r3, lr}
-
-    /*
-    ldr r1, =testTranslation
-    ldr r2, =vertA
-    bl transform_vertex
-
-    ldr r1, =testTranslation
-    ldr r2, =vertB
-    bl transform_vertex
-
-    ldr r1, =testTranslation
-    ldr r2, =vertC
-    bl transform_vertex
-    */
-
-    ldr r0, =vertA
-    ldr r1, =vertB
-    ldr r2, =vertC
-    mov r3, #0x00FF0000
-    bl triangle
-
-    pop {r0-r3, pc}
-
 /*
  *  Rasterizes a triangle from
  *  set of three vertices.
@@ -226,8 +188,12 @@ triangle:
     fcpyd d14, d8
     fcpyd d15, d8
 
-    load_3y
-    load_3x
+    ldr r3, [r0, #4]
+    ldr r4, [r1, #4]
+    ldr r5, [r2, #4]
+    ldr r0, [r0]
+    ldr r1, [r1]
+    ldr r2, [r2]
 
     sort_vertices
 
@@ -286,31 +252,33 @@ triangle:
     3:
     pop {r0-r9, pc}
 
+.globl render_frame
+render_frame:
+    push {r0-r5, lr}
+    ldr r4, =vertex_buffer_object
+    ldr r5, [r4], #4
 
-//Triangle vertices - x, y, z, w coord
+    cmp r5, #0
+    popeq {r0-r5, pc}
+
+    1:
+      mov r0, r4              // v1 address
+      add r1, r4, #16         // v2 address
+      add r2, r4, #32         // v3 address
+      ldr r3, [r4, #48]       // load color
+
+      bl triangle
+
+      add r4, #64
+      subs r5, #1
+      bne 1b
+
+    pop {r0-r5, pc}
+
+.section ".data"
+
+// Assume we will never render more than 4096 triangles
+.globl vertex_buffer_object
 .balign 16
-vertA:
-    .word 100, 100, 0, 1
-
-vertB:
-    .word 140, 150, 0, 1
-
-vertC:
-    .word 70, 200, 0, 1
-
-vertP:
-    .word 0, 0, 0, 1
-
-oneBottomMat:
-    .word 3, 3
-    .word 0, 0, 0
-    .word 0, 0, 0
-    .word 1, 1, 1
-
-.balign 16
-testTranslation:
-    .word 1, 0, 0, 200
-    .word 0, 1, 0, 0
-    .word 0, 0, 1, 0
-    .word 0, 0, 0, 1
+vertex_buffer_object: .skip 4 + 4*4*4*4096
 

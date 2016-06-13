@@ -153,6 +153,60 @@ game_loop:
 .globl game_over
 game_over: .byte 0
 
+.globl road_data
+.balign 16
+road_data:
+.word 10
+.float -10, 0, 0, 1
+.float -3.5, 0, 0, 1
+.float -10, 0, -350, 1
+.word 0x00666666, 0, 0, 0
+
+.float -10, 0, -350, 1
+.float -3.5, 0, 0, 1
+.float -3.5, 0, -350, 1
+.word 0x00666666, 0, 0, 0
+
+.float -3.5, 0, 0, 1
+.float -3, 0, 0, 1
+.float -3.5, 0, -350, 1
+.word 0x00FFFFFF, 0, 0, 0
+
+.float -3.5, 0, -350, 1
+.float -3, 0, 0, 1
+.float -3, 0, -350, 1
+.word 0x00FFFFFF, 0, 0, 0
+
+.float -3, 0, 0, 1
+.float 3, 0, 0, 1
+.float -3, 0, -350, 1
+.word 0x00AAAAAA, 0, 0, 0
+
+.float -3, 0, -350, 1
+.float 3, 0, 0, 1
+.float 3, 0, -350, 1
+.word 0x00AAAAAA, 0, 0, 0
+
+.float 3, 0, 0, 1
+.float 3.5, 0, 0, 1
+.float 3, 0, -350, 1
+.word 0x00FFFFFF, 0, 0, 0
+
+.float 3, 0, -350, 1
+.float 3.5, 0, 0, 1
+.float 3.5, 0, -350, 1
+.word 0x00FFFFFF, 0, 0, 0
+
+.float 3.5, 0, -350, 1
+.float 3.5, 0, 0, 1
+.float 10, 0, 0, 1
+.word 0x00666666, 0, 0, 0
+
+.float 3.5, 0, -350, 1
+.float 10, 0, 0, 1
+.float 10, 0, -350, 1
+.word 0x00666666, 0, 0, 0
+
 .globl cube_data
 .balign 16
 cube_data:

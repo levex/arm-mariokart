@@ -61,8 +61,6 @@ led_blinker:
     ldr r2, =mario_face
     bl pbmp_draw
 
-    bl triangle_test
-
     bl led_ok_turn_off
 
     ldr r0, =5000000

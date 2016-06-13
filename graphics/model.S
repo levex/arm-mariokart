@@ -61,34 +61,99 @@ up:  .float 0, 1, 0
 .globl rotating_cube_demo
 rotating_cube_demo:
     push {r0-r12}
-    ldr r0, =eye
-    ldr r1, =at
-    ldr r2, =up
-    ldr r3, =view_matrix
-    bl view_matrix_gen
-    mov r3, #0
+    // ldr r0, =eye
+    // ldr r1, =at
+    // ldr r2, =up
+    // ldr r3, =view_matrix
+    // bl view_matrix_gen
+    mov r5, #0
     1:
-      bl fb_clear
+      ldr r10, =vertex_buffer_object
+      mov r11, #0
+      str r11, [r10]
+
+      mov r0, #0
+      mov r1, #0
+      mov r3, #640
+      mov r4, #380
+      ldr r2, =sky_pbmp
+      add r2, r2, #8
+      bl fb_copy_rect
+
+      // ldr r0, =eye
+      // ldr r1, =at
+      // ldr r2, =up
+      // ldr r3, =view_matrix
+      // ldr r10, =0x3627c5ac
+      // vmov s30, r10
+      // vldr.f32 s31, [r0, #8]
+      // vsub.f32 s31, s30
+      // vstr.f32 s31, [r0, #8]
+      // vldr.f32 s31, [r1, #8]
+      // vsub.f32 s31, s30
+      // vstr.f32 s31, [r1, #8]
+      // bl view_matrix_gen
+
+      //push {r0-r12, lr}
+      //mov r0, r3
+      //bl print_matrix
+      //pop {r0-r12, lr}
 
       ldr r1, =projection_matrix
       ldr r0, =view_matrix
       ldr r2, =vp_matrix
       bl mat4_mul_mat4   // p x v ==> vp
-      
-      mov r0, r3
-      ldr r1, =model_matrix
+
+      mov r0, #0
+      ldr r1, =0xc0400000
+      ldr r2, =0xbf800000
+      ldr r3, =model_matrix
+      bl get_translation_matrix
+
+      ldr r0, =road_data
+      bl model_display
+
+
+      mov r0, r5
+      ldr r1, =tmp_matrix
       bl get_rotation_y_matrix
+
+      ldr r0, =0xc0a00000
+      ldr r1, =0xc0400000
+      ldr r2, =0xc1a00000
+      ldr r3, =tmp2_matrix
+      bl get_translation_matrix
+
+      ldr r1, =tmp2_matrix
+      ldr r0, =tmp_matrix
+      ldr r2, =model_matrix
+      bl mat4_mul_mat4
+
+      ldr r0, =cube_data
+      bl model_display
+
+      ldr r0, =0x40a00000
+      ldr r1, =0xc0400000
+      ldr r2, =0xc1a00000
+      ldr r3, =tmp2_matrix
+      bl get_translation_matrix
+
+      ldr r1, =tmp2_matrix
+      ldr r0, =tmp_matrix
+      ldr r2, =model_matrix
+      bl mat4_mul_mat4
 
       ldr r0, =cube_data
       bl model_display
 
       bl poll_gpio
       tst r0, #(1 << 0)
-      addne r3, r3, #1
+      addne r5, r5, #1
 
-      cmp r3, #360
-      movge r3, #0
+      cmp r5, #360
+      movge r5, #0
 
+      bl render_frame
       bl copy_back_buffer
 
       b 1b
@@ -97,69 +162,28 @@ rotating_cube_demo:
 // Displays the r0 model
 .globl model_display
 model_display:
-    push {r0-r9, lr}
+    push {r0-r5, lr}
     mov r4, r0
     ldr r5, [r4], #4
-
-    //ldr r0, =0xc0a00000
-    //mov r1, #0
-    //mov r2, #0
-    //ldr r3, =tmp2_matrix
-    //bl get_translation_matrix
-
-
-    //ldr r0, =tmp_matrix
-    //ldr r1, =tmp2_matrix
-    //ldr r2, =model_matrix
-    //bl mat4_mul_mat4
 
     ldr r1, =vp_matrix
     ldr r0, =model_matrix
     ldr r2, =mvp_matrix
     bl mat4_mul_mat4
 
+    ldr r2, =vertex_buffer_object
+    mov r10, r2
+    ldr r3, [r2], #4
+    add r2, r2, r3, lsl #6
+    mov r3, r10
     1:
       ldr r0, =mvp_matrix
       mov r1, r4   // current vertex
-      ldr r2, =dummy_triangle
+
       bl transform_triangle
-      cmp r1, #0 // should we render?
-      bge 2f       // is zero?
 
-      sub r0, r2, #48
-      sub r1, r2, #32
-      sub r2, r2, #16
-      ldr r3, [r4, #48]       // load color
-
-      bl triangle             // rasterize
-    2:
       add r4, #64
       subs r5, #1
       bne 1b           //   get out
-    pop {r0-r9, pc}
+    pop {r0-r5, pc}
 
-.globl dummy_triangle
-.balign 16
-dummy_triangle: .word 0, 0, 0, 0
-                .word 0, 0, 0, 0
-                .word 0, 0, 0, 0
-                .word 0, 0, 0, 0
-                .word 0, 0, 0, 0
-                .word 0, 0, 0, 0
-                .word 0, 0, 0, 0
-
-.globl pobj_test_data
-pobj_test_data:
-    .word 3
-    .word 300, 300, 0, 1
-    .word 350, 320, 0, 1 
-    .word 330, 350, 0, 1 
-    .word   0,   0, 0, 0
-    .word 100, 100, 0, 1
-    .word 150, 120, 0, 1 
-    .word 130, 150, 0, 1 
-    .word   0,   0, 0, 0
-    .word 200, 100, 0, 1
-    .word 300, 100, 0, 1 
-    .word 250, 150, 0, 1 
-    .word   0,   0, 0, 0

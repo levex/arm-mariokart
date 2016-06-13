@@ -189,8 +189,8 @@ get_rotation_x_matrix:
 projection_matrix:
   .float   1.433439,           0,          0,          0
   .float          0,    2.414213,          0,          0
-  .float          0,           0,   1.222222, -22.222222  // zfar=100
-  //.float          0,           0,  -1.068966,  -20.689655  // zfar=300
+  //.float          0,           0,   1.222222, -22.222222  // zfar=100
+  .float          0,           0,  -1.068966,  -20.689655  // zfar=300
   .float          0,           0,         -1,           0
 
 //.globl view_matrix 
@@ -368,41 +368,283 @@ get_scaling_matrix:
 
     mov pc, lr
 
+
+.macro copy_polygon
+    mov r4, #8
+    ldr r10, =input_polygon
+    ldr r11, =output_polygon
+
+    1:
+      vldm.f32 r11!, {s0-s15}
+      vstm.f32 r10!, {s0-s15}
+      subs r4, #1
+      bne 1b
+
+    ldr r10, =input_polygon_vertices
+    ldr r11, output_polygon_vertices
+    str r11, [r10]
+.endm
+
+clip_polygon_w:
+    mov r7, #0
+    ldr r8, input_polygon_vertices
+    mov r9, #0
+    ldr r10, =input_polygon
+
+    vmov.f32 s30, r7
+    ldr r11, =0x3727c5ac // 1e-5
+    vmov.f32 s31, r11
+    vcmp.f32 s23, s31
+    fmstat
+    ldrlt r5, =0xbf800000
+    ldrge r5, =0x3f800000
+    vmov.f32 s25, r5
+
+    ldr r11, =output_polygon
+
+    1:
+        vldm.f32 r10!, {s16-s19}
+        vcmp.f32 s19, s31
+        fmstat
+        ldrlt r5, =0xbf800000
+        ldrge r5, =0x3f800000
+        vmov.f32 s24, r5
+
+        vmul.f32 s26, s24, s25
+        vcmp.f32 s26, s30
+        fmstat
+        bge 2f
+
+        // s30 = intersection factor
+        vsub.f32 s30, s31, s23
+        vsub.f32 s29, s23, s19
+        vdiv.f32 s30, s30, s29
+
+        // newPoint = prev + f * (curr-prev)
+        vsub.f32 s26, s16, s20
+        vsub.f32 s27, s17, s21
+        vsub.f32 s28, s18, s22
+        vsub.f32 s29, s19, s23
+
+        vmul.f32 s26, s26, s30
+        vmul.f32 s27, s27, s30
+        vmul.f32 s28, s28, s30
+        vmul.f32 s29, s29, s30
+
+        vadd.f32 s26, s20, s26
+        vadd.f32 s27, s21, s27
+        vadd.f32 s28, s22, s28
+        vadd.f32 s29, s23, s29
+
+        add r9, #1
+        vstm.f32 r11!, {s26-s29}
+        vmov.f32 s30, r7
+
+        2:
+        vcmp.f32 s24, s30
+        fmstat
+        addgt r9, #1
+        vstmgt.f32 r11!, {s16-s19}
+
+        vmov.f32 s25, s24
+        vmov.f32 s20, s16
+        vmov.f32 s21, s17
+        vmov.f32 s22, s18
+        vmov.f32 s23, s19
+
+        subs r8, #1
+        bne 1b
+
+    ldr r11, =output_polygon_vertices
+    str r9, [r11]
+    copy_polygon
+    mov pc, lr
+
+clip_polygon_axis:
+    mov r7, #0
+    ldr r8, input_polygon_vertices
+    mov r9, #0
+    ldr r10, =input_polygon
+
+    vmov.f32 s30, r7
+
+    cmp r0, #1
+    vmovlt.f32 s1, s20
+    vmoveq.f32 s1, s21
+    vmovge.f32 s1, s22
+    vcmp.f32 s1, s23
+    fmstat
+    ldrgt r5, =0xbf800000
+    ldrle r5, =0x3f800000
+    vmov.f32 s25, r5
+    ldr r11, =output_polygon
+    1:
+        vldm.f32 r10!, {s16-s19}
+        cmp r0, #1
+        vmovlt.f32 s0, s16
+        vmoveq.f32 s0, s17
+        vmovge.f32 s0, s18
+        vcmp.f32 s0, s19
+        fmstat
+        ldrgt r5, =0xbf800000
+        ldrle r5, =0x3f800000
+        vmov.f32 s24, r5
+
+        vmul.f32 s26, s24, s25
+        vcmp.f32 s26, s30
+        fmstat
+        bge 2f
+
+        // s30 = intersection factor
+        vsub.f32 s30, s23, s1
+        vsub.f32 s29, s19, s0
+        vsub.f32 s29, s30, s29
+        vdiv.f32 s30, s30, s29
+
+        // newPoint = prev + f * (curr-prev)
+        vsub.f32 s26, s16, s20
+        vsub.f32 s27, s17, s21
+        vsub.f32 s28, s18, s22
+        vsub.f32 s29, s19, s23
+
+        vmul.f32 s26, s26, s30
+        vmul.f32 s27, s27, s30
+        vmul.f32 s28, s28, s30
+        vmul.f32 s29, s29, s30
+
+        vadd.f32 s26, s20, s26
+        vadd.f32 s27, s21, s27
+        vadd.f32 s28, s22, s28
+        vadd.f32 s29, s23, s29
+
+        add r9, #1
+        vstm.f32 r11!, {s26-s29}
+        vmov.f32 s30, r7
+
+
+        2:
+        vcmp.f32 s24, s30
+        fmstat
+        addgt r9, #1
+        vstmgt.f32 r11!, {s16-s19}
+
+        vmov.f32 s25, s24
+        vmov.f32 s20, s16
+        vmov.f32 s21, s17
+        vmov.f32 s22, s18
+        vmov.f32 s23, s19
+        vmov.f32 s1, s0
+
+        subs r8, #1
+        bne 1b
+
+    ldr r11, =output_polygon_vertices
+    str r9, [r11]
+    copy_polygon
+
+    ldr r8, input_polygon_vertices
+    mov r9, #0
+    ldr r10, =input_polygon
+
+    cmp r8, #0
+    moveq pc, lr
+
+    cmp r0, #1
+    vmovlt.f32 s1, s20
+    vmoveq.f32 s1, s21
+    vmovge.f32 s1, s22
+    vneg.f32 s3, s1
+    vcmp.f32 s3, s23
+    fmstat
+    ldrgt r5, =0xbf800000
+    ldrle r5, =0x3f800000
+    vmov.f32 s25, r5
+
+    ldr r11, =output_polygon
+
+    3:
+        vldm.f32 r10!, {s16-s19}
+        cmp r0, #1
+        vmovlt.f32 s0, s16
+        vmoveq.f32 s0, s17
+        vmovge.f32 s0, s18
+        vneg.f32 s2, s0
+        vcmp.f32 s2, s19
+        fmstat
+        ldrgt r5, =0xbf800000
+        ldrle r5, =0x3f800000
+        vmov.f32 s24, r5
+
+        vmul.f32 s26, s24, s25
+        vcmp.f32 s26, s30
+        fmstat
+        bge 4f
+
+        // s30 = intersection factor
+        vadd.f32 s30, s23, s1
+        vadd.f32 s29, s19, s0
+        vsub.f32 s29, s30, s29
+        vdiv.f32 s30, s30, s29
+
+        // newPoint = prev + f * (curr-prev)
+        vsub.f32 s26, s16, s20
+        vsub.f32 s27, s17, s21
+        vsub.f32 s28, s18, s22
+        vsub.f32 s29, s19, s23
+
+        vmul.f32 s26, s26, s30
+        vmul.f32 s27, s27, s30
+        vmul.f32 s28, s28, s30
+        vmul.f32 s29, s29, s30
+
+        vadd.f32 s26, s20, s26
+        vadd.f32 s27, s21, s27
+        vadd.f32 s28, s22, s28
+        vadd.f32 s29, s23, s29
+
+        add r9, #1
+        vstm.f32 r11!, {s26-s29}
+        vmov.f32 s30, r7
+
+        4:
+        vcmp.f32 s24, s30
+        fmstat
+        addgt r9, #1
+        vstmgt.f32 r11!, {s16-s19}
+
+        vmov.f32 s25, s24
+        vmov.f32 s20, s16
+        vmov.f32 s21, s17
+        vmov.f32 s22, s18
+        vmov.f32 s23, s19
+        vmov.f32 s1, s0
+
+        subs r8, #1
+        bne 3b
+
+    ldr r11, =output_polygon_vertices
+    str r9, [r11]
+    copy_polygon
+    mov pc, lr
+
 /*
  * Transforms a vertex based on the matrix
  *
- * r0 - Pointer to Transformation matrix
+ * r0 - Pointer to MVP matrix
  * r1 - Pointer to Vertex
- * r2 - Output vertex
+ * r2 - Pointer to output vertex
+ * r3 - Pointer to triangle counter
+ *
+ * Clobbers: r0
  */
 .globl transform_triangle
 transform_triangle:
-  push {r3}
-  vldm.f32  r0, {s0 - s15}
-
-  mov r10, #1
-  vmov.s32 s24, r10
-  vcvt.f32.s32 s24, s24
-
-  mov r10, #320
-  vmov.s32 s25, r10
-  vcvt.f32.s32 s25, s25
-
-  mov r10, #190
-  vmov.s32 s26, r10
-  vcvt.f32.s32 s26, s26
-
-  /* flip y */
-  mov r10, #380
-  vmov.s32 s27, r10
-  vcvt.f32.s32 s27, s27
-
-  mov r10, #0
-  vmov.f32 s29, r10
-
+  push {r0, r4-r9, lr}
+  vldm.f32 r0, {s0-s15}
   mov r10, #3
-  mov r3, #0
-  ldr r11, =dummy_vertex_p
+  ldr r11, =input_polygon_vertices
+  str r10, [r11]
+  ldr r11, =input_polygon
   1:
     vldm.f32  r1!, {s16 - s19}
 
@@ -426,94 +668,156 @@ transform_triangle:
     vmla.f32  s22, s11, s19
     vmla.f32  s23, s15, s19
 
-    /* normalize by w */
-    vdiv.f32 s20, s20, s23 // x = x / w
-    vdiv.f32 s21, s21, s23 // y = y / w
-    vdiv.f32 s22, s22, s23 // z = z / w
-    vdiv.f32 s23, s23, s23 // w = w / w
-
-    /* do frustum culling */
-    vabs.f32 s30, s20  // check x
-    vcmp.f32 s30, s24 // check abs(x) < 1
-    fmstat
-    addle r3, r3, #1 // add to avoid culling
-
-    //vsub.f32 s30, s24, s21 // flip y
-    //vabs.f32 s30, s30 // check y
-    vabs.f32 s30, s21
-    vcmp.f32 s30, s24  // check abs(y) < 1
-    fmstat
-    addle r3, r3, #1 // add to avoid culling
-
-    vabs.f32 s30, s22 // check z
-    vcmp.f32 s30, s24  // check abs(z) < 1
-    fmstat
-    addle r3, r3, #1 // add to avoid culling
-
-    /* convert to screen coordinates */
-    vadd.f32 s20, s20, s24 // x += 1
-    vadd.f32 s21, s21, s24 // y += 1
-    vmul.f32 s20, s20, s25 // x *= 320
-    vmul.f32 s21, s21, s26 // y *= 190
-    
-    vsub.f32 s21, s27, s21  // flip y
-
-    /* store x & y temporarily */
-    vstm.f32 r11!, {s20, s21}
-
-    /* convert to signed integer */
-    vcvt.s32.f32 s20, s20
-    vcvt.s32.f32 s21, s21
-    vcvt.s32.f32 s22, s22
-    vcvt.s32.f32 s23, s23
-
-    vstm.s32  r2!, {s20 - s23}
+    vstm.f32  r11!, {s20 - s23}
 
     subs r10, #1
     bne 1b
 
-  /* finish frustum culling */
-  cmp r3, #0
-    movle r1, #-1
-    pople {r3}
-    movle pc, lr
+  bl clip_polygon_w
+  ldr r10, input_polygon_vertices
+  cmp r10, #0
+  beq 4f
 
-  /* do backface culling */
-  vldr.f32 s20, [r11, #-24]  // s20 = x0
-  vldr.f32 s21, [r11, #-20]  // s21 = y0
-  vldr.f32 s22, [r11, #-16]  // s22 = x1
-  vldr.f32 s23, [r11, #-12]  // s23 = y1
-  vldr.f32 s24, [r11, #-8]   // s24 = x2
-  vldr.f32 s25, [r11, #-4]   // s25 = y2
+  mov r0, #0
+  bl clip_polygon_axis
+  ldr r10, input_polygon_vertices
+  cmp r10, #0
+  beq 4f
 
-  vmul.f32 s0, s20, s23 //   x0 * y1
-  vmla.f32 s0, s24, s21 // + x2 * y0
-  vmla.f32 s0, s22, s25 // + x1 * y2
-  vmls.f32 s0, s20, s25 // - x0 * y2
-  vmls.f32 s0, s22, s21 // - x1 * y0
-  vmls.f32 s0, s24, s23 // - x2 * y1
-  vmov.f32 r1, s0
+  mov r0, #1
+  bl clip_polygon_axis
+  ldr r10, input_polygon_vertices
+  cmp r10, #0
+  beq 4f
 
-  pop {r3}
-  mov       pc, lr
+  mov r0, #2
+  bl clip_polygon_axis
+  ldr r10, input_polygon_vertices
+  cmp r10, #0
+  beq 4f
 
-.balign 4
-dummy_vertex_p: .word 0, 0, 0, 0, 0, 0
+  sub r10, #2
+  ldr r11, =input_polygon
+  vldm.f32 r11!, {s16 - s19}
+  vldm.s32 r1!, {s12 - s15}
+
+  ldr r0, =0x3f800000 // 1.0f
+  vmov s24, r0
+
+  ldr r0, =0x43a00000 // 320.0f
+  vmov s25, r0
+
+  ldr r0, =0x433e0000 // 190.0f
+  vmov s26, r0
+
+  /* flip y */
+  ldr r0, =0x43be0000 // 380.0f
+  vmov s27, r0
+
+  /* normalize by w */
+  vdiv.f32 s16, s16, s19 // x0 = x0 / w0
+  vdiv.f32 s17, s17, s19 // y0 = y0 / w0
+  vdiv.f32 s18, s18, s19 // z0 = z0 / w0
+  vmov.f32 s19, s24      // w0 = 1
+
+  vadd.f32 s16, s16, s24 // x0 += 1
+  vadd.f32 s17, s17, s24 // y0 += 1
+  vmul.f32 s16, s16, s25 // x0 *= 320
+  vmul.f32 s17, s17, s26 // y0 *= 190
+  vsub.f32 s17, s27, s17  // flip y0
+
+  vcvt.s32.f32 s0, s16
+  vcvt.s32.f32 s1, s17
+  vcvt.s32.f32 s2, s18
+  vcvt.s32.f32 s3, s19
+
+  2:
+    vldm.f32 r11, {s4-s11}
+    add r11, #16
+
+    /* normalize by w */
+    vdiv.f32 s4, s4, s7 // x1 = x1 / w1
+    vdiv.f32 s5, s5, s7 // y1 = y1 / w1
+    vdiv.f32 s6, s6, s7 // z1 = z1 / w1
+    vmov.f32 s7, s24    // w1 = 1
+
+    vdiv.f32 s8, s8, s11   // x2 = x2 / w2
+    vdiv.f32 s9, s9, s11   // y2 = y2 / w2
+    vdiv.f32 s10, s10, s11 // z2 = z2 / w2
+    vmov.f32 s11, s24      // w2 = 1
+
+    vadd.f32 s4, s4, s24 // x1 += 1
+    vadd.f32 s5, s5, s24 // y1 += 1
+    vmul.f32 s4, s4, s25 // x1 *= 320
+    vmul.f32 s5, s5, s26 // y1 *= 190
+    vsub.f32 s5, s27, s5  // flip y1
+
+    vadd.f32 s8, s8, s24 // x2 += 1
+    vadd.f32 s9, s9, s24 // y2 += 1
+    vmul.f32 s8, s8, s25 // x2 *= 320
+    vmul.f32 s9, s9, s26 // y2 *= 190
+    vsub.f32 s9, s27, s9  // flip y2
+
+    /* do backface culling */
+    vmul.f32 s31, s16, s5 //   x0 * y1
+    vmla.f32 s31, s8, s17 // + x2 * y0
+    vmla.f32 s31, s4, s9  // + x1 * y2
+    vmls.f32 s31, s16, s9 // - x0 * y2
+    vmls.f32 s31, s4, s17 // - x1 * y0
+    vmls.f32 s31, s8, s5  // - x2 * y1
+    vmov.f32 r9, s31
+
+    cmp r9, #0
+    bge 3f
+
+    /* convert to signed integer */
+    vcvt.s32.f32 s4, s4
+    vcvt.s32.f32 s5, s5
+    vcvt.s32.f32 s6, s6
+    vcvt.s32.f32 s7, s7
+    vcvt.s32.f32 s8, s8
+    vcvt.s32.f32 s9, s9
+    vcvt.s32.f32 s10, s10
+    vcvt.s32.f32 s11, s11
+
+    vstm.s32 r2!, {s0 - s15}
+
+    ldr r9, [r3]
+    add r9, #1
+    str r9, [r3]
+
+    3:
+    subs r10, #1
+    bne 2b
+
+  4:
+  pop {r0, r4-r9, pc}
+
+.balign 16
+input_polygon: .skip 4*4*32
+
+.balign 16
+output_polygon: .skip 4*4*32
+
+.balign 16
+input_polygon_vertices: .word 0
+
+.balign 16
+output_polygon_vertices: .word 0
 
 // Multiply a mat4 with an mat4
 // r0 location of first matrix
 // r1 location of second matrix
 // r2 location of output matrix
+// resulting matrix is also kept in {s0-s15}
 .globl mat4_mul_mat4
 mat4_mul_mat4:
-  push {r3, r4, lr}
-
   vldm.f32 r0, {s0-s15}
   // s0  s1  s2  s3
   // s4  s5  s6  s7
   // s8  s9  s10 s11
   // s12 s13 s14 s15
-  mov r4, #4
+  mov r10, #4
 1:
   vldm.f32 r1!, {s16-s19}   // {s16, s17, s18, s19}
 
@@ -539,13 +843,13 @@ mat4_mul_mat4:
 
   vstm.f32 r2!, {s20-s23}
 
-  subs r4, r4, #1
+  subs r10, #1
   bne 1b
 
   sub r1, r1, #64
   sub r2, r2, #64
 
-  pop {r3, r4, pc}
+  mov pc, lr
 
 /* Matrix multiplication
 *  r0 pointer to matrix A
@@ -690,20 +994,3 @@ udiv:
     pop {r1-r3}
     mov pc, lr
 
-matA:
-    .word 3, 3
-    .word 1, 1, 1
-    .word 1, 1, 1
-    .word 1, 1, 1
-
-matB:
-    .word 3, 3
-    .word 2, 2, 2
-    .word 3, 3, 3
-    .word 1, 1, 1
-
-matC:
-    .word 3, 3
-    .word 0, 0, 0
-    .word 0, 0, 0
-    .word 0, 0, 0
