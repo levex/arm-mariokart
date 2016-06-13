@@ -81,6 +81,7 @@
 
 
 .macro render_hud
+  bl hud_clear
   /* Health */
   mov r0, #10
   ldr r1, =400
