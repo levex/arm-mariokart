@@ -83,6 +83,40 @@ fb_copy_rect:
     pop {r3-r5}
     mov pc, lr
 
+.globl hud_clear
+hud_clear:
+    push {r0-r9}
+
+    mov r1, #100 // height
+
+    ldr r0, pitch
+    mul r1, r0, r1 // r1 = height * pitch
+
+    mov r0, r12 // r0 = fb_addr
+
+    ldr r2, =(380 * 640 * 4)
+    add r0, r0, r2 // advance to HUD
+
+    add r1, r1, r0 // r1 = fb_addr[height * pitch]
+
+    mov r2, #0
+    mov r3, #0
+    mov r4, #0
+    mov r5, #0
+    mov r6, #0
+    mov r7, #0
+    mov r8, #0
+    mov r9, #0
+
+    1:
+        stmia r0!, {r2-r9}
+        cmp r0, r1
+        blt 1b
+
+    pop {r0-r9}
+    mov pc, lr
+
+
 .globl fb_clear
 fb_clear:
     push {r0-r9}
