@@ -1,41 +1,34 @@
 .section ".text.boot"
 
-.macro splash_screen
-  mov r0, #0
-  mov r1, #0
-  mov r3, #640
-  mov r4, #480
-  ldr r2, =splash_pbmp
-  add r2, r2, #8
-  bl fb_copy_rect
-
-  ldr r0, =3000
-  bl wait_realtime // Wait 3 seconds
-.endm
-
-
 .globl _start
 _start:
-    // Setup stack
+    // setup stack
     mov sp, #0x8000
 
-    // Setup VFP
+    // setup VFP
     bl vfp_init
 
-    // Setup UART
+    // setup UART
     bl uart_init
 
     // Initialize the framebuffer
     bl fb_init
 
+    // Test rasterizer
+    //bl triangle_test
+
     // Init controller
     bl controller_init
 
-    // Splash screen
-    splash_screen
-
-    // Start game
     b game_loop
+
+    //b procrastination
+    // Blink LEDs to check if it works
+    //bl led_blinker
+
+    // ideally do more stuff here
+    bye:
+        b bye
 
 vfp_init:
     //enable vfp in secure mode
