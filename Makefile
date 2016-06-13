@@ -41,6 +41,7 @@ clean:
 	-@rm -f gen/*
 	-@rm -f map_loader
 	-@rm -f ply_converter
+	-@rm -f obj_converter
 	-@rm -f $(MODELS_OBJS)
 	-@rm -f $(MAPS_OBJS)
 	-@rm -f tools/lookup_tables.S
