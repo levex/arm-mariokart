@@ -542,7 +542,7 @@ clip_polygon_axis:
     str r9, [r11]
     copy_polygon
 
-    ldr r8, input_polygon_vertices
+    mov r8, r9
     mov r9, #0
     ldr r10, =input_polygon
 
@@ -670,12 +670,12 @@ transform_triangle:
 
     subs r10, #1
     bne 1b
-
+/*
   bl clip_polygon_w
   ldr r10, input_polygon_vertices
   cmp r10, #0
   beq 4f
-
+*/
   mov r0, #0
   bl clip_polygon_axis
   ldr r10, input_polygon_vertices
