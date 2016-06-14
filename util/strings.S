@@ -24,3 +24,14 @@ speed_str: .asciz "Speed:"
 .align
 .globl powerups_str
 powerups_str: .asciz "Powerups:"
+
+.globl countdown_3_str, countdown_2_str, countdown_1_str, countdown_0_str
+.align
+countdown_3_str: .asciz "3..."
+.align
+countdown_2_str: .asciz "2..."
+.align
+countdown_1_str: .asciz "1..."
+.align
+countdown_0_str: .asciz "Go!"
+
