@@ -60,7 +60,7 @@ int main (int argc, char *argv[]) {
   char *num_faces_str = strtok(buffer, "\n");
   int num_faces = atoi(num_faces_str);
 
-  buffer += strlen(num_vertices_str) + 1;
+  buffer += strlen(num_faces_str) + 1;
 
   char *data_str = strstr(buffer, "end_header\n");
   data_str += strlen("end_header\n");
