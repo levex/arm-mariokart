@@ -163,7 +163,8 @@
   bl mat4_mul_mat4
 
     /* render kart */
-  ldr r0, =coffin_kart
+//  ldr r0, =coffin_kart
+  ldr r0, =kart
   bl model_display
 
   bl render_frame
