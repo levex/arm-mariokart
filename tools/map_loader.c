@@ -22,7 +22,6 @@ typedef enum component {
     ROAD_CURVED_904 = 904,
     
     POWERUP = 999,
-    NO_POWERUP = 998,
 } component_t;
 
 struct triangle {
@@ -112,7 +111,6 @@ model_t *load_component_data(char *component) {
 }
 
 model_t *get_component_data(component_t component) {
-  //PRINT_INT(component);
   switch (component) {
     case ROAD_STRAIGHT_1: return component_data[0];
     case ROAD_STRAIGHT_2: return component_data[1];
@@ -125,11 +123,6 @@ model_t *get_component_data(component_t component) {
     case ROAD_CURVED_904: return component_data[7];
 
     case POWERUP:         return component_data[8];
-    case NO_POWERUP: {
-      model_t *model = malloc(sizeof(model_t));
-      model->num_triangles = 0;
-      return model;
-    }
   }
 }
 
@@ -173,7 +166,7 @@ int main (int argc, char *argv[]) {
 
   file = open(argv[1], O_RDONLY);
   fstat(file, &st);
-  buffer = malloc(st.st_size);
+  buffer = calloc(st.st_size + 1, 1);
 
   if (read(file, buffer, st.st_size) != st.st_size) {
     printf("Error opening map file\n");
@@ -221,30 +214,22 @@ int main (int argc, char *argv[]) {
   }
 
   /* Process powerups */
-  i = 0;
   int num_powerups = 0;
   for (int y = 0; y < chunk_columns; y++) {
     for (int x = 0; x < chunk_rows; x++) {
-      char *component_str;
+      char *component_str = calloc(1, 1);
 
       /* Skip all whitespace */
       do {
         component_str = strtok(NULL, " \n");
       } while (component_str == NULL);
-
-      model_t *translated_chunk;
-      if (strcmp(component_str, "1")) {
-        translated_chunk = translate_chunk(POWERUP, x * chunk_width, y * chunk_height);
+      
+      if (strcmp(component_str, "1") == 0) {
+        model_t *translated_chunk = translate_chunk(POWERUP, x * chunk_width, y * chunk_height);
+        powerups[num_powerups] = translated_chunk;
         num_powerups++;
-      } else {
-        translated_chunk = translate_chunk(NO_POWERUP, x * chunk_width, y * chunk_height);
-      }
-
-      powerups[i] = translated_chunk;
-     
-      /* Update number of triangles */
-      num_total_triangles += translated_chunk->num_triangles;
-      i++;
+        num_total_triangles += translated_chunk->num_triangles;
+      }     
     }
   }
   char *num_powerups_str = calloc(10, 1);
@@ -254,25 +239,24 @@ int main (int argc, char *argv[]) {
   uint32_t *out = malloc(file_size);
   out[0] = num_total_triangles;
 
-  uint32_t *location;
+  uint32_t *location = out + 1;
   /* Place the chunks in the output world file */
   for (int i = 0; i < num_chunks; i++) {
     for (int j = 0; j < chunks[i]->num_triangles; j++) {
-      location = out + 1 + (i + j) * (sizeof(struct triangle) / 4);
       memcpy(location,
              chunks[i]->triangles[j],
              sizeof(struct triangle));
+      location += sizeof(struct triangle) / 4;
     }
   }
 
   /* Place the powerups */
-  for (int i = 0; i < num_chunks; i++) {
+  for (int i = 0; i < num_powerups; i++) {
     for (int j = 0; j < powerups[i]->num_triangles; j++) {
-
-      //PRINT_FLOAT(chunks[i]->triangles[j]->vertex1[0]);
-      memcpy(location + 1 + (i + j) * (sizeof(struct triangle) / 4),
+      memcpy(location,
              powerups[i]->triangles[j],
              sizeof(struct triangle));
+      location += sizeof(struct triangle) / 4;
     }
   }
 
@@ -281,6 +265,8 @@ int main (int argc, char *argv[]) {
   /* Output map file */
 
   char *map_file = argv[2];
+
+  printf("%s: %d triangles and %d powerups\n", argv[2], num_total_triangles, num_powerups);
 
   fdout = open(map_file, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
   write(fdout, out, file_size);
@@ -313,11 +299,9 @@ int main (int argc, char *argv[]) {
 
   write(fdout, powerups_header, strlen(powerups_header));
 
-  for (int i = 0; i < num_chunks; i++) {
+  for (int i = 0; i < num_powerups; i++) {
     model_t *powerup = powerups[i];
-    if (powerup->num_triangles != 0) {
-      dprintf(fdout, ".float %f, %f\n", powerup->triangles[0]->vertex1[0], powerup->triangles[0]->vertex1[2]);
-    }
+    dprintf(fdout, ".float %f, %f\n", powerup->triangles[0]->vertex1[0], powerup->triangles[0]->vertex1[2]);
   }
 
   /* Free */
