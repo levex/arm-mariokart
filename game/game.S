@@ -5,8 +5,8 @@
   bl poll_gpio          // r0 == button state
 
   tst r0, #(1 << 1)        // if (break button pressed)
-  //blne player_deaccelerate //   de-accelerate
-  bl player_accelerate   // else accelerate
+  blne player_deaccelerate //   de-accelerate
+  bleq player_accelerate   // else accelerate
 
   tst r0, #(1 << 2)        // if (turn right button pressed)
   blne player_turn_right   //   turn right
@@ -17,8 +17,8 @@
 
 .macro process_logic
   bl player_move
-  bl player_powerup_check_proximity
-  bl player_powerup_check_expiry
+//  bl player_powerup_check_proximity
+//  bl player_powerup_check_expiry
 .endm
 
 .macro render_scene
@@ -39,9 +39,31 @@
   /* render map */
   /* TODO */
 
-  /* our camera is where the kart is */
+/* calculate camera coordinates*/
+  ldr r0, =player_angle
+  ldr r0, [r0]
+  vmov.s32 s0, r0
+  vcvt.s32.f32 s0, s0
+
+  ldr r0, =camera_distance
+  ldr r0, [r0]
+  vmov.s32 s5, r0
+
+  vmov.f32 r0, s0
+  bl sin
+  vmov.f32 s2, r0       //s2 = sin(player_angle)
+  vmul.f32 s2, s2, s5   //s2 = x difference
+
+  vmov.f32 r0, s0
+  bl cos
+  vmov.f32 s3, r0       //s3 = cos(player_angle)
+  vmul.f32 s3, s3, s5   //s3 = z difference
+
   ldr r0, =player_x
   ldr r0, [r0]
+  vmov.f32 s0, r0
+  vsub.f32 s0, s0, s2
+  vmov.f32 r0, s0
 
   ldr r1, =player_y
   ldr r1, [r1]
@@ -53,8 +75,30 @@
 
   ldr r2, =player_z
   ldr r2, [r2]
+  vmov.f32 s0, r2
+  //ldr r3, =0xc1700000
+  //vmov.f32 s1, r3
+  //vadd.f32 s0, s1
+  vsub.f32 s0, s3
+  vmov.f32 r2, s0
 
   ldr r3, =eye
+
+  str r0, [r3, #0]
+  str r1, [r3, #4]
+  str r2, [r3, #8]
+
+  ldr r3, =at
+
+  /*set where are we looking at*/
+  ldr r0, =player_x
+  ldr r0, [r0]
+
+  ldr r1, =player_y
+  ldr r1, [r1]
+
+  ldr r2, =player_z
+  ldr r2, [r2]
 
   str r0, [r3, #0]
   str r1, [r3, #4]
@@ -66,6 +110,9 @@
   ldr r2, =up
   ldr r3, =view_matrix
   bl view_matrix_gen
+
+  ldr r0, =view_matrix
+  bl print_matrix
 
   /* calculate VP matrix */
   ldr r1, =projection_matrix
@@ -82,15 +129,35 @@
   ldr r0, =road_data
   bl model_display
 
-  /* calculate model matrix for the kart */
+/* calculate model matrix for the kart and the camera*/
+  /*rotation*/
   ldr r0, =player_angle
   vldr.f32 s0, [r0]
   vcvt.s32.f32 s0, s0
   vmov.s32 r0, s0
-  ldr r1, =model_matrix
+  ldr r1, =tmp_matrix
   bl get_rotation_y_matrix
 
-  /* render kart */
+  /*translation*/
+  ldr r0, =player_x
+  ldr r0, [r0]
+
+  ldr r1, =player_y
+  ldr r1, [r1]
+
+  ldr r2, =player_z
+  ldr r2, [r2]
+
+  ldr r3, =tmp2_matrix
+  bl get_translation_matrix
+
+  /*model mat*/
+  ldr r1, =tmp2_matrix
+  ldr r0, =tmp_matrix
+  ldr r2, =model_matrix
+  bl mat4_mul_mat4
+
+    /* render kart */
   ldr r0, =coffin_kart
   bl model_display
 
@@ -176,7 +243,7 @@
 game_loop:
   bl time_stamp_get
   mov r3, r0
-
+  //bl player_turn_right
   push {r0-r5}
   process_input
   process_logic
