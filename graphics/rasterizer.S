@@ -44,7 +44,7 @@
     blt 13f
 
     cmp r2, #380
-    bgt 13f
+    bge 13f
 
     mov r10, #2560 // r10 = pitch
     mul r10, r2, r10 // r10 = y * pitch
@@ -53,7 +53,7 @@
     addlt r11, r10, r1, lsl #2
     addge r11, r10, #2560
     cmp r0, #0
-    addge r10, r0, lsl #2  // r10 = 4x + y * pitch
+    addgt r10, r0, lsl #2  // r10 = 4x + y * pitch
 
     add r10, r12
     add r11, r12
@@ -72,7 +72,7 @@
 
     12:
         vstr s16, [r10]
-        add r10, #1
+        add r10, #4
         cmp r10, r11
         blt 12b
 
