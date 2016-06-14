@@ -18,6 +18,7 @@ const_powerup_pickup_radius:  .float 3        // 3 pixels
 speed_limit:   .float 20
 acceleration:  .float 1
 turning_angle: .float 1
+leaning_angle: .float 6
 max_angle:     .float 360
 
 .globl player_x, player_y, player_z, player_speed, player_angle
@@ -27,8 +28,9 @@ player_z:      .float -30
 player_speed:  .float 0
 player_angle:  .float 0
 
-.globl camera_distance
+.globl camera_distance, kart_angle
 camera_distance:    .float 15
+kart_angle:         .float 0
 
 .globl player_move
 player_move:
@@ -103,6 +105,8 @@ player_turn_right:
   vldr.f32 s0, player_angle         // s0 = angle
   vldr.f32 s1, max_angle            // s1 = max_angle
   vldr.f32 s2, turning_angle        // s2 = turning_angle
+  vldr.f32 s4, kart_angle
+  vldr.f32 s5, leaning_angle
   mov r0, #0
   vmov.f32 s3, r0                   // s3 = 0
 
@@ -111,7 +115,11 @@ player_turn_right:
   vaddlt.f32 s0, s0, s2             //   angle += TURNING_ANGLE
   vmovge.f32 s0, s3                 // else angle = 0
 
+  vmov.f32 s4, s0
+  vadd.f32 s4, s4, s5
+
   vstr.f32 s0, player_angle
+  vstr.f32 s4, kart_angle
 
   pop {r0, pc}
 
@@ -122,6 +130,8 @@ player_turn_left:
   vldr.f32 s0, player_angle         // s0 = angle
   vldr.f32 s1, max_angle            // s1 = max_angle
   vldr.f32 s2, turning_angle        // s2 = turning_angle
+  vldr.f32 s4, kart_angle
+  vldr.f32 s5, leaning_angle
   mov r0, #0
   vmov.f32 s3, r0                   // s3 = 0
 
@@ -130,7 +140,11 @@ player_turn_left:
   vsubgt.f32 s0, s0, s2             //   angle -= TURNING_ANGLE
   vmovle.f32 s0, s1                 // else angle = 0
 
+  vmov.f32 s4, s0
+  vsub.f32 s4, s4, s5
+
   vstr.f32 s0, player_angle
+  vstr.f32 s4, kart_angle
 
   pop {r0, pc}
 
