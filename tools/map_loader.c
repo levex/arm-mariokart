@@ -11,6 +11,8 @@
 #define PRINT_FLOAT(var) printf("%s = %f\n", #var, var)
 
 typedef enum component {
+    EMPTY = 0,
+
     ROAD_STRAIGHT_1 = 1,
     ROAD_STRAIGHT_2 = 2,
     ROAD_STRAIGHT_3 = 3,
@@ -36,7 +38,7 @@ typedef struct model {
     struct triangle **triangles;
 } __attribute__ ((packed)) model_t;
 
-model_t *component_data[9];
+model_t *component_data[10];
 
 void print_model(model_t *component_model) {
     for (int i = 0; i < 4; i++) {
@@ -48,8 +50,9 @@ void print_model(model_t *component_model) {
 }
 
 /* Rotates a model 90 degrees clockwise */
-model_t *rotate(model_t *model) {
-  /*model_t *new_model = calloc(1, sizeof(model_t));
+/*model_t *rotate(model_t *model) {
+  PRINT_STRING("Old model:");
+  model_t *new_model = calloc(1, sizeof(model_t));
   new_model->triangles = calloc(model->num_triangles, sizeof(struct triangle));
   new_model->num_triangles = model->num_triangles;
   memcpy(new_model->triangles, model->triangles, model->num_triangles * sizeof(struct triangle));
@@ -64,10 +67,10 @@ model_t *rotate(model_t *model) {
     new_model->triangles[i]->vertex1[2] = model->triangles[i]->vertex1[0];
     new_model->triangles[i]->vertex2[2] = model->triangles[i]->vertex2[0];
     new_model->triangles[i]->vertex3[2] = model->triangles[i]->vertex3[0];
-  }*/
-
-  return model;
-}
+  }
+  PRINT_STRING("New model:");
+  return new_model;
+}*/
 
 model_t *load_component_data(char *component) {
   int file;  
@@ -100,18 +103,28 @@ model_t *load_component_data(char *component) {
   for (int i = 0; i < component_model->num_triangles; i++) {
     component_model->triangles[i] = (void *) (buffer + 1 + i * (sizeof(struct triangle) / 4));
   }
+
+  /* Round all values */  
+  /*for (int i = 0; i < component_model->num_triangles; i++) {
+    for (int j = 0; j < 3; j++) {
+      component_model->triangles[i]->vertex1[j] = round(component_model->triangles[i]->vertex1[j]);
+      component_model->triangles[i]->vertex2[j] = round(component_model->triangles[i]->vertex2[j]);
+      component_model->triangles[i]->vertex3[j] = round(component_model->triangles[i]->vertex3[j]);
+    }
+  }*/
+
   free(new_component);
 
-  /* 
-  printf("Loaded model %s: \n", new_component);
-  print_model(component_model);
-  */
+  /*printf("Loaded model %s: \n", new_component);
+  print_model(component_model);*/
+  
 
   return component_model;
 }
 
 model_t *get_component_data(component_t component) {
   switch (component) {
+
     case ROAD_STRAIGHT_1: return component_data[0];
     case ROAD_STRAIGHT_2: return component_data[1];
     case ROAD_STRAIGHT_3: return component_data[2];
@@ -123,38 +136,45 @@ model_t *get_component_data(component_t component) {
     case ROAD_CURVED_904: return component_data[7];
 
     case POWERUP:         return component_data[8];
+    case EMPTY:           return component_data[9];
   }
 }
 
 void load_all_component_data() {
   component_data[0] = load_component_data("road_straight_1");
-  component_data[1] = rotate(component_data[0]);
-  component_data[2] = rotate(component_data[1]);
-  component_data[3] = rotate(component_data[2]);
+  component_data[1] = load_component_data("road_straight_1");
+  component_data[2] = load_component_data("road_straight_3");
+  component_data[3] = load_component_data("road_straight_1");
 
   component_data[4] = load_component_data("road_curve_901");
-  component_data[5] = rotate(component_data[4]);
-  component_data[6] = rotate(component_data[5]);
-  component_data[7] = rotate(component_data[6]);
+  component_data[5] = load_component_data("road_curve_902");
+  component_data[6] = load_component_data("road_curve_903");
+  component_data[7] = load_component_data("road_curve_904");
 
   component_data[8] = load_component_data("powerup");
+  component_data[9] = load_component_data("empty");
 }
 
 model_t *translate_chunk(component_t component, int x, int z) {
-  model_t *component_model = get_component_data(component);
+  model_t *model = get_component_data(component);
+  model_t *new_model = calloc(1, sizeof(model_t));
+  new_model->triangles = calloc(model->num_triangles, sizeof(struct triangle));
+  new_model->num_triangles = model->num_triangles;
+  memcpy(new_model->triangles, model->triangles, model->num_triangles * sizeof(struct triangle));
 
-  for (int i = 0; i < component_model->num_triangles; i++) {
-    component_model->triangles[i]->vertex1[0] += x;
-    component_model->triangles[i]->vertex1[2] += z;
 
-    component_model->triangles[i]->vertex2[0] += x;
-    component_model->triangles[i]->vertex2[2] += z;
+  for (int i = 0; i < new_model->num_triangles; i++) {
+    new_model->triangles[i]->vertex1[0] += x;
+    new_model->triangles[i]->vertex1[2] += z;
 
-    component_model->triangles[i]->vertex3[0] += x;
-    component_model->triangles[i]->vertex3[2] += z;
+    new_model->triangles[i]->vertex2[0] += x;
+    new_model->triangles[i]->vertex2[2] += z;
+
+    new_model->triangles[i]->vertex3[0] += x;
+    new_model->triangles[i]->vertex3[2] += z;
   }
 
-  return component_model;
+  return new_model;
 }
 
 int main (int argc, char *argv[]) {
@@ -181,7 +201,7 @@ int main (int argc, char *argv[]) {
   int map_height = atoi(strtok(NULL, "\n"));
   int chunk_width = atoi(strtok(NULL, "\n"));
   int chunk_height = atoi(strtok(NULL, "\n"));
-  int chunk_rows = map_width / chunk_width;
+  int chunk_rows = map_width / chunk_width; 
   int chunk_columns = map_height / chunk_height;
   int num_chunks = chunk_rows * chunk_columns;
 
@@ -190,6 +210,13 @@ int main (int argc, char *argv[]) {
   model_t *chunks[num_chunks];
   model_t *powerups[num_chunks];
 
+  
+  PRINT_INT(map_width);
+  PRINT_INT(map_height);
+  PRINT_INT(chunk_width);
+  PRINT_INT(chunk_height);
+  PRINT_INT(chunk_rows);
+  PRINT_INT(chunk_columns);
   /* Process road */
 
   int i = 0;
