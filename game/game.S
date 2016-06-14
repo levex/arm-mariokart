@@ -5,8 +5,8 @@
   bl poll_gpio          // r0 == button state
 
   tst r0, #(1 << 1)        // if (break button pressed)
-  blne player_deaccelerate //   de-accelerate
-  bleq player_accelerate   // else accelerate
+  //blne player_deaccelerate //   de-accelerate
+  bl player_accelerate   // else accelerate
 
   tst r0, #(1 << 2)        // if (turn right button pressed)
   blne player_turn_right   //   turn right
@@ -16,9 +16,9 @@
 .endm
 
 .macro process_logic
-  //bl player_move
-  //bl player_powerup_check_proximity
-  //bl player_powerup_check_expiry
+  bl player_move
+  bl player_powerup_check_proximity
+  bl player_powerup_check_expiry
 .endm
 
 .macro render_scene
@@ -157,8 +157,8 @@
   mov r0, #1
   cmp r3, r0
   bne 1f                 // if (player_powerup) {
-  ldr r0, =440
-  mov r2, #color_blue
+  ldr r0, =480
+  mov r2, #color_red
   mov r3, #1             //   render blue block character
   bl render_char         // }
   1:
