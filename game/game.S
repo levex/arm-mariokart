@@ -2,6 +2,11 @@
 .include "graphics/colors.S"
 
 .macro process_input
+  ldr r0, =player_angle
+  ldr r0, [r0]
+  ldr r1, =kart_angle
+  str r0, [r1]
+
   bl poll_gpio          // r0 == button state
 
   tst r0, #(1 << 1)        // if (break button pressed)
@@ -131,7 +136,7 @@
 
 /* calculate model matrix for the kart and the camera*/
   /*rotation*/
-  ldr r0, =player_angle
+  ldr r0, =kart_angle
   vldr.f32 s0, [r0]
   vcvt.s32.f32 s0, s0
   vmov.s32 r0, s0
