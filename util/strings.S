@@ -22,8 +22,16 @@ health_str: .asciz "Health:"
 speed_str: .asciz "Speed:"
 
 .align
-.globl powerups_str
-powerups_str: .asciz "Powerups:"
+.globl speed_units_str
+speed_units_str: .asciz "Mph"
+
+.align
+.globl powerup_str
+powerup_str: .asciz "Powerup:"
+
+.align
+.globl powerup_speed_str
+powerup_speed_str: .asciz "Speed Boost"
 
 .globl countdown_3_str, countdown_2_str, countdown_1_str, countdown_0_str
 .align
