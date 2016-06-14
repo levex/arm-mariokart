@@ -170,6 +170,8 @@ uart_send_int:
 
     mov r4, #0
     mov r2, r0
+    cmp r1, #10
+    bne 1f
     cmp r2, #0
     bge 1f
     mov r0, #0x2D       // ascii code of '-'
