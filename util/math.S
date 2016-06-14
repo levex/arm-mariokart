@@ -209,30 +209,54 @@ view_matrix_gen:
   vldm.f32 r1, {s3-s5}   // at{s3(x), s4(y), s5(z)}
   vldm.f32 r2, {s6-s8}   // up{s6(x), s7(y), s8(z)}
 
+  push {r0, lr}
+  mov r0, #'X'
+  bl uart_send_byte
+  bl uart_send_newline
+  pop {r0, lr}
+
   // cross(a, b) = {ay*bz-az*by,  az*bx-ax*bz, ax*by-ay*bx}
 
-  // {s9, s10, s11} = (eye - at)
-  vsub.f32 s9, s0, s3
-  vsub.f32 s10, s1, s4
-  vsub.f32 s11, s2, s5
+  // {s9, s10, s11} = (at - eye)
+  vsub.f32 s9, s3, s0
+  vsub.f32 s10, s4, s1
+  vsub.f32 s11, s5, s2
   // find length
   vmul.f32 s12, s9, s9
   vmla.f32 s12, s10, s10
   vmla.f32 s12, s11, s11
-  vsqrt.f32 s12, s12 // s12 = length(eye-at)
+  vsqrt.f32 s12, s12 // s12 = length(at - eye)
   // normalize
   vdiv.f32 s9, s9, s12
   vdiv.f32 s10, s10, s12
   vdiv.f32 s11, s11, s12
-  // vz{s9, s10, s11} = norm(eye - at)
+  // vz{s9, s10, s11} = norm(at - eye)
 
-  // vx=normalize(cross(up, vz))
-  vmul.f32 s3, s7, s11  // s3 = uy * vzz
-  vmls.f32 s3, s8, s10  // s3 = uy * vzz - uz * vzy
-  vmul.f32 s4, s8, s9   // s4 = uz * vzx
-  vmls.f32 s4, s6, s11  // s4 = uz * vzx - ux * vzz
-  vmul.f32 s5, s6, s10  // s5 = ux * vzy
-  vmls.f32 s5, s7, s9   // s5 = ux * vzy - uy * vzx
+
+  push {r0, lr}
+  mov r0, #'Q'
+  bl uart_send_byte
+  bl uart_send_newline
+  pop {r0, lr}
+
+  // norm(up)
+  vmul.f32 s12, s6, s6
+  vmla.f32 s12, s7, s7
+  vmla.f32 s12, s8, s8
+  vsqrt.f32 s12, s12
+  // normalize
+  vdiv.f32 s6, s6, s12
+  vdiv.f32 s7, s7, s12
+  vdiv.f32 s8, s8, s12
+  // norm(up) = {s6, s7, s8}
+
+  // vx=normalize(cross(vz, norm(up))) -- side
+  vmul.f32 s3, s10, s8  // s3 = uy * vzz
+  vmls.f32 s3, s11, s7  // s3 = uy * vzz - uz * vzy
+  vmul.f32 s4, s11, s6   // s4 = uz * vzx
+  vmls.f32 s4, s9, s8  // s4 = uz * vzx - ux * vzz
+  vmul.f32 s5, s9, s7  // s5 = ux * vzy
+  vmls.f32 s5, s10, s6   // s5 = ux * vzy - uy * vzx
   // find length
   vmul.f32 s12, s3, s3
   vmla.f32 s12, s4, s4
@@ -244,13 +268,20 @@ view_matrix_gen:
   vdiv.f32 s5, s5, s12
   // vx{s3, s4, s5} = norm(cross(up, vz))
 
-  // vy = cross(vz, vx)
-  vmul.f32 s6, s10, s5  // ay * bz
-  vmls.f32 s6, s11, s4  // ay * bz - az * by
-  vmul.f32 s7, s11, s3  // az * bx
-  vmls.f32 s7, s9, s5   // - ax * bz
-  vmul.f32 s8, s9, s4   // ax * by
-  vmls.f32 s8, s10, s3  // - ay * bx
+  push {r0, lr}
+  mov r0, #'X'
+  bl uart_send_byte
+  bl uart_send_newline
+  pop {r0, lr}
+
+
+  // vy = cross(vx, vz) --- new up
+  vmul.f32 s6, s4, s11  // ay * bz
+  vmls.f32 s6, s5, s10  // ay * bz - az * by
+  vmul.f32 s7, s5, s9  // az * bx
+  vmls.f32 s7, s3, s11   // - ax * bz
+  vmul.f32 s8, s3, s10   // ax * by
+  vmls.f32 s8, s4, s9  // - ay * bx
   // no need to normalize, vz and vx are already normalized
 
   // vx{s3, s4, s5} = norm(cross(up, vz))
@@ -258,48 +289,57 @@ view_matrix_gen:
   // vz{s9, s10, s11} = norm(eye - at)
   // eye{s0(x), s1(y), s2(z)}
 
+  push {r0, lr}
+  mov r0, #'Y'
+  bl uart_send_byte
+  bl uart_send_newline
+  pop {r0, lr}
+
+
   // invert eye
-  mov r10, #0
-  vmov.f32 s15, r10
-  vmls.f32 s15, s0, s3
-  vmls.f32 s15, s1, s4
-  vmls.f32 s15, s2, s5
-  vmov.f32 s16, r10
-  vmls.f32 s16, s0, s6
-  vmls.f32 s16, s1, s7
-  vmls.f32 s16, s2, s8
-  vmov.f32 s17, r10
-  vmls.f32 s17, s0, s9
-  vmls.f32 s17, s1, s10
-  vmls.f32 s17, s2, s11
-  vmov.f32 s0, s15
-  vmov.f32 s1, s16
-  vmov.f32 s2, s17
-
   vmov.f32 s12, s3
-  vmov.f32 s13, s6
-  vmov.f32 s14, s9
-  vmov.f32 s15, s0
+  vmov.f32 s13, s4
+  vmov.f32 s14, s5
+  vmul.f32 s15, s12, s0
+  vmla.f32 s15, s13, s1
+  vmla.f32 s15, s14, s2
+  vneg.f32 s15, s15
   vstm.f32 r3!, {s12-s15}
 
-  vmov.f32 s12, s4
+  vmov.f32 s12, s6
   vmov.f32 s13, s7
-  vmov.f32 s14, s10
-  vmov.f32 s15, s1
+  vmov.f32 s14, s8
+  vmul.f32 s15, s6, s0
+  vmla.f32 s15, s7, s1
+  vmla.f32 s15, s8, s2
+  vneg.f32 s15, s15
   vstm.f32 r3!, {s12-s15}
 
-  vmov.f32 s12, s5
-  vmov.f32 s13, s8
+  vmov.f32 s12, s9
+  vneg.f32 s12, s12
+  vmov.f32 s13, s10
+  vneg.f32 s13, s13
   vmov.f32 s14, s11
-  vmov.f32 s15, s2
+  vneg.f32 s14, s14
+  vmul.f32 s15, s9, s0
+  vmla.f32 s15, s10, s1
+  vmla.f32 s15, s11, s2
   vstm.f32 r3!, {s12-s15}
 
+  mov r10, #0
   vmov.f32 s12, r10
   vmov.f32 s13, s12
   vmov.f32 s14, s12
   mov r10, #0x3f800000
   vmov.f32 s15, r10
   vstm.f32 r3!, {s12-s15}
+
+  push {r0, lr}
+  mov r0, #'Z'
+  bl uart_send_byte
+  bl uart_send_newline
+  pop {r0, lr}
+
 
   sub r3, r3, #64
 
