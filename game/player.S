@@ -12,8 +12,8 @@ player_powerup_time:  .word 0
 
 const_default_speed_limit:    .float 10
 const_powerup_speed_limit:    .float 20
-const_powerup_effective_time: .word  15000 // 15 seconds
-const_powerup_pickup_radius:  .float 3     // 3 pixels
+const_powerup_effective_time: .word  5000000  // 5 seconds
+const_powerup_pickup_radius:  .float 3        // 3 pixels
 
 speed_limit:   .float 10
 acceleration:  .float 1
@@ -57,19 +57,22 @@ player_move:
 
 .globl player_accelerate
 player_accelerate:
+  push {lr}
+
   vldr.f32 s0, player_speed         // s0 = player_speed
   vldr.f32 s1, speed_limit          // s1 = speed_limit
   vldr.f32 s2, acceleration         // s2 = acc
 
-  vcmp.f32 s0, s1                   // if (speed <= SPEED_LIMIT)
+  vcmp.f32 s0, s1                   // if (speed < SPEED_LIMIT)
   fmstat
-  vaddle.f32 s0, s0, s2             //   speed += ACCELERATION
-  vstrle.f32 s0, player_speed       // store new value
-  mov pc, lr
+  vaddlt.f32 s0, s0, s2             //   speed += ACCELERATION
+  vstrlt.f32 s0, player_speed       //   store new value
+
+  pop {pc}
 
 .globl player_deaccelerate
 player_deaccelerate:
-  push {r1}
+  push {r1, lr}
   
   vldr.f32 s0, player_speed         // s0 = speed
   mov r1, #0
@@ -79,14 +82,13 @@ player_deaccelerate:
   vcmp.f32 s0, s1                   // if (speed > 0)
   fmstat
   vsubgt.f32 s0, s0, s2             //   speed -= ACCELERATION
-  vstrgt.f32 s0, player_speed       // store new value
+  vstrgt.f32 s0, player_speed       //   store new value
 
-  pop {r1}
-  mov pc, lr
+  pop {r1, pc}
 
 .globl player_turn_right
 player_turn_right:
-  push {r0}
+  push {r0, lr}
 
   vldr.f32 s0, player_angle         // s0 = angle
   vldr.f32 s1, max_angle            // s1 = max_angle
@@ -101,13 +103,11 @@ player_turn_right:
 
   vstr.f32 s0, player_angle
 
-  pop {r0}
-  mov pc, lr
-
+  pop {r0, pc}
 
 .globl player_turn_left
 player_turn_left:
-  push {r0}
+  push {r0, lr}
 
   vldr.f32 s0, player_angle         // s0 = angle
   vldr.f32 s1, max_angle            // s1 = max_angle
@@ -122,11 +122,12 @@ player_turn_left:
 
   vstr.f32 s0, player_angle
 
-  pop {r0}
-  mov pc, lr
+  pop {r0, pc}
 
 /* Activates the speed powerup */
 player_powerup_pickup:
+  push {r0, lr}
+
   mov r0, #1
   str r0, player_powerup                  // Set powerup flag
 
@@ -136,11 +137,13 @@ player_powerup_pickup:
   bl time_stamp_get
   str r0, player_powerup_time             // Store pick-up time
 
-  mov pc, lr
+  pop {r0, pc}
 
 /* Checks for expiry of the speed powerup */
 .globl player_powerup_check_expiry
 player_powerup_check_expiry:
+  push {r0-r3, lr}
+
   ldr r2, player_powerup_time
   ldr r3, const_powerup_effective_time
   bl time_stamp_get                       // r0:r1 = current timestamp
@@ -155,10 +158,12 @@ player_powerup_check_expiry:
   vstr.f32 s0, speed_limit
 
   1:
-  mov pc, lr
+  pop {r0-r3, pc}
 
 .globl player_powerup_check_proximity
 player_powerup_check_proximity:
+  push {r0-r2, lr}
+
   ldr r0, =example_powerups_num
   ldr r0, [r0]
 
@@ -169,18 +174,19 @@ player_powerup_check_proximity:
   1:
     cmp r1, r0                     // for (int i=0; i < powerups_num; i++) {
     bge 2f                         // 
-    vldm.f32 r0, {s0-s1}           //   s0 = powerup_x, s1 = powerup_z
+    vldm.f32 r2, {s0-s1}           //   s0 = powerup_x, s1 = powerup_z
     vldr.f32 s2, player_x          //   s2 = player_x
     vldr.f32 s3, player_z          //   s3 = player_z
-    bl distance_2d                 //   s4 = distance between player and powerup
+
+    bl distance                 //   s4 = distance between player and powerup
     vcmp.f32 s4, s5                //   if (distance <= PICKUP_RADIUS) {
     fmstat                         //     player.pickupPowerup(); 
     blle player_powerup_pickup     //   }
-    add r2, #8                     //   increment address to check next powerup
+    add r2, r2, #8                     //   increment address to check next powerup
+    add r1, r1, #1
     b 1b                           // }
-
   2:
-  mov pc, lr
+  pop {r0-r2, pc}
 
 
 
