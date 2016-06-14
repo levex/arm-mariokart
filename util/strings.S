@@ -11,7 +11,7 @@ framebuffer_acquired_str: .asciz "\nFramebuffer acquired!\n"
 /* Game strings */
 .align
 .globl score_str
-score_str: .asciz "Score:"
+score_str: .asciz "Elapsed time:"
 
 .align
 .globl health_str

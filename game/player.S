@@ -4,7 +4,7 @@
 
 .globl player_health, player_score, player_powerup
 player_health:        .word 10
-player_score:         .word 999
+player_score:         .word 0
 player_powerup:       .word 0
 player_powerup_time:  .word 0
 

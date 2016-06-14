@@ -193,10 +193,12 @@
   ldr r3, =score_str
   bl render_string
 
-  mov r0, #55
-  ldr r3, =player_score
-  ldr r3, [r3]
+  mov r0, #95
+  ldr r4, =player_score
+  ldr r3, [r4]
   bl render_int
+  add r3, r3, #1
+  str r3, [r4, #0]
 
   /* Health hearts */
   ldr r1, =400
