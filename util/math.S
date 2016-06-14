@@ -26,8 +26,8 @@ cos:
 // s3 -> y2
 // s4 <- distance
 // clobbers: s4 - s5
-.globl distance_2d
-distance_2d:
+.globl distance
+distance:
   vsub.f32 s4, s0, s2      // s4 = x1 - x2
   vsub.f32 s5, s1, s3      // s5 = y1 - y2
 
@@ -36,7 +36,6 @@ distance_2d:
 
   vadd.f32 s4, s4, s5      // s4 = (x1 - x2) ^ 2 + (y1 - y2) ^ 2
   vsqrt.f32 s4, s4         // s4 = sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
-
   mov pc, lr
 
 // Determines the dot product of two vectors
