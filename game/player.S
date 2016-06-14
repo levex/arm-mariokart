@@ -15,17 +15,20 @@ const_powerup_speed_limit:    .float 20
 const_powerup_effective_time: .word  5000000  // 5 seconds
 const_powerup_pickup_radius:  .float 3        // 3 pixels
 
-speed_limit:   .float 10
+speed_limit:   .float 20
 acceleration:  .float 1
 turning_angle: .float 1
 max_angle:     .float 360
 
 .globl player_x, player_y, player_z, player_speed, player_angle
-player_x:      .float 0
+player_x:      .float -10
 player_y:      .float 0
-player_z:      .float -15
+player_z:      .float -30
 player_speed:  .float 0
 player_angle:  .float 0
+
+.globl camera_distance
+camera_distance:    .float 15
 
 .globl player_move
 player_move:
@@ -35,7 +38,10 @@ player_move:
   vldr.f32 s4, player_z
   vldr.f32 s5, player_speed
 
-  ldr r0, player_angle      // r0 = angle
+  vldr.f32 s0, player_angle      // r0 = angle
+  vcvt.s32.f32 s0, s0
+  vmov r0, s0
+
   mov r1, r0                // r1 = angle
   bl cos                    // r0 = cos(angle)
   vmov.f32 s0, r0           // s0 = cos(angle)
@@ -46,6 +52,10 @@ player_move:
 
   vmul.f32 s1, s5, s1       // s1 = speed * sin(angle) = speed_x
   vmul.f32 s0, s5, s0       // s0 = speed * cos(angle) = speed_z
+  ldr r10, =0x41a00000
+  vmov.f32 s6, r10
+  vdiv.f32 s0, s0, s6
+  vdiv.f32 s1, s1, s6
 
   vadd.f32 s3, s3, s1       // x += speed_x
   vadd.f32 s4, s4, s0       // z += speed_z
