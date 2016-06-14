@@ -19,6 +19,7 @@ speed_limit:   .float 10
 acceleration:  .float 3
 turning_angle: .float 3
 max_angle:     .float 360
+leaning_angle: .float 6
 
 .globl player_x, player_y, player_z, player_speed, player_angle
 player_x:      .float -10
