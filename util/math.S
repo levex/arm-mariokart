@@ -699,11 +699,6 @@ transform_triangle:
   cmp r10, #0
   beq 4f
 
-  sub r10, #2
-  ldr r11, =input_polygon
-  vldm.f32 r11!, {s16 - s19}
-  vldm.s32 r1!, {s12 - s15}
-
   ldr r0, =0x3f800000 // 1.0f
   vmov s24, r0
 
@@ -716,6 +711,18 @@ transform_triangle:
   /* flip y */
   ldr r0, =0x43be0000 // 380.0f
   vmov s27, r0
+
+  sub r10, #2
+  ldr r11, =input_polygon
+  vldm.s32 r1!, {s12 - s15}
+
+  mov r0, #0
+  vmov.f32 s31, r0
+  1:
+  vldm.f32 r11!, {s16 - s19}
+  vcmp.f32 s19, s31
+  fmstat
+  beq 4f
 
   /* normalize by w */
   vdiv.f32 s16, s16, s19 // x0 = x0 / w0
@@ -737,6 +744,15 @@ transform_triangle:
   2:
     vldm.f32 r11, {s4-s11}
     add r11, #16
+
+    mov r0, #0
+    vmov.f32 s31, r0
+    vcmp.f32 s7, s31
+    fmstat
+    beq 3f
+    vcmp.f32 s11, s31
+    fmstat
+    beq 3f
 
     /* normalize by w */
     vdiv.f32 s4, s4, s7 // x1 = x1 / w1
