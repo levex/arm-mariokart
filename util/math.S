@@ -209,12 +209,6 @@ view_matrix_gen:
   vldm.f32 r1, {s3-s5}   // at{s3(x), s4(y), s5(z)}
   vldm.f32 r2, {s6-s8}   // up{s6(x), s7(y), s8(z)}
 
-  push {r0, lr}
-  mov r0, #'X'
-  bl uart_send_byte
-  bl uart_send_newline
-  pop {r0, lr}
-
   // cross(a, b) = {ay*bz-az*by,  az*bx-ax*bz, ax*by-ay*bx}
 
   // {s9, s10, s11} = (at - eye)
@@ -232,12 +226,6 @@ view_matrix_gen:
   vdiv.f32 s11, s11, s12
   // vz{s9, s10, s11} = norm(at - eye)
 
-
-  push {r0, lr}
-  mov r0, #'Q'
-  bl uart_send_byte
-  bl uart_send_newline
-  pop {r0, lr}
 
   // norm(up)
   vmul.f32 s12, s6, s6
@@ -268,13 +256,6 @@ view_matrix_gen:
   vdiv.f32 s5, s5, s12
   // vx{s3, s4, s5} = norm(cross(up, vz))
 
-  push {r0, lr}
-  mov r0, #'X'
-  bl uart_send_byte
-  bl uart_send_newline
-  pop {r0, lr}
-
-
   // vy = cross(vx, vz) --- new up
   vmul.f32 s6, s4, s11  // ay * bz
   vmls.f32 s6, s5, s10  // ay * bz - az * by
@@ -288,13 +269,6 @@ view_matrix_gen:
   // vy{s6, s7, s8}
   // vz{s9, s10, s11} = norm(eye - at)
   // eye{s0(x), s1(y), s2(z)}
-
-  push {r0, lr}
-  mov r0, #'Y'
-  bl uart_send_byte
-  bl uart_send_newline
-  pop {r0, lr}
-
 
   // invert eye
   vmov.f32 s12, s3
@@ -333,13 +307,6 @@ view_matrix_gen:
   mov r10, #0x3f800000
   vmov.f32 s15, r10
   vstm.f32 r3!, {s12-s15}
-
-  push {r0, lr}
-  mov r0, #'Z'
-  bl uart_send_byte
-  bl uart_send_newline
-  pop {r0, lr}
-
 
   sub r3, r3, #64
 
