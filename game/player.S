@@ -79,6 +79,7 @@ player_accelerate:
   fmstat
   vaddlt.f32 s0, s0, s2             //   speed += ACCELERATION
   vstrlt.f32 s0, player_speed       //   store new value
+  vstrge.f32 s1, player_speed
 
   pop {pc}
 
