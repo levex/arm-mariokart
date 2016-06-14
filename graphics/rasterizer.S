@@ -256,7 +256,7 @@ triangle:
 render_frame:
     push {r0-r5, lr}
     ldr r4, =vertex_buffer_object
-    ldr r5, [r4], #4
+    ldr r5, [r4], #16
 
     cmp r5, #0
     popeq {r0-r5, pc}
@@ -280,5 +280,5 @@ render_frame:
 // Assume we will never render more than 4096 triangles
 .globl vertex_buffer_object
 .balign 16
-vertex_buffer_object: .skip 4 + 4*4*4*4096
+vertex_buffer_object: .skip 16 + 4*4*4*8192
 

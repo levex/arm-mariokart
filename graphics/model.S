@@ -182,7 +182,7 @@ model_display:
 
     ldr r2, =vertex_buffer_object
     mov r10, r2
-    ldr r3, [r2], #4
+    ldr r3, [r2], #16
     add r2, r2, r3, lsl #6
     mov r3, r10
 
