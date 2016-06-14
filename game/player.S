@@ -111,13 +111,17 @@ player_turn_right:
   mov r0, #0
   vmov.f32 s3, r0                   // s3 = 0
 
-  vcmp.f32 s0, s1                   // if (angle < 360)
+  vadd.f32 s0, s0, s2               // angle += TURNING_ANGLE
+  vcmp.f32 s0, s1                   // if (angle >= 360)
   fmstat
-  vaddlt.f32 s0, s0, s2             //   angle += TURNING_ANGLE
-  vmovge.f32 s0, s3                 // else angle = 0
+  vsubge.f32 s0, s1                 // angle -= 360
 
   vmov.f32 s4, s0
   vadd.f32 s4, s4, s5
+
+  vcmp.f32 s4, s1
+  fmstat
+  vsubge.f32 s4, s1
 
   vstr.f32 s0, player_angle
   vstr.f32 s4, kart_angle
@@ -136,13 +140,17 @@ player_turn_left:
   mov r0, #0
   vmov.f32 s3, r0                   // s3 = 0
 
-  vcmp.f32 s0, s3                   // if (angle > 0)
+  vsub.f32 s0, s0, s2             //   angle -= TURNING_ANGLE
+  vcmp.f32 s0, s3                   // if (angle < 0)
   fmstat
-  vsubgt.f32 s0, s0, s2             //   angle -= TURNING_ANGLE
-  vmovle.f32 s0, s1                 // else angle = 0
+  vaddlt.f32 s0, s1                 // angle += 360
 
   vmov.f32 s4, s0
   vsub.f32 s4, s4, s5
+
+  vcmp.f32 s4, s3
+  fmstat
+  vaddlt.f32 s4, s1
 
   vstr.f32 s0, player_angle
   vstr.f32 s4, kart_angle
