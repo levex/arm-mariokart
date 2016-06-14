@@ -22,6 +22,11 @@
 .endm
 
 .macro render_scene
+  /*reset triangle count*/
+  ldr r0, =vertex_buffer_object
+  mov r1, #0
+  str r1, [r0]
+
   /* render skybox */
   mov r0, #0
   mov r1, #0
@@ -169,9 +174,21 @@
 
 .globl game_loop
 game_loop:
+  bl time_stamp_get
+  mov r3, r0
+
+  push {r0-r5}
   process_input
   process_logic
   render_everything
+  pop {r0-r5}
+
+  bl time_stamp_get
+  mov r4, r0
+  ldr r5, =0x411A
+  sub r4, r4, r3
+  subs r0, r5, r4
+  blgt wait_realtime
 
   ldr r0, game_over
   cmp r0, #1         // while game_over == false
