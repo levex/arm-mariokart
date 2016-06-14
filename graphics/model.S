@@ -21,12 +21,14 @@ mvp_matrix:
 .float        0,        0,        -1,        15
 
 .balign 16
+.globl tmp_matrix
 tmp_matrix: .float 0, 0, 0, 0
             .float 0, 0, 0, 0
             .float 0, 0, 0, 0
             .float 0, 0, 0, 0
 
 .balign 16
+.globl tmp2_matrix
 tmp2_matrix: .float 0, 0, 0, 0
             .float 0, 0, 0, 0
             .float 0, 0, 0, 0
@@ -48,6 +50,14 @@ view_matrix: .float 1, 0, 0, 0
 
 .balign 16
 id_matrix: .float  1, 0, 0, 0
+            .float 0, 1, 0, 0
+            .float 0, 0, 1, 0
+            .float 0, 0, 0, 1
+
+.balign 16
+.globl translation_matrix_kart
+translation_matrix_kart:
+            .float 1, 0, 0, 0
             .float 0, 1, 0, 0
             .float 0, 0, 1, 0
             .float 0, 0, 0, 1
