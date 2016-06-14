@@ -22,8 +22,8 @@
 
 .macro process_logic
   bl player_move
-//  bl player_powerup_check_proximity
-//  bl player_powerup_check_expiry
+  bl player_powerup_check_proximity
+  bl player_powerup_check_expiry
 .endm
 
 .macro render_scene
@@ -117,7 +117,7 @@
   bl view_matrix_gen
 
   ldr r0, =view_matrix
-  bl print_matrix
+  //bl print_matrix
 
   /* calculate VP matrix */
   ldr r1, =projection_matrix
@@ -131,7 +131,7 @@
   ldr r3, =model_matrix
   bl get_translation_matrix
 
-  ldr r0, =road_data
+  ldr r0, =example_map
   bl model_display
 
 /* calculate model matrix for the kart and the camera*/
@@ -172,12 +172,28 @@
 
 .macro render_hud
   bl hud_clear
+
   /* Health */
   mov r0, #10
   ldr r1, =400
   mov r2, #color_red
   ldr r3, =health_str
   bl render_string
+
+  /* Health hearts */
+  mov r0, #55
+  mov r3, #2              // Heart character
+
+  ldr r5, =player_health  // Load player health
+  ldr r5, [r5]
+
+  mov r4, #0              // counter
+  2:
+  add r0, r0, #6          // x += 6
+  bl render_char          // Render 1 heart
+  add r4, r4, #1          // counter++
+  cmp r4, r5              // while (counter < health)
+  blt 2b
 
   /* Speed */
   mov r0, #10
@@ -192,49 +208,25 @@
   vmov.s32 r3, s0
   bl render_int
 
-  /* Score */
-  mov r0, #10
-  ldr r1, =440
-  ldr r3, =score_str
+  mov r0, #80
+  ldr r3, =speed_units_str
   bl render_string
 
-  mov r0, #95
-  ldr r4, =player_score
-  ldr r3, [r4]
-  bl render_int
-  add r3, r3, #1
-  str r3, [r4, #0]
-
-  /* Health hearts */
-  ldr r1, =400
-  mov r3, #2              // Heart character
-
-  ldr r5, =player_health  // Load player health
-  ldr r5, [r5]
-
-  mov r4, #0              // counter
-  hearts:
-  add r0, r0, #6          // x += 6
-  bl render_char          // Render 1 heart
-  add r4, r4, #1          // counter++
-  cmp r4, r5              // while (counter < health)
-  blt hearts
-
   /* Powerups */
-  mov r0, #400
+  mov r0, #10
   ldr r1, =440
-  ldr r3, =powerups_str
+  ldr r3, =powerup_str
   bl render_string
  
   ldr r3, =player_powerup
   ldr r3, [r3]
   mov r0, #1
   cmp r3, r0
-  bne 1f                 // if (player_powerup) {
-  ldr r0, =480
+  bne 1f                      // if (player_powerup) {
+  mov r0, #340
   mov r2, #color_red
-  mov r3, #1             //   render blue block character
-  bl render_char         // }
+  ldr r3, =powerup_speed_str  //   render powerup
+  bl render_string            // }
   1:
 .endm
 

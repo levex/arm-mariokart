@@ -10,15 +10,14 @@ player_powerup_time:  .word 0
 
 /* Position and movement */
 
-const_default_speed_limit:    .float 10
-const_powerup_speed_limit:    .float 20
+const_default_speed_limit:    .float 30
+const_powerup_speed_limit:    .float 60
 const_powerup_effective_time: .word  5000000  // 5 seconds
-const_powerup_pickup_radius:  .float 3        // 3 pixels
+const_powerup_pickup_radius:  .float 15        
 
-speed_limit:   .float 20
-acceleration:  .float 1
-turning_angle: .float 1
-leaning_angle: .float 6
+speed_limit:   .float 10
+acceleration:  .float 3
+turning_angle: .float 3
 max_angle:     .float 360
 
 .globl player_x, player_y, player_z, player_speed, player_angle
@@ -158,7 +157,15 @@ player_powerup_pickup:
   vldr.f32 s0, const_powerup_speed_limit  // Increase speed limit
   vstr.f32 s0, speed_limit
 
+
+
   bl time_stamp_get
+
+        push {r0-r12, lr}
+    bl uart_send_int_hex
+    bl uart_send_newline
+    pop {r0-r12, lr}
+
   str r0, player_powerup_time             // Store pick-up time
 
   pop {r0, pc}
@@ -192,7 +199,7 @@ player_powerup_check_proximity:
   ldr r0, [r0]
 
   ldr r2, =example_powerups                // address counter
-  vldr.f32 s5, const_powerup_pickup_radius // pickup radius
+  vldr.f32 s6, const_powerup_pickup_radius // pickup radius
 
   mov r1, #0
   1:
@@ -203,7 +210,8 @@ player_powerup_check_proximity:
     vldr.f32 s3, player_z          //   s3 = player_z
 
     bl distance                 //   s4 = distance between player and powerup
-    vcmp.f32 s4, s5                //   if (distance <= PICKUP_RADIUS) {
+
+    vcmp.f32 s4, s6                //   if (distance <= PICKUP_RADIUS) {
     fmstat                         //     player.pickupPowerup(); 
     blle player_powerup_pickup     //   }
     add r2, r2, #8                     //   increment address to check next powerup
