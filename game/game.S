@@ -30,10 +30,10 @@
   /* render skybox */
   mov r0, #0
   mov r1, #0
-  mov r3, #640
-  mov r4, #380
   ldr r2, =sky_pbmp
   add r2, r2, #8
+  mov r3, #640
+  mov r4, #380
   bl fb_copy_rect
 
   /* render map */
@@ -91,7 +91,7 @@
   bl get_rotation_y_matrix
 
   /* render kart */
-  ldr r0, =cube_data
+  ldr r0, =coffin_kart
   bl model_display
 
   bl render_frame

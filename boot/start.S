@@ -35,7 +35,6 @@ _start:
     // Start game
     b game_loop
 
-    // ideally do more stuff here
     bye:
         b bye
 
