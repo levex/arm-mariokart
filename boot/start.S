@@ -75,6 +75,9 @@ _start:
     // Setup VFP
     bl vfp_init
 
+    // Setup IVT
+    bl ivt_init
+
     // Setup UART
     bl uart_init
 

@@ -1,5 +1,26 @@
 .section ".data"
 
+.globl fault_reset_str, fault_undefined_str, fault_swi_str
+.globl fault_prefetch_abort_str, fault_data_abort_str, fault_reserved_str
+.globl fault_irq_str, fault_fiq_str
+
+.align
+fault_reset_str: .asciz "Reset fault happened\n"
+.align
+fault_undefined_str: .asciz "Undefined isntructionfault happened\n"
+.align
+fault_swi_str: .asciz "SWI fault happened\n"
+.align
+fault_prefetch_abort_str: .asciz "Prefetch abort fault happened\n"
+.align
+fault_data_abort_str: .asciz "Data abort fault happened\n"
+.align
+fault_reserved_str: .asciz "Reserved (WTF) fault happened\n"
+.align
+fault_irq_str: .asciz "IRQ fault happened\n"
+.align
+fault_fiq_str: .asciz "FIQ fault happened\n"
+
 .align
 .globl hello_str
 hello_str: .asciz "Hello, Lev!\n"
