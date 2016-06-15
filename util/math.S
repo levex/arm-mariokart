@@ -713,6 +713,9 @@ transform_triangle:
   vmov s27, r0
 
   sub r10, #2
+  cmp r10, #0
+  ble 4f
+
   ldr r11, =input_polygon
   vldm.s32 r1!, {s12 - s15}
 
