@@ -24,6 +24,7 @@
   bl player_move
   bl player_powerup_check_proximity
   bl player_powerup_check_expiry
+  bl enemy_progress
 .endm
 
 .macro render_scene
@@ -134,7 +135,7 @@
   ldr r0, =example_map
   bl model_display
 
-/* calculate model matrix for the kart and the camera*/
+  /* calculate model matrix for the kart and the camera*/
   /*rotation*/
   ldr r0, =kart_angle
   vldr.f32 s0, [r0]
@@ -166,6 +167,8 @@
 //  ldr r0, =coffin_kart
   ldr r0, =kart
   bl model_display
+
+  bl enemy_render
 
   bl render_frame
 .endm
