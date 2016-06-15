@@ -7,6 +7,7 @@ enemy_0:
   enemy_0_z: .float -30
   enemy_0_speed: .float 10.0
   enemy_0_tending: .word 0
+  enemy_0_rotation: .word 0
 
 .balign 16
 enemy_1:
@@ -59,6 +60,10 @@ enemy_progress_one:
     movge r2, #1
     strge r2, [r1, #16]
 
+    // rotation 0
+    mov r2, #0
+    str r2, [r1, #20]
+
     pop {pc}
   __part_one: // x += 5
     vldr.f32 s0, [r1, #0] // r3 = x
@@ -75,6 +80,10 @@ enemy_progress_one:
     fmstat
     movge r2, #2
     strge r2, [r1, #16]
+
+    // rotation: 90
+    mov r2, #90
+    str r2, [r1, #20]
 
     pop {pc}
   __part_two: // z -= 5
@@ -93,6 +102,10 @@ enemy_progress_one:
     movle r2, #3
     strle r2, [r1, #16]
 
+    // rotation: 180
+    mov r2, #180
+    str r2, [r1, #20]
+
     pop {pc}
   __part_three: // x -= 5
     vldr.f32 s0, [r1, #0] // r3 = x
@@ -109,6 +122,10 @@ enemy_progress_one:
     fmstat
     movle r2, #0
     strle r2, [r1, #16]
+
+    // rotation: 270
+    ldr r2, =270
+    str r2, [r1, #20]
 
     pop {pc}
 
@@ -136,8 +153,17 @@ enemy_render_one:
   ldr r0, [r4, #0]
   ldr r1, [r4, #4]
   ldr r2, [r4, #8]
-  ldr r3, =model_matrix
+  ldr r3, =tmp_matrix
   bl get_translation_matrix
+
+  ldr r0, [r4, #20]
+  ldr r1, =tmp2_matrix
+  bl get_rotation_y_matrix
+
+  ldr r0, =tmp2_matrix
+  ldr r1, =tmp_matrix
+  ldr r2, =model_matrix
+  bl mat4_mul_mat4
 
   ldr r0, =cube_data
   bl model_display
