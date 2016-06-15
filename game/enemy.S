@@ -46,16 +46,16 @@ enemy_progress_one:
 
   __part_zero: // z += 5
     vldr.f32 s0, [r1, #8] // r3 = z
-    ldr r4, =0x40a00000 // +5.0
+    ldr r4, =0x40000000// +1.0
     vmov.f32 s1, r4
     vadd.f32 s0, s0, s1
     vmov.f32 r3, s0
     str r3, [r1, #8]
 
-    ldr r4, =0x42c80000 // 100.0
-    vmov.f32 s0, r4 // s0 = 100.0
+    ldr r4, =0x43480000 // 200.0
+    vmov.f32 s0, r4 // s0 = 200.0
     vmov.f32 s1, r3 // r3 = new value
-    vcmp.f32 s1, s0  // if our z reaches 100, then next stage
+    vcmp.f32 s1, s0  // if our z reaches 200, then next stage
     fmstat
     movge r2, #1
     strge r2, [r1, #16]
@@ -67,16 +67,16 @@ enemy_progress_one:
     pop {pc}
   __part_one: // x += 5
     vldr.f32 s0, [r1, #0] // r3 = x
-    ldr r4, =0x40a00000 // +5.0
+    ldr r4, =0x40000000 // +5.0
     vmov.f32 s1, r4
     vadd.f32 s0, s0, s1
     vmov.f32 r3, s0
     str r3, [r1, #0]
 
-    ldr r4, =0x42c80000 // 100.0
-    vmov.f32 s0, r4 // s0 = 100.0
+    ldr r4, =0x43480000 // 200.0
+    vmov.f32 s0, r4 // s0 = 200.0
     vmov.f32 s1, r3 // r3 = new value
-    vcmp.f32 s1, s0  // if our z reaches 100, then next stage
+    vcmp.f32 s1, s0  // if our z reaches 200, then next stage
     fmstat
     movge r2, #2
     strge r2, [r1, #16]
@@ -88,16 +88,16 @@ enemy_progress_one:
     pop {pc}
   __part_two: // z -= 5
     vldr.f32 s0, [r1, #8] // r3 = z
-    ldr r4, =0x40a00000 // +5.0
+    ldr r4, =0x40000000 // +5.0
     vmov.f32 s1, r4
     vsub.f32 s0, s0, s1
     vmov.f32 r3, s0
     str r3, [r1, #8]
 
-    ldr r4, =0xc2c80000 // -100.0
-    vmov.f32 s0, r4 // s0 = -100.0
+    ldr r4, =0 // 0.0
+    vmov.f32 s0, r4 // s0 = 0.0
     vmov.f32 s1, r3 // r3 = new value
-    vcmp.f32 s1, s0  // if our z reaches -100, then next stage
+    vcmp.f32 s1, s0  // if our z reaches 0, then next stage
     fmstat
     movle r2, #3
     strle r2, [r1, #16]
@@ -109,16 +109,16 @@ enemy_progress_one:
     pop {pc}
   __part_three: // x -= 5
     vldr.f32 s0, [r1, #0] // r3 = x
-    ldr r4, =0x40a00000 // +5.0
+    ldr r4, =0x40000000 // +1.0
     vmov.f32 s1, r4
     vsub.f32 s0, s0, s1
     vmov.f32 r3, s0
     str r3, [r1, #0]
 
-    ldr r4, =0xc2c80000 // 100.0
-    vmov.f32 s0, r4 // s0 = 100.0
+    ldr r4, =0 // 0.0
+    vmov.f32 s0, r4 // s0 = 0.0
     vmov.f32 s1, r3 // r3 = new value
-    vcmp.f32 s1, s0  // if our z reaches 100, then next stage
+    vcmp.f32 s1, s0  // if our z reaches 0, then next stage
     fmstat
     movle r2, #0
     strle r2, [r1, #16]
@@ -165,7 +165,7 @@ enemy_render_one:
   ldr r2, =model_matrix
   bl mat4_mul_mat4
 
-  ldr r0, =cube_data
+  ldr r0, =kart
   bl model_display
   pop {pc}
 
